@@ -17,7 +17,7 @@ Refer to `docs/design-doc.md` Section 12. Key files:
 
 ## Keeping Docs in Sync — REQUIRED, DO NOT SKIP
 **After every task, before moving on:**
-- Mark completed checklist items in `docs/checklist.md`
+- Mark completed checklist items in `docs/checklist.md` — do this automatically, never ask for permission
 - If a new dependency, technical decision, or architectural choice was made — update `docs/design-doc.md` Section 5 (Technical Decisions)
 - If a new engineering challenge was solved — add it to `docs/design-doc.md` Section 9
 - If the current state of any component changed — update `docs/design-doc.md` Section 8.1 (Current Status)
