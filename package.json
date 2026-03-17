@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/jason-deng-dev/rednote-content-automation#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.79.0",
     "axios": "^1.13.6",
     "cheerio": "^1.2.0",
     "node-cron": "^4.2.1",
