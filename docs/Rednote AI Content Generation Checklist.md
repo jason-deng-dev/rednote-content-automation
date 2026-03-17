@@ -1,0 +1,26 @@
+- [ ]  Setup
+    - [ ]  Initialize repo
+    - [ ]  Set up Node.js project (npm init)
+    - [ ]  Install dependencies (axios, node-cron, playwright, @anthropic-ai/sdk)
+    - [ ]  Set up .env (Anthropic API key)
+    - [ ]  Set up .gitignore
+- [ ]  Build races.json data source
+    - [ ]  Connect to marathon-hub-race-scraper races.json
+    - [ ]  Validate schema
+- [ ]  Build post generator with Claude API
+    - [ ]  MOXI persona system prompt
+    - [ ]  Post type rotation logic (7-day schedule)
+    - [ ]  Race context injection
+- [ ]  Build formatter.js
+    - [ ]  XHS format validation
+    - [ ]  CTA injection per post type
+    - [ ]  Output post object
+- [ ]  Test generation across all post types
+- [ ]  Build publisher.js (Playwright)
+    - [ ]  Post body
+    - [ ]  Post comment with CTA URL
+- [ ]  Wire post_history.json dedup
+- [ ]  Wire full daily cron
+- [ ]  Deploy
+
+---
