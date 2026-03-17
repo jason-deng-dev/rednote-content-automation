@@ -18,10 +18,12 @@ async function populateRaces(limit) {
 		// scrape page for races
 		const $ = cheerio.load(res.data);
 		const cards = [...$('.event-title a')].slice(0, 1);
-		
 
 		for (const el of cards) {
-            let date, location, entryPeriod, website;
+			let date, location, entryPeriod, website;
+			let entryStart = '';
+			let entryEnd = '';
+
 			const url = 'https://runjapan.jp' + $(el).attr('href');
 			const name = $(el).children('span').text().trim();
 
@@ -42,8 +44,9 @@ async function populateRaces(limit) {
 				if (label === 'Web Site') website = value;
 			});
 
-
-			const [entryStart, entryEnd] = entryPeriod.replace(/\s+/g, ' ').trim().split(' - ');
+			if (entryPeriod) {
+				[entryStart, entryEnd] = entryPeriod.replace(/\s+/g, ' ').trim().split(' - ');
+			}
 			races.push({ name, url, date, location, entryStart, entryEnd, website });
 		}
 
