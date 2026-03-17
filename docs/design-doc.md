@@ -413,12 +413,13 @@ POST https://api.anthropic.com/v1/messages
 
 |Component|Status|Notes|
 |---|---|---|
-|rednote-post-generator.js|🔧 Partial|Template shuffler only — needs full rebuild with Claude API|
-|races.json data source|🔧 Partial|Cron broken, only 5 races, weak description parsing|
-|Claude API integration|❌ Not started|Core of the rebuild|
-|XHS formatter|❌ Not started|Format rules defined, not yet a module|
-|Browser automation publisher|❌ Not started|Base64 tested but needs Playwright rebuild|
+|scraper.js|❌ Not started|File does not exist yet|
+|races.json|❌ Not started|No data file yet|
+|rednote-post-generator.js|❌ Not started|File does not exist yet|
+|formatter.js|❌ Not started|File does not exist yet|
+|publisher.js|❌ Not started|File does not exist yet|
 |Cron orchestration|❌ Not started|End-to-end pipeline not wired|
+|Node.js project setup|✅ Done|npm init, node-cron + playwright installed, .gitignore + .env.example in place|
 |Manually written posts|✅ Baseline complete|115 posts — performance data extracted and analyzed|
 
 ### 8.2 Phase 1 — Core Generator (Priority: Ship before May 20)
