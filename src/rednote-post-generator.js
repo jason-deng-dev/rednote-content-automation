@@ -12,16 +12,31 @@ async function generatePosts(amount, type) {
 	let raceContext = prompts.postTypes.raceGuide;
 	let trainingContext = prompts.postTypes.training;
 	let nutritionSupplementContext = prompts.postTypes.nutritionSupplement;
+	let contextToUse;
+	switch (type) {
+		case 'race':
+			contextToUse = raceContext;
+			break;
+		case 'training':
+			contextToUse = trainingContext;
+			break;
+		case 'nutritionSupplement':
+			contextToUse = nutritionSupplementContext;
+			break;
+		default:
+			throw new Error('Incorrect type used');
+	}
 
-    // generate type 
-
-
+	// generate type
 
 	const message = await client.messages.create({
 		max_tokens: 1024,
-		messages: [{ role: 'user', content: 'Hello, Claude' }],
-		model: 'claude-opus-4-6',
+		system: systemPrompt,
+		messages: [{ role: 'user', content: contextToUse }],
+		model: 'claude-sonnet-4-6',
 	});
 
 	console.log(message.content);
 }
+
+generatePosts(1, 'race')
