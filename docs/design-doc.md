@@ -194,7 +194,7 @@ Only **7 Nutrition posts** have been published vs **48 Race Guide posts**. Yet N
 DATA  →  GENERATE  →  FORMAT  →  PUBLISH
 ```
 
-- **Stage 1 — DATA:** Race scraper pulls upcoming Japanese marathon data into `races.json` daily via cron
+- **Stage 1 — DATA:** Race scraper pulls all upcoming Japanese marathon data into `races.json` weekly via cron
 - **Stage 2 — GENERATE:** Claude API receives race context + system prompt → produces complete XHS post in Chinese
 - **Stage 3 — FORMAT:** Formatter applies XHS rules: multi-page structure, emoji density, CTA, comment link
 - **Stage 4 — PUBLISH:** Browser automation posts to MOXI爱跑步 XHS account
@@ -206,8 +206,10 @@ DATA  →  GENERATE  →  FORMAT  →  PUBLISH
 - Two-pass scrape: fetch listing page → extract race links → fetch each detail page
 - Pass 1: GET `runjapan.jp` homepage, use cheerio to find all race card links (each contains a `raceId` param e.g. `raceId=E335908`)
 - Pass 2: For each race link, GET the detail page and extract structured data via regex
-- Writes output to `data/races.json`
-- Controlled via `.env`: `RUNJAPAN_BASE_URL`, `RUNJAPAN_TIMEOUT`, `RUNJAPAN_RACES_LIMIT`
+- Scrapes all ~60 upcoming races (RunJapan only shows upcoming events, no date filtering needed)
+- Fully replaces `data/races.json` on each run
+- Runs weekly via cron — race listings don't change fast enough to warrant daily scraping
+- Controlled via `.env`: `RUNJAPAN_BASE_URL`, `RUNJAPAN_TIMEOUT`
 
 #### rednote-post-generator.js (core)
 
@@ -230,7 +232,8 @@ DATA  →  GENERATE  →  FORMAT  →  PUBLISH
 
 #### Cron orchestrator
 
-- Single daily cron: scrape → generate → format → publish
+- Weekly cron: scrape → update `races.json`
+- Daily cron: generate → format → publish
 - Logs each stage to `pipeline.log`
 - Flags failures for manual review
 
