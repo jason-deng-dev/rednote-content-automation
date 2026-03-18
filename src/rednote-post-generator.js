@@ -2,20 +2,23 @@ import 'dotenv/config';
 import fs from 'fs';
 import Anthropic from '@anthropic-ai/sdk';
 
+const prompts = JSON.parse(fs.readFileSync('./config/prompts.json', 'utf-8'));
+
 async function generatePosts(amount, type) {
 	const client = new Anthropic({
 		apiKey: process.env['ANTHROPIC_API_KEY'],
 	});
-
-	const prompts = JSON.parse(fs.readFileSync('./config/prompts.json', 'utf-8'));
 	let systemPrompt = prompts.systemPrompt;
 	let raceContext = prompts.postTypes.raceGuide;
 	let trainingContext = prompts.postTypes.training;
 	let nutritionSupplementContext = prompts.postTypes.nutritionSupplement;
 	let contextToUse;
+	let raceInfo;
+
 	switch (type) {
 		case 'race':
 			contextToUse = raceContext;
+			raceInfo = await chooseRace();
 			break;
 		case 'training':
 			contextToUse = trainingContext;
@@ -28,7 +31,6 @@ async function generatePosts(amount, type) {
 	}
 
 	// generate type
-
 	const message = await client.messages.create({
 		max_tokens: 1024,
 		system: systemPrompt,
@@ -39,4 +41,26 @@ async function generatePosts(amount, type) {
 	console.log(message.content);
 }
 
-generatePosts(1, 'race')
+async function chooseRace() {
+	const races = JSON.parse(fs.readFileSync('./data/races.json', 'utf-8'));
+	const post_history = JSON.parse(fs.readFileSync('./data/post_history.json', 'utf-8'));
+	// filter races that are in post_history
+	// get all the race titles into a single str seperate by something like ###
+	// tell api to choose which of the races to choose
+	// add prompt to prompts.json as systemRacePrompt
+	// add context to prompts.json as contextChooseRace
+	let systemRacePrompt = prompts.systemRacePrompt;
+	let contextChooseRace = prompts.contextChooseRace;
+
+	const raceSelection = await client.messages.create({
+		max_tokens: 1024,
+		system: systemRacePrompt,
+		messages: [{ role: 'user', content: contextChooseRace }],
+		model: 'claude-sonnet-4-6',
+	});
+
+	const raceChosen = raceSelection.content[0].text;
+
+	return races.find((race) => race.name === raceChosen);
+}
+generatePosts(1, 'race');
