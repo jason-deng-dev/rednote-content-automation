@@ -267,6 +267,7 @@ XHS / Xiaohongshu (MOXI爱跑步 account)
 |Language|Node.js / JavaScript|Python|Consistent with rest of stack; no context switching|
 |HTTP requests (scraper)|axios|node-fetch, native fetch|More reliable for scraping; better error handling and timeout support|
 |HTML parsing (scraper)|cheerio|jsdom, regex|Lightweight jQuery-style API; purpose-built for server-side HTML parsing|
+|Prompt storage|`config/prompts.json`|Hardcoded in JS, `.env`|Separates tunable content (persona, templates) from pipeline logic; employer can adjust prompts without touching code|
 |Deployment / handoff|Docker + docker-compose|Manual server setup, PM2|Ensures consistent runtime environment across machines; Playwright browser binaries are notoriously environment-sensitive; allows non-technical handoff with a single `docker-compose up`|
 
 ---
@@ -564,6 +565,8 @@ rednote-content-automation/
     │   ├── rednote-post-generator.js   # Core — Claude API integration
     │   ├── formatter.js                # XHS format validation + CTA injection
     │   └── publisher.js                # Playwright browser automation
+    ├── config/
+    │   └── prompts.json                # System prompt, post-type context templates — tunable without touching code
     ├── data/
     │   ├── races.json                  # Scraped race data output
     │   ├── post_history.json           # Recent topics log for dedup
