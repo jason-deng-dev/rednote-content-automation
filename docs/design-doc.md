@@ -403,8 +403,8 @@ POST https://api.anthropic.com/v1/messages
   "post_type": "race_guide",
   "title": "东京马拉松攻略来了🏃｜中国跑者怎么报名？",
   "body": "...(XHS formatted Chinese text)...",
-  "comment_url": "https://running.moximoxi.net/races/tokyo-marathon",
-  "hashtags": ["#日本马拉松", "#东京马拉松", "#中国跑者", "#海外马拉松", "#moxi爱跑步"],
+  "comment": "想了解更多日本马拉松信息？点击主页链接👇 running.moximoxi.net",
+  "description": "东京马拉松报名攻略，中国跑者必看！#日本马拉松 #东京马拉松 #中国跑者 #海外马拉松 #moxi爱跑步",
   "generated_at": "2026-03-17T06:00:00Z"
 }
 ```
@@ -417,8 +417,8 @@ POST https://api.anthropic.com/v1/messages
 
 |Component|Status|Notes|
 |---|---|---|
-|scraper.js|❌ Not started|File does not exist yet|
-|races.json|❌ Not started|No data file yet|
+|scraper.js|✅ Complete|Two-pass scrape (listing → detail pages); writes to data/races.json|
+|races.json|✅ Populated|Full schema: name, url, date, location, entryStart/End, website, images, description, info, notice, registrationOpen, registrationUrl|
 |rednote-post-generator.js|❌ Not started|File does not exist yet|
 |formatter.js|❌ Not started|File does not exist yet|
 |publisher.js|❌ Not started|File does not exist yet|
@@ -495,9 +495,9 @@ POST https://api.anthropic.com/v1/messages
 
 ## 10. Future Extensions
 
-### 10.1 Performance Feedback Loop
+### 10.1 Performance Feedback Loop (Planned)
 
-Once posts are publishing consistently, scrape engagement metrics (likes, saves, comments) and feed them back into the prompt weighting. This turns the static data analysis in Section 3 into a continuously updating feedback loop.
+Once posts are publishing consistently, pull weekly XHS engagement data (likes, saves, comments per post type) and use it to update the content strategy context fed to the generator. This turns the static manual analysis in Section 3 into a continuously updating feedback loop — post types that are performing well get weighted higher in the rotation, underperformers get deprioritized or their prompts revised.
 
 ### 10.2 New Content Pillars (Expansion Candidates)
 

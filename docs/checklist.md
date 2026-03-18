@@ -6,11 +6,11 @@
     - [x]  Install @anthropic-ai/sdk
     - [x]  Set up .env (Anthropic API key)
     - [x]  Set up .gitignore
-- [ ]  Build scraper.js (self-contained RunJapan scraper)
-    - [ ]  Fetch race listings from RunJapan
-    - [ ]  Parse and normalize race data
-    - [ ]  Write to races.json
-    - [ ]  Validate schema
+- [x]  Build scraper.js (self-contained RunJapan scraper)
+    - [x]  Fetch race listings from RunJapan
+    - [x]  Parse and normalize race data
+    - [x]  Write to races.json
+    - [x]  Validate schema
 - [ ]  Build post generator with Claude API
     - [ ]  MOXI persona system prompt
     - [ ]  Post type rotation logic (7-day schedule)
