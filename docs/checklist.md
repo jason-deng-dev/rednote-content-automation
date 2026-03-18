@@ -26,6 +26,10 @@
 - [ ]  Wire post_history.json dedup
 - [ ]  Wire full daily cron
 - [ ]  Deploy
+    - [ ]  Write Dockerfile
+    - [ ]  Write docker-compose.yml
+    - [ ]  Test container locally
+    - [ ]  Hand off to employer
 - [ ]  Build demo page
     - [ ]  Generate one post per category and save to demo/posts/
     - [ ]  Build demo/index.html with XHS-style post previews
