@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch",
-    "devScraper": "node --watch src/scraper.js"
+    "devScraper": "node --watch src/scraper.js",
+    "devPostGen" : "node --watch src/rednote-post-generator.js"
   },
   "repository": {
     "type": "git",
