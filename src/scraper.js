@@ -130,4 +130,3 @@ async function populateRaces(limit) {
 	return races;
 }
 
-populateRaces(5)
