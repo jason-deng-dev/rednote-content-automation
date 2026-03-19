@@ -3,11 +3,11 @@ import fs from 'fs';
 import Anthropic from '@anthropic-ai/sdk';
 
 const prompts = JSON.parse(fs.readFileSync('./config/prompts.json', 'utf-8'));
+const client = new Anthropic({
+	apiKey: process.env['ANTHROPIC_API_KEY'],
+});
 
 async function generatePosts(amount, type) {
-	const client = new Anthropic({
-		apiKey: process.env['ANTHROPIC_API_KEY'],
-	});
 	let systemPrompt = prompts.systemPrompt;
 	let raceContext = prompts.postTypes.raceGuide;
 	let trainingContext = prompts.postTypes.training;
@@ -45,31 +45,30 @@ async function chooseRace() {
 	const races = JSON.parse(fs.readFileSync('./data/races.json', 'utf-8'));
 	let raceStr = '';
 	for (const race of races.races) {
-		
-		raceStr += race.name + '|||'
+		raceStr += race.name + '|||';
 	}
-	console.log(raceStr)
-
 	// const post_history = JSON.parse(fs.readFileSync('./data/post_history.json', 'utf-8'));
 	// filter races that are in post_history
 
 	let systemRaceSelectionPrompt = prompts.systemRaceSelectionPrompt;
-	let contextChooseRace = prompts.contextRaceSelection;
+	let systemRaceSelectionPromptTest = prompts.systemRaceSelectionPromptTest;
+	let contextChooseRace = prompts.contextRaceSelection + raceStr;
 
-	console.log('System Prompt: '+ systemRaceSelectionPrompt)
-	console.log('Race Context: ' + contextChooseRace)
+	console.log('System Prompt: ' + systemRaceSelectionPromptTest);
+	console.log('Race Context: ' + contextChooseRace);
 
-	// const raceSelection = await client.messages.create({
-	// 	max_tokens: 1024,
-	// 	system: systemRacePrompt,
-	// 	messages: [{ role: 'user', content: contextChooseRace }],
-	// 	model: 'claude-sonnet-4-6',
-	// });
+	const raceSelection = await client.messages.create({
+		max_tokens: 1024,
+		system: systemRaceSelectionPrompt,
+		messages: [{ role: 'user', content: contextChooseRace }],
+		model: 'claude-sonnet-4-6',
+	});
+
+	console.log(raceSelection)
 
 	// const raceChosen = raceSelection.content[0].text;
 
 	// return races.find((race) => race.name === raceChosen);
 }
 
-chooseRace()
-
+chooseRace();
