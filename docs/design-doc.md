@@ -383,6 +383,70 @@ Use a counterintuitive hook or X vs Y comparison format in the title.
 CTA should direct readers to /mara-prep-tools/.
 ```
 
+### 6.5 Race Selection — Two-Stage API Call
+
+When the post type is Race Guide, `chooseRace()` makes a preliminary Claude API call before the main generation call. Rather than picking a race randomly or round-robin, the model acts as a content strategist and selects the race with the highest post-performance potential from the full `races.json` list.
+
+**Why a separate API call:**
+The race choice directly determines the post's ceiling. A famous, high-intent race (富士山, 東京) has 10x the discoverability of an obscure regional event. Delegating this decision to the model — with explicit selection criteria — produces better picks than any static heuristic.
+
+**System prompt — `systemRaceSelectionPrompt` (production):**
+
+```
+You are a content strategist for a Chinese running account focused on Japanese marathons.
+
+Your job is to select ONE race from a provided list that has the highest potential
+to perform well as a Rednote (Xiaohongshu) post.
+
+Audience context:
+- Chinese runners living in China
+- Interested in traveling to Japan for races
+- Care about cost-performance, uniqueness, and experience
+
+Selection criteria (VERY IMPORTANT):
+1. High search intent (famous names like 东京, 大阪, 富士山)
+2. Strong differentiation (scenic, unique experience, difficult entry, special concept)
+3. Travel appeal (worth flying to Japan for)
+4. Content potential (supports comparison, storytelling, or a strong hook)
+5. Avoid obscure races unless they have a VERY strong unique angle
+
+Output rules:
+- Return ONLY the selected race name
+- Do NOT explain your reasoning
+- Do NOT include extra text
+```
+
+**Context message — `contextRaceSelection`:**
+
+All race names from `races.json` are joined with `|||` as a delimiter and appended to this message:
+
+```
+Select the best race for a high-performing post — return the marathon name only.
+Here is the list of races, separated by |||: [race1]|||[race2]|||...
+```
+
+**max_tokens:** 100 in production — the response is a single race name, nothing more.
+
+**Test variant — `systemRaceSelectionPromptTest`:**
+
+Identical selection criteria, but the output rule asks for a full reasoning breakdown instead of just the race name. Used during development to validate that the model's decision logic aligns with content strategy goals. Not used in production.
+
+**Validated example response (test run, March 2026):**
+
+> **The 5th Mt. Fuji Sanroku Women's Trail Run**
+>
+> **1. Search Intent:** 富士山 is the single highest-value keyword for Chinese audiences in the Japan travel + running space. The name alone stops the scroll.
+>
+> **2. Differentiation:** The women-only angle creates immediate identity resonance with a large and growing segment of Rednote's core demographic (women aged 25–35 who run). Women-only races in Japan are rare — that's storytelling gold.
+>
+> **3. Travel Appeal:** Mt. Fuji + trail run = a complete Japan trip narrative. Chinese runners can frame it as "running at the foot of Fuji" — aspirational and photogenic.
+>
+> **4. Content Potential:** Hook writes itself: *"在富士山脚下，和一群女生一起跑步是什么体验？"* Supports packing guides, costume content, and squad travel framing — perfect for XHS's social format.
+>
+> **Why not the others:** Tohoku Food Marathon, Higashine Sakuranbo — niche, low name recognition. Sado, Rishiri, Echigo — too obscure geographically. Okinawa Ekiden — relay format limits individual runner identification.
+
+This response confirms the selection criteria are working as intended. The 富士山 keyword signal, women-only differentiation angle, and XHS-native hook are all exactly what the content strategy targets.
+
 ---
 
 ## 7. API & Data Design
@@ -392,7 +456,7 @@ CTA should direct readers to /mara-prep-tools/.
 ```json
 POST https://api.anthropic.com/v1/messages
 {
-  "model": "claude-sonnet-4-20250514",
+  "model": "claude-sonnet-4-6",
   "max_tokens": 1000,
   "system": "<MOXI persona + audience framing + format rules + title rules>",
   "messages": [{
@@ -447,7 +511,7 @@ POST https://api.anthropic.com/v1/messages
 |Node.js project setup|✅ Done|npm init, node-cron + playwright installed, .gitignore + .env.example in place|
 |scraper.js|✅ Done|Two-pass scrape (listing → detail pages); writes to data/races.json|
 |races.json|✅ Populated|Full schema: name, url, date, location, entryStart/End, website, images, description, info, notice, registrationOpen, registrationUrl|
-|rednote-post-generator.js|🔄 In progress|File does not exist yet|
+|rednote-post-generator.js|🔄 In progress|Race selection API call working; prompts wired from prompts.json; post generation and return logic still in progress|
 |formatter.js|❌ Not started|File does not exist yet|
 |publisher.js|❌ Not started|File does not exist yet|
 |Cron orchestration|❌ Not started|End-to-end pipeline not wired|
@@ -512,7 +576,15 @@ POST https://api.anthropic.com/v1/messages
 
 **Solution:** Data-weighted 7-day rotation ensures topic variety. `post_history.json` tracks recent topics and race names, injected into each prompt as "do not repeat these this week." Live race data ensures race-specific posts are always anchored to different upcoming events.
 
-### 9.5 Links in Comments, Not Post Body
+### 9.5 Race Selection: Content-Aware vs. Static Rotation
+
+**Challenge:** Picking which race to write about for a Race Guide post is a content decision, not just a data decision. A random or round-robin approach would regularly surface obscure regional races with low search intent — posts that would underperform regardless of post quality.
+
+**Solution:** Two-stage API call. Before generating the post, `chooseRace()` sends a separate Claude call with a content strategist persona and explicit selection criteria (search intent, differentiation, travel appeal, content potential). The model returns a single race name, which is then used to inject the correct race context into the main generation call. This delegates the curation decision to the model rather than hardcoding heuristics.
+
+**Tradeoff:** An extra API call per Race Guide post (~433 input tokens at $3/M = ~$0.001). Cost is negligible; the quality improvement justifies it.
+
+### 9.6 Links in Comments, Not Post Body
 
 **Challenge:** XHS does not allow clickable links in post body text.
 

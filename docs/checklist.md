@@ -1,40 +1,41 @@
-- [x]  Setup
-    - [x]  Initialize repo
-    - [x]  Set up Node.js project (npm init)
-    - [x]  Install dependencies (node-cron, playwright)
-    - [x]  Install scraper dependencies (axios, cheerio)
-    - [x]  Install @anthropic-ai/sdk
-    - [x]  Set up .env (Anthropic API key)
-    - [x]  Set up .gitignore
-- [x]  Build scraper.js (self-contained RunJapan scraper)
-    - [x]  Fetch race listings from RunJapan
-    - [x]  Parse and normalize race data
-    - [x]  Write to races.json
-- [ ]  Build post generator with Claude API
-    - [x]  system prompt/context prompt template setup
-    - [x]  Make api call with context and get response 
-    - [ ]  Update context prompt with relevent info at runtime
-        - [ ] If race post, make api call with all marathons and ask which one to use
-    - [ ]  Post type rotation logic (7-day schedule)
-    - [ ]  Simulate 7-day schedule and verify content of generated post
-- [ ]  Build formatter.js
-    - [ ]  XHS format validation
-    - [ ]  CTA injection per post type
-    - [ ]  Output post object
-- [ ]  Test generation across all post types
-- [ ]  Build publisher.js (Playwright)
-    - [ ]  Post body
-    - [ ]  Post comment with CTA URL
-- [ ]  Wire post_history.json dedup
-- [ ]  Wire full daily cron
-- [ ]  Deploy
-    - [ ]  Write Dockerfile
-    - [ ]  Write docker-compose.yml
-    - [ ]  Test container locally
-    - [ ]  Hand off to employer
-- [ ]  Build demo page
-    - [ ]  Generate one post per category and save to demo/posts/
-    - [ ]  Build demo/index.html with XHS-style post previews
-    - [ ]  Deploy demo page
+- [x] Setup
+  - [x] Initialize repo
+  - [x] Set up Node.js project (npm init)
+  - [x] Install dependencies (node-cron, playwright)
+  - [x] Install scraper dependencies (axios, cheerio)
+  - [x] Install @anthropic-ai/sdk
+  - [x] Set up .env (Anthropic API key)
+  - [x] Set up .gitignore
+- [x] Build scraper.js (self-contained RunJapan scraper)
+  - [x] Fetch race listings from RunJapan
+  - [x] Parse and normalize race data
+  - [x] Write to races.json
+- [ ] Build post generator with Claude API
+  - [x] system prompt/context prompt template setup
+  - [x] Make api call with context and get response
+  - [ ] Update context prompt with relevent info at runtime
+    - [x] If race post, make api call with all marathons and ask which one to use
+  - [x] update design doc for new prompts / responses / explanation prompt selection
+  - [ ] Post type rotation logic (7-day schedule)
+  - [ ] Simulate 7-day schedule and verify content of generated post
+- [ ] Build formatter.js
+  - [ ] XHS format validation
+  - [ ] CTA injection per post type
+  - [ ] Output post object
+- [ ] Test generation across all post types
+- [ ] Build publisher.js (Playwright)
+  - [ ] Post body
+  - [ ] Post comment with CTA URL
+- [ ] Wire post_history.json dedup
+- [ ] Wire full daily cron
+- [ ] Deploy
+  - [ ] Write Dockerfile
+  - [ ] Write docker-compose.yml
+  - [ ] Test container locally
+  - [ ] Hand off to employer
+- [ ] Build demo page
+  - [ ] Generate one post per category and save to demo/posts/
+  - [ ] Build demo/index.html with XHS-style post previews
+  - [ ] Deploy demo page
 
 ---
