@@ -17,6 +17,8 @@
     - [x] If race post, make api call with all marathons and ask which one to use
   - [x] update design doc for new prompts / responses / explanation prompt selection
   - [ ] Post type rotation logic (7-day schedule)
+    - [ ] When a marathon is used it is added to post_history.json
+    - [ ] When selecting a marathon filter out marathons in post_history.json
   - [ ] Simulate 7-day schedule and verify content of generated post
 - [ ] Build formatter.js
   - [ ] XHS format validation
