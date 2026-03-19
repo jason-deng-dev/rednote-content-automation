@@ -12,22 +12,35 @@
   - [x] Write to races.json
 - [ ] Build post generator with Claude API
   - [x] system prompt/context prompt template setup
+  - [x] Specify JSON output format in system prompt (body + description only)
   - [x] Make api call with context and get response
+  - [x] chooseRace() working — race selection API call complete, returns race name
+  - [x] Add chooseRaceMock() for testing without burning API calls
   - [ ] Update context prompt with relevent info at runtime
     - [x] If race post, make api call with all marathons and ask which one to use
-  - [x] update design doc for new prompts / responses / explanation prompt selection
+    - [x] Inject race fields into raceGuide context at runtime
+    - [x] update design doc for new prompts / responses / explanation prompt selection
+    - [x] Move CTA out of system prompt — inject per post type as natural language description in generatePosts()
+    - [x] Add static comments array per post type (primary CTA + community CTA)
+    - [ ] Add current month injection to all post type prompts
+    - [ ] Add seasonal content guidance to all post type prompts (training/nutrition/wearables)
+    - [ ] Add wearables/equipment post type context prompt to prompts.json
+    - [ ] Define hardcoded hashtags per post type (including wearables)
   - [ ] Post type rotation logic (7-day schedule)
+    - [ ] Add wearables/equipment to post type rotation (7-day schedule)
     - [ ] When a marathon is used it is added to post_history.json
     - [ ] When selecting a marathon filter out marathons in post_history.json
   - [ ] Simulate 7-day schedule and verify content of generated post
 - [ ] Build formatter.js
   - [ ] XHS format validation
-  - [ ] CTA injection per post type
-  - [ ] Output post object
+  - [ ] Parse Claude JSON output (body + description)
+  - [ ] Append hardcoded hashtags to description
+  - [ ] Inject CTA URL and community URL into comments array
+  - [ ] Output final post object
 - [ ] Test generation across all post types
 - [ ] Build publisher.js (Playwright)
-  - [ ] Post body
-  - [ ] Post comment with CTA URL
+  - [ ] Post body + description
+  - [ ] Post comments array sequentially (primary CTA first, community second)
 - [ ] Wire post_history.json dedup
 - [ ] Wire full daily cron
 - [ ] Deploy
