@@ -11,9 +11,7 @@ const client = new Anthropic({
 async function generatePosts(type) {
 	const systemPrompt = prompts.systemPrompt;
 	let contextToUse;
-
 	let comments;
-
 	let ctaDescription;
 
 	switch (type) {
@@ -21,33 +19,48 @@ async function generatePosts(type) {
 			let raceContext = prompts.postTypes.raceGuide;
 			const raceChosen = await chooseRaceMock();
 			const race = races.races.find((item) => item.name === raceChosen);
-			const fields = ['name', 'date', 'location', 'entryStart', 'entryEnd', 'registrationOpen', 'registrationUrl', 'website', 'description'];
+			const fields = [
+				'name',
+				'date',
+				'location',
+				'entryStart',
+				'entryEnd',
+				'registrationOpen',
+				'registrationUrl',
+				'website',
+				'description',
+			];
 			for (const field of fields) {
 				raceContext = raceContext.replace(`race.${field}`, race[field]);
 			}
 			contextToUse = raceContext;
-			ctaDescription = 'our marathon hub where readers can find full race details, registration timelines, and sign-up links for Japanese marathons';
+			ctaDescription =
+				'our marathon hub where readers can find full race details, registration timelines, and sign-up links for Japanese marathons';
 			comments = [
-				'想了解更多关于这场比赛的详细信息和报名攻略？👇 {{CTA_URL}}',
-				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 {{COMMUNITY_URL}}',
+				'想了解更多关于这场比赛的详细信息和报名攻略？👇 https://running.moximoxi.net/racehub/',
+				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 https://running.moximoxi.net/community/',
 			];
 			break;
 		}
 		case 'training': {
 			contextToUse = prompts.postTypes.training;
-			ctaDescription = 'our marathon preparation tools suite, designed for Chinese runners training for Japanese races';
+			ctaDescription =
+				'our free marathon preparation toolkit — tools that help runners find their realistic marathon time range, convert their goal into a required pace, check whether their goal is achievable in the time they have, and track progress over a training build';
 			comments = [
-				'想了解更多训练技巧？👇 {{CTA_URL}}',
-				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 {{COMMUNITY_URL}}',
+				'🛠️ 免费工具：预测完赛时间范围、算出目标配速、检查训练计划可行性👇 https://running.moximoxi.net/mara-prep-tools/',
+				'📈 训练进度追踪工具——记录每次训练数据，看清自己的进步趋势👇 https://running.moximoxi.net/progress-trendline/',
+				'和其他备战日本马拉松的跑者交流备赛心得👇 https://running.moximoxi.net/community/',
 			];
+
 			break;
 		}
 		case 'nutritionSupplement': {
 			contextToUse = prompts.postTypes.nutritionSupplement;
-			ctaDescription = 'our online store offering authentic Japanese running nutrition and supplements, available for import to China';
+			ctaDescription =
+				'our online store offering authentic Japanese running nutrition and supplements, available for import to China';
 			comments = [
-				'想购买正品日本跑步营养品？👇 {{CTA_URL}}',
-				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 {{COMMUNITY_URL}}',
+				'想购买正品日本跑步营养品？👇 https://running.moximoxi.net/',
+				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 https://running.moximoxi.net/community/',
 			];
 			break;
 		}
@@ -65,7 +78,7 @@ async function generatePosts(type) {
 	});
 
 	console.log(message);
-	return message
+	return message;
 }
 
 async function chooseRace() {
