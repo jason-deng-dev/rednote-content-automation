@@ -22,9 +22,13 @@
     - [x] update design doc for new prompts / responses / explanation prompt selection
     - [x] Move CTA out of system prompt — inject per post type as natural language description in generatePosts()
     - [x] Add static comments array per post type (primary CTA + community CTA)
-    - [ ] Add current month injection to all post type prompts
-    - [ ] Add seasonal content guidance to all post type prompts (training/nutrition/wearables)
-    - [ ] Add wearables/equipment post type context prompt to prompts.json
+    - [x] Populate comments with real URLs for all post types (race, training, nutrition)
+    - [x] Training comments expanded to 3 (mara-prep-tools, progress-trendline, community)
+    - [x] Add season field to race guide prompt template
+    - [ ] Add current month injection to all post type prompts at runtime
+    - [ ] Add current season injection to race guide prompt at runtime
+    - [x] Add seasonal content guidance to training/nutrition post type prompts
+    - [x] Add wearables/equipment post type context prompt to prompts.json
     - [ ] Define hardcoded hashtags per post type (including wearables)
   - [ ] Post type rotation logic (7-day schedule)
     - [ ] Add wearables/equipment to post type rotation (7-day schedule)
@@ -35,7 +39,7 @@
   - [ ] XHS format validation
   - [ ] Parse Claude JSON output (body + description)
   - [ ] Append hardcoded hashtags to description
-  - [ ] Inject CTA URL and community URL into comments array
+  - [x] CTA URLs hardcoded per post type in comments array — no runtime injection needed
   - [ ] Output final post object
 - [ ] Test generation across all post types
 - [ ] Build publisher.js (Playwright)

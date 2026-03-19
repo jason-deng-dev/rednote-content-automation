@@ -59,14 +59,26 @@ async function generatePosts(type) {
 			ctaDescription =
 				'our online store offering authentic Japanese running nutrition and supplements, available for import to China';
 			comments = [
-				'想购买正品日本跑步营养品？👇 https://running.moximoxi.net/',
+				'想购买正品日本跑步营养品？👇  https://running.moximoxi.net/',
 				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 https://running.moximoxi.net/community/',
 			];
 			break;
 		}
+		case 'wearable': {
+			contextToUse = prompts.postTypes.wearables;
+			ctaDescription =
+				'our online store stocking a wide range of running products sourced directly from Japan — shoes, apparel, GPS watches, recovery gear, nutrition and supplements, and sportswear, all authentic Japanese products available for import to China';
+			comments = [
+				'正品日本跑步装备、营养品、运动服饰，日本本地直采👇 https://running.moximoxi.net/',
+				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 https://running.moximoxi.net/community/',
+			];
+			break
+		}
 		default:
 			throw new Error('Incorrect type used');
 	}
+
+	// inject month/season context
 
 	contextToUse += `\n\nCTA: Direct readers to ${ctaDescription}. Tell them the link is in the comments.`;
 
