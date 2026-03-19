@@ -10,11 +10,12 @@
     - [x]  Fetch race listings from RunJapan
     - [x]  Parse and normalize race data
     - [x]  Write to races.json
-    - [x]  Validate schema
 - [ ]  Build post generator with Claude API
-    - [ ]  MOXI persona system prompt
+    - [x]  system prompt/context prompt template setup
+    - [x]  Make api call with context and get response 
+    - [ ]  Update context prompt with relevent info at runtime
     - [ ]  Post type rotation logic (7-day schedule)
-    - [ ]  Race context injection
+    - [ ]  Simulate 7-day schedule and verify content of generated post
 - [ ]  Build formatter.js
     - [ ]  XHS format validation
     - [ ]  CTA injection per post type
