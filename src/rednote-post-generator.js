@@ -12,31 +12,50 @@ async function generatePosts(type) {
 	const systemPrompt = prompts.systemPrompt;
 	let contextToUse;
 
+	let comments;
+
+	let ctaDescription;
+
 	switch (type) {
-		case 'race':
+		case 'race': {
 			let raceContext = prompts.postTypes.raceGuide;
 			const raceChosen = await chooseRaceMock();
 			const race = races.races.find((item) => item.name === raceChosen);
-			// const { name, date, location, entryStart, entryEnd, registrationOpen, registrationUrl, website, description } =
-			// 	race;
-			const fields = ['name', 'date', 'location', 'entryStart', 'entryEnd', 'registrationOpen', 'registrationUrl', 'website', 'description']
+			const fields = ['name', 'date', 'location', 'entryStart', 'entryEnd', 'registrationOpen', 'registrationUrl', 'website', 'description'];
 			for (const field of fields) {
-				raceContext = raceContext.replace(`race.${field}`, race[field])
+				raceContext = raceContext.replace(`race.${field}`, race[field]);
 			}
 			contextToUse = raceContext;
+			ctaDescription = 'our marathon hub where readers can find full race details, registration timelines, and sign-up links for Japanese marathons';
+			comments = [
+				'想了解更多关于这场比赛的详细信息和报名攻略？👇 {{CTA_URL}}',
+				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 {{COMMUNITY_URL}}',
+			];
 			break;
-		case 'training':
-			const trainingContext = prompts.postTypes.training;
-			contextToUse = trainingContext;
+		}
+		case 'training': {
+			contextToUse = prompts.postTypes.training;
+			ctaDescription = 'our marathon preparation tools suite, designed for Chinese runners training for Japanese races';
+			comments = [
+				'想了解更多训练技巧？👇 {{CTA_URL}}',
+				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 {{COMMUNITY_URL}}',
+			];
 			break;
-		case 'nutritionSupplement':
-			const nutritionSupplementContext = prompts.postTypes.nutritionSupplement;
-
-			contextToUse = nutritionSupplementContext;
+		}
+		case 'nutritionSupplement': {
+			contextToUse = prompts.postTypes.nutritionSupplement;
+			ctaDescription = 'our online store offering authentic Japanese running nutrition and supplements, available for import to China';
+			comments = [
+				'想购买正品日本跑步营养品？👇 {{CTA_URL}}',
+				'加入我们的跑步社区，和其他计划去日本跑马的小伙伴一起交流👇 {{COMMUNITY_URL}}',
+			];
 			break;
+		}
 		default:
 			throw new Error('Incorrect type used');
 	}
+
+	contextToUse += `\n\nCTA: Direct readers to ${ctaDescription}. Tell them the link is in the comments.`;
 
 	const message = await client.messages.create({
 		max_tokens: 1024,
