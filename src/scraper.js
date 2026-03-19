@@ -10,7 +10,6 @@ async function populateRaces(limit) {
 	let pageIndex = 1;
 
 	const baseUrl = 'https://runjapan.jp/entry/runtes/smp/racesearchdetail.do';
-
 	while (races.length < limit) {
 		const pageUrl = pageIndex === 1
 			? baseUrl + '?command=search'
@@ -131,3 +130,4 @@ async function populateRaces(limit) {
 	return races;
 }
 
+populateRaces(5)
