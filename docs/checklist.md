@@ -14,6 +14,7 @@
     - [x]  system prompt/context prompt template setup
     - [x]  Make api call with context and get response 
     - [ ]  Update context prompt with relevent info at runtime
+        - [ ] If race post, make api call with all marathons and ask which one to use
     - [ ]  Post type rotation logic (7-day schedule)
     - [ ]  Simulate 7-day schedule and verify content of generated post
 - [ ]  Build formatter.js
