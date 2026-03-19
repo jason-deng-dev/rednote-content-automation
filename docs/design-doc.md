@@ -274,6 +274,8 @@ XHS / Xiaohongshu (MOXI爱跑步 account)
 |Prompt storage|`config/prompts.json`|Hardcoded in JS, `.env`|Separates tunable content (persona, templates) from pipeline logic; employer can adjust prompts without touching code|
 |CTA injection|Runtime code injection per post type|Hardcoded in system prompt|System prompt is sent on every API call — putting CTA targets there wastes tokens on context irrelevant to the current post type. Injecting a natural-language CTA description per type in `generatePosts()` keeps the system prompt lean and makes each call's context more precise. Claude also doesn't need to know actual URLs — those are hardcoded in the pipeline and injected after parsing.|
 |Deployment / handoff|Docker + docker-compose|Manual server setup, PM2|Ensures consistent runtime environment across machines; Playwright browser binaries are notoriously environment-sensitive; allows non-technical handoff with a single `docker-compose up`|
+|Test framework|Vitest|Jest|Better ESM support out of the box — project uses native `import` syntax which requires extra config in Jest. Vitest also runs faster and shares config with Vite if needed.|
+|API mocking in tests|Mock `@anthropic-ai/sdk` client|Real API calls in tests|Eliminates token cost on every test run, makes tests deterministic, and allows CI to run without a live API key.|
 
 ---
 
@@ -701,13 +703,75 @@ XHS enforces a **300-character limit per comment**. This is enforced in the prom
 
 ---
 
-## 10. Future Extensions
+## 10. Testing Strategy
 
-### 10.1 Performance Feedback Loop (Planned)
+### 10.1 Philosophy
+
+Tests are **black-box and sequential** — each test assumes the modules it depends on work correctly, and tests are scoped to the unit under test. The goal is to validate the pipeline's critical paths without coupling tests to implementation details.
+
+**Key design decision:** Any function that calls the Anthropic API is tested with a mock client that returns a pre-defined fixture. This eliminates token cost on every test run, keeps tests deterministic, and means CI can run without a live API key.
+
+### 10.2 Test Framework
+
+**Vitest** — chosen over Jest for native ESM support. The project uses `import` syntax throughout; Jest requires additional config to handle it. Vitest works out of the box and is faster.
+
+### 10.3 Folder Structure
+
+```
+tests/
+  fixtures/
+    sample-races.json        ← pre-scraped subset (10–15 races) used as controlled test input
+    mock-api-response.json   ← hardcoded Anthropic response with valid body + description fields
+  scraper.test.js
+  context-builder.test.js
+  generator.test.js
+```
+
+### 10.4 Test Coverage
+
+#### Scraper (`scraper.test.js`)
+
+The scraper is tested against live output — we can't guarantee which races appear, so tests validate shape and completeness, not exact content.
+
+- All required fields present on every race object (`name`, `date`, `location`, `entryStart`, `entryEnd`, `registrationOpen`, `registrationUrl`, `website`, `description`)
+- No `null` or `undefined` values on required fields
+- Minimum race count threshold (e.g. ≥ 30)
+- Date fields match expected format
+
+#### Context Builder (`context-builder.test.js`)
+
+Requires refactoring `generatePosts()` to extract a pure `buildContext(type, prompts, races, raceName)` function. Once extracted, it can be tested in isolation — no API calls, no mocks needed.
+
+- Given `'race'` type + mock race name → all race fields injected, no leftover `race.fieldName` placeholders
+- Given `'training'` type → correct prompt template selected, CTA appended
+- Given `'nutritionSupplement'` type → correct template + CTA
+- Given `'wearable'` type → correct wearables template + CTA
+- Given invalid type → throws
+
+#### Generator (`generator.test.js`)
+
+Mocks the Anthropic client. Uses `chooseRaceMock()` so no race selection API call fires.
+
+- `generatePosts('race')` calls the API with correct system prompt and context
+- API response is parsed and returned correctly (body + description accessible on the returned object)
+- Mock is called with the correct model and `max_tokens`
+
+### 10.5 Required Refactor
+
+Before `context-builder.test.js` is meaningful, `generatePosts()` must be split:
+
+1. `buildContext(type, prompts, races, raceName)` — pure function, returns `contextToUse` string. Testable without any API calls.
+2. `generatePosts(type)` — orchestrator: calls `buildContext`, then calls the Anthropic API.
+
+---
+
+## 11. Future Extensions
+
+### 11.1 Performance Feedback Loop (Planned)
 
 Once posts are publishing consistently, pull weekly XHS engagement data (likes, saves, comments per post type) and use it to update the content strategy context fed to the generator. This turns the static manual analysis in Section 3 into a continuously updating feedback loop — post types that are performing well get weighted higher in the rotation, underperformers get deprioritized or their prompts revised.
 
-### 10.2 New Content Pillars (Expansion Candidates)
+### 11.2 New Content Pillars (Expansion Candidates)
 
 The current four pillars cover the core. Future categories to test:
 
@@ -717,19 +781,19 @@ The current four pillars cover the core. Future categories to test:
 - **Gear Guides** — shoe and apparel recommendations for Japanese race conditions. Natural store CTA.
 - **Chinese Runner Japan FAQ** — common questions from Chinese runners about racing in Japan (entry, language, etiquette, logistics). High search intent from first-timers.
 
-### 10.3 Image Generation
+### 11.3 Image Generation
 
 XHS is a visual platform and text-only posts underperform posts with images. A future version could auto-generate race route graphics or product visuals and attach them via the publisher.
 
-### 10.4 Multi-Platform Expansion
+### 11.4 Multi-Platform Expansion
 
 The formatter and generator are platform-agnostic. The same pipeline could target WeChat Moments, Weibo, or a WordPress blog by swapping the formatter rules and publisher module.
 
-### 10.5 User-Generated Content Integration
+### 11.5 User-Generated Content Integration
 
 As the community grows, pull in user race reports or PB submissions and generate celebratory posts featuring real community members — increasing authenticity with zero additional research effort.
 
-### 10.6 Marathon Hub Deep Linking (Planned)
+### 11.6 Marathon Hub Deep Linking (Planned)
 
 Currently, Race Guide posts CTA to the general race listings page (`/races/`). Once the Marathon Hub project is deployed — a separate pipeline that scrapes RunJapan, normalises race data, and serves it through a React SPA — each Race Guide post will deep link to that specific marathon's dedicated hub page.
 
@@ -739,18 +803,17 @@ The data to build these deep links already exists in `races.json` (`registration
 
 ---
 
-## 11. Open Questions
+## 12. Open Questions
 
 - **Auto-publish reliability:** Is Playwright stable enough against XHS bot detection, or is semi-automated safer for v1?
 - **Post archiving:** Should generated posts be saved to `post_archive/` before publishing as a quality review record?
 - **Human review gate:** Should v1 include an optional manual review step before publishing, to validate Claude output quality before going fully autonomous?
 - ~~**Hashtag strategy:** Should hashtags be hardcoded per post type, generated by Claude, or pulled from a curated list?~~ **Resolved:** Hardcoded per post type, appended to `description` after parsing Claude's JSON output.
 - **Optimal posting time:** Data doesn't yet show time-of-day effects. Experiment with morning vs evening cadence once automated.
-- **Testing:** Add a `test/` folder with basic unit tests once the pipeline is stable — would strengthen the portfolio story and guard against regressions.
 
 ---
 
-## 12. Repository Structure
+## 13. Repository Structure
 
 ```
 rednote-content-automation/
@@ -773,6 +836,13 @@ rednote-content-automation/
     │       ├── training.json
     │       ├── nutrition.json
     │       └── health.json
+    ├── tests/
+    │   ├── fixtures/
+    │   │   ├── sample-races.json           # Pre-scraped race subset for controlled test input
+    │   │   └── mock-api-response.json      # Hardcoded Anthropic response fixture
+    │   ├── scraper.test.js                 # Validates scraper output shape and completeness
+    │   ├── context-builder.test.js         # Tests buildContext() in isolation (no API calls)
+    │   └── generator.test.js              # Tests generatePosts() with mocked Anthropic client
     ├── docs/
     ├── .env
     ├── .env.example

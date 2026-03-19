@@ -41,6 +41,14 @@
   - [ ] Append hardcoded hashtags to description
   - [x] CTA URLs hardcoded per post type in comments array — no runtime injection needed
   - [ ] Output final post object
+- [ ] Setup tests (Vitest)
+  - [ ] Install Vitest
+  - [ ] Create tests/ folder structure (fixtures/, scraper.test.js, context-builder.test.js, generator.test.js)
+  - [ ] Create sample-races.json and mock-api-response.json fixtures
+  - [ ] Refactor generatePosts() — extract buildContext() as pure testable function
+  - [ ] scraper.test.js — validate output shape, required fields, minimum race count
+  - [ ] context-builder.test.js — test each post type builds correct context
+  - [ ] generator.test.js — mock Anthropic client, verify API called correctly
 - [ ] Test generation across all post types
 - [ ] Build publisher.js (Playwright)
   - [ ] Post body + description
