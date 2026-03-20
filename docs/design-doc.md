@@ -917,7 +917,8 @@ rednote-content-automation/
     │   │   └── mock-api-response.json      # Hardcoded Anthropic response fixture
     │   ├── scraper.test.js                 # Validates scraper output shape and completeness
     │   ├── context-builder.test.js         # Tests buildContext() in isolation (no API calls)
-    │   └── generator.test.js              # Tests generatePosts() with mocked Anthropic client
+    │   ├── generator.test.js               # Tests generatePosts() with mocked Anthropic client
+    │   └── scheduler.test.js               # Tests rotation logic with mocked publisher
     ├── docs/
     ├── .env
     ├── .env.example
