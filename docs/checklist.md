@@ -35,15 +35,6 @@
     - [x] getHashtags() wired — append to response before returning from generatePosts()
     - [ ] When a marathon is used it is added to post_history.json
     - [ ] When selecting a marathon filter out marathons in post_history.json
-- [ ] Setup tests (Vitest)
-  - [ ] Install Vitest
-  - [ ] Create tests/ folder structure (fixtures/, scraper.test.js, context-builder.test.js, generator.test.js)
-  - [ ] Create sample-races.json and mock-api-response.json fixtures
-  - [x] Refactor generatePosts() — extract getContextPrompts() as separate async function
-  - [ ] scraper.test.js — validate output shape, required fields, minimum race count
-  - [ ] context-builder.test.js — test each post type builds correct context
-  - [ ] generator.test.js — mock Anthropic client, verify API called correctly
-- [ ] Test generation across all post types
 - [ ] Build publisher.js (Playwright)
   - [ ] Apply H1 formatting to title field
   - [ ] Paste hook as plain text
@@ -57,6 +48,15 @@
   - [ ] Simulate 7-day schedule and verify correct post types fire in order
   - [ ] Wire full daily cron (scraper weekly, generate → publish daily)
 - [ ] Wire post_history.json dedup
+- [ ] Test generation across all post types
+- [ ] Setup tests (Vitest)
+  - [ ] Install Vitest
+  - [ ] Create tests/ folder structure (fixtures/, scraper.test.js, context-builder.test.js, generator.test.js)
+  - [ ] Create sample-races.json and mock-api-response.json fixtures
+  - [x] Refactor generatePosts() — extract getContextPrompts() as separate async function
+  - [ ] scraper.test.js — validate output shape, required fields, minimum race count
+  - [ ] context-builder.test.js — test each post type builds correct context
+  - [ ] generator.test.js — mock Anthropic client, verify API called correctly
 - [ ] Deploy
   - [ ] Write Dockerfile
   - [ ] Write docker-compose.yml
