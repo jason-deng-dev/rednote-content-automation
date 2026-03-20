@@ -595,7 +595,19 @@ POST https://api.anthropic.com/v1/messages
 }
 ```
 
-### 7.3 Generated Post Object
+### 7.3 post_history.json Schema
+
+A flat array of race name strings used to filter already-used races from future selection.
+
+```json
+["富士山女子越野跑", "東京マラソン2026", "大阪マラソン"]
+```
+
+Initialized as `[]` if the file doesn't exist. A race name is appended each time a race guide post is generated. The race selection step filters out any name present in this array.
+
+---
+
+### 7.4 Generated Post Object
 
 Claude returns a structured JSON object. The pipeline appends hashtags and injects CTA URLs before publishing.
 
