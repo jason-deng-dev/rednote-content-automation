@@ -167,3 +167,6 @@ async function getInfo($, el) {
 		registrationUrl,
 	};
 }
+
+export {populateRaces, getInfo}
+

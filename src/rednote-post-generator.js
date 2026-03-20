@@ -216,6 +216,8 @@ function getHashtags(type) {
 	}
 }
 
+export {generatePosts, getContextPrompts, chooseRace, chooseRaceMock, getHashtags}
+
 // (async () => {
 // 	console.log(await getContextPrompts('race'));
 // })();
