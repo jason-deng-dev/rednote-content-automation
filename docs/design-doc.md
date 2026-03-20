@@ -217,13 +217,7 @@ DATA  →  GENERATE  →  FORMAT  →  PUBLISH
 - Selects post type based on data-weighted rotation schedule
 - If race post type, calls Claude API to choose a race
 - Calls Claude API with system prompt + structured user prompt
-- Passes generated post to formatter
-
-#### content-generator/formatter.js (new)
-
-- Validates XHS format rules: no markdown headers, multi-page breaks, emoji density
-- Injects CTA text and comment-link instructions
-- Outputs final post object: `{ title, body, comment_url, hashtags }`
+- Returns structured post object `{ title, hook, contents[], cta, description, hashtags, comments }` directly to publisher
 
 #### content-generator/publisher.js (new)
 
@@ -250,9 +244,7 @@ races.json
 rednote-post-generator.js
     ↓  (POST /v1/messages)
 Claude API  ←  system prompt + race context + performance-informed instructions
-    ↓  (generated post text)
-formatter.js
-    ↓  (formatted XHS post object)
+    ↓  (structured post object — paste-ready, no formatting step needed)
 publisher.js
     ↓  (Playwright browser automation)
 XHS / Xiaohongshu (MOXI爱跑步 account)
@@ -276,6 +268,7 @@ XHS / Xiaohongshu (MOXI爱跑步 account)
 |Deployment / handoff|Docker + docker-compose|Manual server setup, PM2|Ensures consistent runtime environment across machines; Playwright browser binaries are notoriously environment-sensitive; allows non-technical handoff with a single `docker-compose up`|
 |Test framework|Vitest|Jest|Better ESM support out of the box — project uses native `import` syntax which requires extra config in Jest. Vitest also runs faster and shares config with Vite if needed.|
 |API mocking in tests|Mock `@anthropic-ai/sdk` client|Real API calls in tests|Eliminates token cost on every test run, makes tests deterministic, and allows CI to run without a live API key.|
+|No formatter.js|Prompt-enforced structure|Separate formatter module|Structured output (`{ title, hook, contents[], cta, description }`) with explicit format rules in the prompt eliminates the need for a post-processing validation step — Claude produces paste-ready output directly.|
 
 ---
 
@@ -305,14 +298,31 @@ AUDIENCE FRAMING (critical):
 
 FORMAT RULES:
 - Write in Simplified Chinese
-- Use emojis frequently (every 2-3 lines minimum)
-- Break into multiple pages using ——— dividers
+- Use emojis extensively — every 1-2 lines minimum, and inline within sentences to add energy and visual rhythm
+- Each line max 22 characters
+- Separate idea groups with a double line break (blank line between groups)
 - NO markdown headers (no #, ##, bold **)
-- Short lines — max 20 characters per line
+- Do NOT include hashtags anywhere in the output
+
+HOOK PAGE RULES:
+- Max 19 lines of content
+- Each double-line separator costs 2 lines — deduct from the 19-line budget
+- End the hook with a tension or curiosity gap that makes the reader swipe — do not summarise the post
+
+CONTENT PAGE RULES:
+- 2 to 4 content pages — choose based on how much the topic needs
+- Each page covers ONE idea only — no mixing topics on the same page
+- Each page starts with a subtitle — max 15 characters, must begin with an emoji
+- Max 21 lines of content per page
+- Each double-line separator costs 2 lines — deduct from the 21-line budget
+
+CTA PAGE RULES:
+- 3 to 5 lines max
+- Never open with a hard sell — frame as a natural next step from the content
 - End with: '链接在评论区👇'
-- Do NOT include hashtags in the body
 
 TITLE RULES (derived from performance data):
+- Max 20 characters
 - Use comparison format when possible: X vs Y vs Z
 - Include specific race names for search intent (东京, 大阪, 富士山)
 - Ask counterintuitive questions that challenge assumptions
@@ -322,10 +332,32 @@ TITLE RULES (derived from performance data):
 
 OUTPUT FORMAT (critical):
 Return ONLY a valid JSON object with no extra text, explanation, or markdown code blocks.
-The JSON must have exactly these two fields:
-- "body": the full XHS post text, ending with '链接在评论区👇'. No hashtags.
+No trailing whitespace. No \n at the start or end of any field. Every string must be ready to paste directly with no post-processing.
+The JSON must have exactly these fields:
+- "title": the post title. Max 20 characters. No hashtags.
+- "hook": the opening page. No subtitle. Ends with a curiosity gap, not a summary.
+- "contents": array of 2–4 page objects, each with:
+    - "subtitle": page heading, max 15 chars, starts with an emoji
+    - "body": page content
+- "cta": the final page. 3–5 lines. Ends with '链接在评论区👇'.
 - "description": a short 1-2 sentence caption summarising the post. No hashtags.
 ```
+
+#### Prompt Design Rationale
+
+| Rule | Reason |
+|---|---|
+| Structured output `{ title, hook, contents[], cta, description }` | Granular fields let the publisher apply H1 to title, H2 to subtitles, and paste body text separately — necessary because XHS heading styles are applied via editor UI, not inline characters |
+| `title` as own field | Previously embedded in body with no explicit boundary — separating it allows the publisher to apply H1 formatting and enforce the 20-char limit programmatically |
+| `hook` separate from `contents[]` | Hook has different rules (no subtitle, curiosity gap ending, tighter line budget) — merging it into contents would require special-casing the first item everywhere |
+| `cta` as own field | CTA has fixed constraints (3–5 lines, soft sell, ends with 链接在评论区👇) that differ from content pages — separating it keeps content pages clean and makes publisher logic simpler |
+| 2–4 content pages, Claude decides | Fixed page count wastes space on short topics or truncates long ones — letting Claude choose within a range produces better-fitting posts |
+| One idea per content page | Multi-idea pages read as walls of text on XHS — single-idea pages are scannable and match the platform's swipe-native format |
+| Subtitle starts with emoji | Standard XHS creator practice — makes pages visually distinct while scrolling, signals a new section without markdown headers |
+| Double line break between idea groups | XHS renders spacing — grouping related lines and separating groups with a blank line matches how top-performing posts are structured visually |
+| Line budget with separator cost | XHS has a fixed display area per page swipe — if separators aren't counted against the budget, content overflows to the next page mid-thought |
+| CTA framed as natural next step | Hard-sell CTAs on XHS reduce save rate — readers respond better to a soft nudge that feels like a continuation of the post |
+| No trailing whitespace / paste-ready strings | Publisher pastes directly into XHS editor — extra whitespace or leading newlines cause visible formatting artifacts |
 
 ### 6.3 Post Type Rotation
 
@@ -562,10 +594,16 @@ Claude returns a structured JSON object. The pipeline appends hashtags and injec
 
 > **Testing note:** During development, responses are in English. Live production will be in Chinese. The 300-character comment limit is enforced in the prompt for production readiness — Chinese characters are denser so this matters more in production than in testing.
 
-**Claude raw output (body + description only):**
+**Claude raw output:**
 ```json
 {
-  "body": "...(full XHS post text ending with 链接在评论区👇)...",
+  "title": "富士山女子越野跑",
+  "hook": "...(opening page, curiosity gap ending, no subtitle)...",
+  "contents": [
+    { "subtitle": "🗺️ 赛道是什么样", "body": "...(one idea per page)..." },
+    { "subtitle": "📋 怎么报名参加", "body": "..." }
+  ],
+  "cta": "...(3–5 lines, soft sell, ends with 链接在评论区👇)...",
   "description": "一句话简介这篇帖子的内容，吸引读者点击"
 }
 ```
@@ -609,7 +647,7 @@ Hashtags are hardcoded per post type and appended to `description` after parsing
 |scraper.js|✅ Done|Two-pass scrape (listing → detail pages); writes to data/races.json|
 |races.json|✅ Populated|Full schema: name, url, date, location, entryStart/End, website, images, description, info, notice, registrationOpen, registrationUrl|
 |rednote-post-generator.js|🔄 In progress|Race selection API call working; prompts wired from prompts.json; post generation and return logic still in progress|
-|formatter.js|❌ Not started|File does not exist yet|
+|formatter.js|🚫 Removed|Formatting is enforced via prompt structure — separate formatter step not needed|
 |publisher.js|❌ Not started|File does not exist yet|
 |Cron orchestration|❌ Not started|End-to-end pipeline not wired|
 
@@ -620,8 +658,7 @@ Hashtags are hardcoded per post type and appended to `description` after parsing
 2. Rebuild `rednote-post-generator.js` with Claude API integration
 3. Implement system prompt with MOXI persona, China-based audience framing, and XHS format rules
 4. Enforce data-derived title patterns in prompt instructions
-5. Build `formatter.js` to validate and structure output
-6. Test generation across all post types — validate Chinese quality and format compliance
+5. Test generation across all post types — validate Chinese quality and format compliance
 
 ### 8.3 Phase 2 — Auto-Publishing
 
@@ -787,7 +824,7 @@ XHS is a visual platform and text-only posts underperform posts with images. A f
 
 ### 11.4 Multi-Platform Expansion
 
-The formatter and generator are platform-agnostic. The same pipeline could target WeChat Moments, Weibo, or a WordPress blog by swapping the formatter rules and publisher module.
+The generator and publisher are platform-agnostic. The same pipeline could target WeChat Moments, Weibo, or a WordPress blog by swapping the system prompt format rules and publisher module.
 
 ### 11.5 User-Generated Content Integration
 
@@ -820,7 +857,6 @@ rednote-content-automation/
     ├── src/
     │   ├── scraper.js                  # Self-contained RunJapan scraper
     │   ├── rednote-post-generator.js   # Core — Claude API integration
-    │   ├── formatter.js                # XHS format validation + CTA injection
     │   └── publisher.js                # Playwright browser automation
     ├── config/
     │   └── prompts.json                # System prompt, post-type context templates — tunable without touching code

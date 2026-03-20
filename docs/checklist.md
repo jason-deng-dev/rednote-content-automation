@@ -16,7 +16,7 @@
   - [x] Make api call with context and get response
   - [x] chooseRace() working — race selection API call complete, returns race name
   - [x] Add chooseRaceMock() for testing without burning API calls
-  - [ ] Update context prompt with relevent info at runtime
+  - [x] Update context prompt with relevent info at runtime
     - [x] If race post, make api call with all marathons and ask which one to use
     - [x] Inject race fields into raceGuide context at runtime
     - [x] update design doc for new prompts / responses / explanation prompt selection
@@ -29,18 +29,14 @@
     - [x] Add current season injection to all post type prompts at runtime
     - [x] Add seasonal content guidance to training/nutrition post type prompts
     - [x] Add wearables/equipment post type context prompt to prompts.json
-    - [ ] Define hardcoded hashtags per post type (including wearables)
-  - [ ] Post type rotation logic (7-day schedule)
+    - [x] Define hardcoded hashtags per post type (including wearables)
+    - [ ] Update system prompt with new structured output format (title, hook, contents[], cta, description)
+    - [ ] Update system prompt with new format rules (line limits, page budgets, subtitle rules, CTA rules)
+    - [ ] getHashtags() wired — append to response before returning from generatePosts()
+    - [ ] Post type rotation logic (7-day schedule)
     - [ ] Add wearables/equipment to post type rotation (7-day schedule)
     - [ ] When a marathon is used it is added to post_history.json
     - [ ] When selecting a marathon filter out marathons in post_history.json
-  - [ ] Simulate 7-day schedule and verify content of generated post
-- [ ] Build formatter.js
-  - [ ] XHS format validation
-  - [ ] Parse Claude JSON output (body + description)
-  - [ ] Append hardcoded hashtags to description
-  - [x] CTA URLs hardcoded per post type in comments array — no runtime injection needed
-  - [ ] Output final post object
 - [ ] Setup tests (Vitest)
   - [ ] Install Vitest
   - [ ] Create tests/ folder structure (fixtures/, scraper.test.js, context-builder.test.js, generator.test.js)
@@ -51,7 +47,11 @@
   - [ ] generator.test.js — mock Anthropic client, verify API called correctly
 - [ ] Test generation across all post types
 - [ ] Build publisher.js (Playwright)
-  - [ ] Post body + description
+  - [ ] Apply H1 formatting to title field
+  - [ ] Paste hook as plain text
+  - [ ] For each contents[] item: apply H2 to subtitle, paste body as plain text
+  - [ ] Paste cta as plain text
+  - [ ] Append hashtags to description field
   - [ ] Post comments array sequentially (primary CTA first, community second)
 - [ ] Wire post_history.json dedup
 - [ ] Wire full daily cron
