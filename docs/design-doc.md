@@ -833,10 +833,14 @@ vi.mock('./publisher.js', () => ({
 
 ### 10.5 Required Refactor
 
-Before `context-builder.test.js` is meaningful, `generatePosts()` must be split:
+Before `context-builder.test.js` is meaningful, `getContextPrompts()` must be split:
 
-1. `buildContext(type, prompts, races, raceName)` — pure function, returns `contextToUse` string. Testable without any API calls.
-2. `generatePosts(type)` — orchestrator: calls `buildContext`, then calls the Anthropic API.
+1. `buildContext(type, prompts, races, raceName)` — pure function, returns `contextToUse` string. No async, no side effects. Testable in isolation without any API calls or mocks.
+2. `getContextPrompts(type)` — async orchestrator: calls `chooseRace()` to get a race name, then passes it into `buildContext()` and returns the result.
+
+Call chain: `generatePosts()` → `getContextPrompts()` → `buildContext()`
+
+`buildContext` is used in production via `getContextPrompts` — the testability benefit is a consequence of the clean separation, not the reason for it.
 
 ---
 

@@ -40,6 +40,7 @@
   - [ ] Create tests/ folder structure (fixtures/, scraper.test.js, context-builder.test.js, generator.test.js, scheduler.test.js)
   - [ ] Create sample-races.json and mock-api-response.json fixtures
   - [x] Refactor generatePosts() — extract getContextPrompts() as separate async function
+  - [ ] Refactor getContextPrompts() → pure buildContext(type, prompts, races, raceName) — no async, no internal API calls
   - [ ] scraper.test.js — validate output shape, required fields, minimum race count
   - [ ] context-builder.test.js — test each post type builds correct context
   - [ ] generator.test.js — mock Anthropic client, verify API called correctly
