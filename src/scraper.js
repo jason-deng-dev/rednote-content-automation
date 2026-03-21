@@ -25,10 +25,10 @@ async function populateRaces(limit) {
 
 		if (cards.length === 0) break;
 		for (const el of cards) {
+			const url = "https://runjapan.jp" + $(el).attr("href");
+			const name = $(el).children("span").text().trim();
 			try {
 				const {
-					name,
-					url,
 					date,
 					location,
 					entryStart,
@@ -40,7 +40,7 @@ async function populateRaces(limit) {
 					notice,
 					registrationOpen,
 					registrationUrl,
-				} = await getInfo($, el);
+				} = await getInfo(url);
 				races.push({
 					name,
 					url,
@@ -69,13 +69,10 @@ async function populateRaces(limit) {
 	return races;
 }
 
-async function getInfo($, el) {
+async function getInfo(url) {
 	let date, location, entryPeriod, website;
 	let entryStart = "";
 	let entryEnd = "";
-
-	const url = "https://runjapan.jp" + $(el).attr("href");
-	const raceName = $(el).children("span").text().trim();
 
 	// scrape details of each race
 	const detailRes = await axios.get(url, {
@@ -161,7 +158,6 @@ async function getInfo($, el) {
 		registrationOpen = false;
 	}
 	return {
-		name: raceName,
 		url,
 		date,
 		location,

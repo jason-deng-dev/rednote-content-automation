@@ -49,7 +49,7 @@
   - [x] Fix race selection max_tokens: 1024 → 100
   - [x] Move systemRaceSelectionPromptTest out of prompts.json → defined inline in generator.test.js
   - [x] Fix "dev" script — add target file to node --watch
-  - [ ] Fix registrationOpen false negative — use null for unknown state instead of false
+  - [x] Fix registrationOpen false negative — use null for unknown state instead of false
   - [ ] Fix getInfo() mixed concerns — extract href/raceName in caller, pass as params
   - [ ] Fix inner scraper loop — break early when races.length >= limit
   - [ ] Add dotenv import + RUNJAPAN_BASE_URL / RUNJAPAN_TIMEOUT from .env in scraper
