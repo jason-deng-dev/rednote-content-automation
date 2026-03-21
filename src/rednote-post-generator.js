@@ -86,7 +86,12 @@ async function getContextPrompts(
 				"description",
 			];
 			for (const field of fields) {
-				raceContext = raceContext.replace(`race.${field}`, race[field]);
+				if (race[field] == null) {
+					raceContext = raceContext.replaceAll(`race.${field}`, 'missing from the website');
+				} else {
+					raceContext = raceContext.replaceAll(`race.${field}`, race[field]);
+				}
+				
 			}
 			contextToUse = raceContext;
 			ctaDescription =
