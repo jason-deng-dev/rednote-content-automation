@@ -23,7 +23,12 @@ async function generatePosts(
 	} = {},
 ) {
 	const systemPrompt = prompts.systemPrompt;
-	const { comments, contextToUse, raceChosen } = await getContextPrompts(type, {races, postedRaces, client, prompts});
+	const { comments, contextToUse, raceChosen } = await getContextPrompts(type, {
+		races,
+		postedRaces,
+		client,
+		prompts,
+	});
 
 	let message;
 	let messageParsed;
@@ -72,7 +77,7 @@ async function getContextPrompts(
 	switch (type) {
 		case "race": {
 			let raceContext = prompts.postTypes.raceGuide;
-			raceChosen = await chooseRace({races, postedRaces, client, prompts});
+			raceChosen = await chooseRace({ races, postedRaces, client, prompts });
 			const race = races.races.find((item) => item.name === raceChosen);
 			const fields = [
 				"name",
@@ -87,11 +92,13 @@ async function getContextPrompts(
 			];
 			for (const field of fields) {
 				if (race[field] == null) {
-					raceContext = raceContext.replaceAll(`race.${field}`, 'missing from the website');
+					raceContext = raceContext.replaceAll(
+						`race.${field}`,
+						"missing from the website",
+					);
 				} else {
 					raceContext = raceContext.replaceAll(`race.${field}`, race[field]);
 				}
-				
 			}
 			contextToUse = raceContext;
 			ctaDescription =
@@ -170,15 +177,12 @@ async function chooseRace({
 	client = defaultClient,
 	prompts = defaultPrompts,
 } = {}) {
-	let raceStr = "";
 
-	for (const race of races.races) {
-		raceStr += race.name + "|||";
-	}
 
-	postedRaces.forEach((postedRace) => {
-		raceStr = raceStr.replaceAll(`${postedRace}|||`, "");
-	});
+	const availableRaces = races.races.filter(
+		(r) => !postedRaces.includes(r.name),
+	);
+	const raceStr = availableRaces.map((r) => r.name).join("|||");
 
 	let systemRaceSelectionPrompt = prompts.systemRaceSelectionPrompt;
 	let contextChooseRace = prompts.contextRaceSelection + raceStr;
