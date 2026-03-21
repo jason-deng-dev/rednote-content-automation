@@ -23,7 +23,7 @@ The platform has four core destinations:
 - **/shop/** — Japanese running nutrition (FANCL, Amino Vital, Pocari Sweat, SAVAS PRO, salt tabs)
 - **/mara-prep-tools/** — Training analytics suite (pace calculator, goal calibration, trendline tracker)
 - **/community/** — Community hub for Chinese runners targeting Japanese races
-- **Race listings** — Upcoming Japanese marathon database (RunJapan data)
+- **/racehub/** — Upcoming Japanese marathon information hub (RunJapan data)
 
 Traffic and user acquisition is driven through Xiaohongshu (RedNote / XHS) — the dominant discovery channel for Chinese runners interested in overseas race experiences. The account MOXI爱跑步 has published **115 posts manually over several months**, accumulating **60,481 total views** and generating a real performance dataset that directly informs this pipeline's design.
 
