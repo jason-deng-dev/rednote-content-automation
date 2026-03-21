@@ -61,7 +61,7 @@
   - [x] Create sample-races.json and mock-api-response.json fixtures
   - [x] Refactor generatePosts() — extract getContextPrompts() as separate async function
   - [x] Refactor getContextPrompts() → pure buildContext(type, prompts, races, raceName) — no async, no internal API calls
-  - [ ] scraper.test.js — validate output shape, required fields, minimum race count
+  - [x] scraper.test.js — validate output shape, required fields, minimum race count
   - [x] context-builder.test.js — test each post type builds correct context
   - [x] generator.test.js — mock Anthropic client, verify API called correctly
   - [ ] scheduler.test.js — mock publisher, verify rotation logic and correct post type passed through
