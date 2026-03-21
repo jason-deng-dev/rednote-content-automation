@@ -41,8 +41,8 @@
   - [x] Move post_history.json write to after successful API call
   - [x] Include comments in generatePosts() return value
   - [x] Deserialize API response — JSON.parse(message.content[0].text) → structured post object
-  - [ ] Add error handling — re-throw with specific messages per layer (chooseRace, generatePosts, scraper)
-  - [ ] Fix module-level side effects — move fs.readFileSync and new Anthropic() out of module scope (blocks tests)
+  - [x] Add error handling — re-throw with specific messages per layer (chooseRace, generatePosts, scraper)
+  - [x] Fix module-level side effects — injectable deps with default* fallbacks; threaded through generatePosts → getContextPrompts → chooseRace
   - [ ] Fix template substitution — use replaceAll, validate substitution happened, guard against undefined fields
   - [ ] Fix dedup — filter races array before building string, not string manipulation after
   - [ ] Fix trailing ||| delimiter in race list — use Array.join('|||')

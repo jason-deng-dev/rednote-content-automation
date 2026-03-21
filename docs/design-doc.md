@@ -279,6 +279,7 @@ XHS / Xiaohongshu (MOXI爱跑步 account)
 |Error handling — generator|Re-throw with specific messages per layer|Return error values; single top-level catch|If generation fails there is nothing to publish — aborting is correct. Specific per-layer messages (race selection, generation, file write) identify exactly which step failed. Errors bubble up to the scheduler which owns the single catch point.|
 |Error handling — scraper|Log and continue per race; scrape still writes output|Abort entire scrape on first failure|One bad detail page (timeout, 404, malformed HTML) should not abort the full run. The inner loop catches `getInfo()` failures, logs them, and continues — partial data is better than no data.|
 |API response parsing|`JSON.parse(message.content[0].text)`|Structured outputs API (tools + schema)|Prompt-level JSON instruction is sufficient; SDK always returns text as a string regardless — `JSON.parse()` is required to deserialize the response into the structured post object.|
+|Dependency injection (generator)|Optional `{ races, postedRaces, client, prompts }` param with `default*` fallbacks|Module-level globals only; factory function|Tests must inject fixture data and a mock client — without this, every test run hits the real API and uses real data. Optional params keep production calls unchanged (no args = defaults) while letting tests override any dependency. Deps are threaded through the full call chain: `generatePosts` → `getContextPrompts` → `chooseRace`.|
 
 ---
 
