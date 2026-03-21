@@ -25,36 +25,40 @@ async function populateRaces(limit) {
 
 		if (cards.length === 0) break;
 		for (const el of cards) {
-			const {
-				name,
-				url,
-				date,
-				location,
-				entryStart,
-				entryEnd,
-				website,
-				images,
-				description,
-				info,
-				notice,
-				registrationOpen,
-				registrationUrl,
-			} = await getInfo($, el);
-			races.push({
-				name,
-				url,
-				date,
-				location,
-				entryStart,
-				entryEnd,
-				website,
-				images,
-				description,
-				info,
-				notice,
-				registrationOpen,
-				registrationUrl,
-			});
+			try {
+				const {
+					name,
+					url,
+					date,
+					location,
+					entryStart,
+					entryEnd,
+					website,
+					images,
+					description,
+					info,
+					notice,
+					registrationOpen,
+					registrationUrl,
+				} = await getInfo($, el);
+				races.push({
+					name,
+					url,
+					date,
+					location,
+					entryStart,
+					entryEnd,
+					website,
+					images,
+					description,
+					info,
+					notice,
+					registrationOpen,
+					registrationUrl,
+				});
+			} catch (err) {
+				console.error(`Failed to scrape race: ${err.message}`);
+			}
 		}
 
 		pageIndex++;
@@ -168,5 +172,4 @@ async function getInfo($, el) {
 	};
 }
 
-export {populateRaces, getInfo}
-
+export { populateRaces, getInfo };
