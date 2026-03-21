@@ -13,16 +13,23 @@ const postedRaces = fs.existsSync("data/post_history.json")
 
 async function generatePosts(type) {
 	const systemPrompt = prompts.systemPrompt;
-	const { comments, contextToUse, raceChosen} = await getContextPrompts(type);
+	const { comments, contextToUse, raceChosen } = await getContextPrompts(type);
 
-	const message = await client.messages.create({
-		max_tokens: 1024,
-		system: systemPrompt,
-		messages: [{ role: "user", content: contextToUse }],
-		model: "claude-sonnet-4-6",
-	});
+	let message;
+	let messageParsed;
+	try {
+		message = await client.messages.create({
+			max_tokens: 1024,
+			system: systemPrompt,
+			messages: [{ role: "user", content: contextToUse }],
+			model: "claude-sonnet-4-6",
+		});
+		messageParsed = JSON.parse(message.content[0].text);
+	} catch (err) {
+		throw new Error(`Post generation failed: ${err.message}`);
+	}
 
-	const { title, hook, contents, cta, description} = JSON.parse(message.content[0].text)
+	const { title, hook, contents, cta, description } = messageParsed;
 
 	// if message is successful add the race to post_history
 	if (type == "race") {
@@ -35,14 +42,14 @@ async function generatePosts(type) {
 
 	const hashtags = getHashtags(type);
 
-	return { title, hook, contents, cta, description, hashtags, comments};
+	return { title, hook, contents, cta, description, hashtags, comments };
 }
 
 async function getContextPrompts(type) {
 	let contextToUse;
 	let comments;
 	let ctaDescription;
-	let raceChosen = '';
+	let raceChosen = "";
 
 	switch (type) {
 		case "race": {
@@ -131,8 +138,7 @@ async function getContextPrompts(type) {
 		.replace(": month", `: ${month}`)
 		.replace(": season", `: ${season}`);
 
-	
-	return { comments, contextToUse, raceChosen};
+	return { comments, contextToUse, raceChosen };
 }
 
 async function chooseRace() {
