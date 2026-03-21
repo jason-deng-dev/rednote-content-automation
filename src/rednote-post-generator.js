@@ -2,18 +2,28 @@ import "dotenv/config";
 import fs from "fs";
 import Anthropic from "@anthropic-ai/sdk";
 
-const prompts = JSON.parse(fs.readFileSync("./config/prompts.json", "utf-8"));
-const races = JSON.parse(fs.readFileSync("./data/races.json", "utf-8"));
-const client = new Anthropic({
+const defaultPrompts = JSON.parse(
+	fs.readFileSync("./config/prompts.json", "utf-8"),
+);
+const defaultRaces = JSON.parse(fs.readFileSync("./data/races.json", "utf-8"));
+const defaultClient = new Anthropic({
 	apiKey: process.env["ANTHROPIC_API_KEY"],
 });
-const postedRaces = fs.existsSync("data/post_history.json")
+const defaultPostedRaces = fs.existsSync("data/post_history.json")
 	? JSON.parse(fs.readFileSync("data/post_history.json", "utf-8"))
 	: [];
 
-async function generatePosts(type) {
+async function generatePosts(
+	type,
+	{
+		races = defaultRaces,
+		postedRaces = defaultPostedRaces,
+		client = defaultClient,
+		prompts = defaultPrompts,
+	} = {},
+) {
 	const systemPrompt = prompts.systemPrompt;
-	const { comments, contextToUse, raceChosen } = await getContextPrompts(type);
+	const { comments, contextToUse, raceChosen } = await getContextPrompts(type, {races, postedRaces, client, prompts});
 
 	let message;
 	let messageParsed;
@@ -45,7 +55,15 @@ async function generatePosts(type) {
 	return { title, hook, contents, cta, description, hashtags, comments };
 }
 
-async function getContextPrompts(type) {
+async function getContextPrompts(
+	type,
+	{
+		races = defaultRaces,
+		postedRaces = defaultPostedRaces,
+		client = defaultClient,
+		prompts = defaultPrompts,
+	} = {},
+) {
 	let contextToUse;
 	let comments;
 	let ctaDescription;
@@ -54,7 +72,7 @@ async function getContextPrompts(type) {
 	switch (type) {
 		case "race": {
 			let raceContext = prompts.postTypes.raceGuide;
-			raceChosen = await chooseRace();
+			raceChosen = await chooseRace({races, postedRaces, client, prompts});
 			const race = races.races.find((item) => item.name === raceChosen);
 			const fields = [
 				"name",
@@ -141,7 +159,12 @@ async function getContextPrompts(type) {
 	return { comments, contextToUse, raceChosen };
 }
 
-async function chooseRace() {
+async function chooseRace({
+	races = defaultRaces,
+	postedRaces = defaultPostedRaces,
+	client = defaultClient,
+	prompts = defaultPrompts,
+} = {}) {
 	let raceStr = "";
 
 	for (const race of races.races) {
