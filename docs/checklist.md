@@ -35,7 +35,7 @@
     - [x] getHashtags() wired — append to response before returning from generatePosts()
     - [x] When a marathon is used it is added to post_history.json
     - [x] When selecting a marathon filter out marathons in post_history.json
-- [ ] Code quality / robustness (generator + scraper)
+- [x] Code quality / robustness (generator + scraper)
   - [x] Add named exports to generator.js and scraper.js
   - [x] Replace chooseRaceMock() with chooseRace() in production code path
   - [x] Move post_history.json write to after successful API call
@@ -52,11 +52,11 @@
   - [x] Fix registrationOpen false negative — use null for unknown state instead of false
   - [x] Fix getInfo() mixed concerns — extract href/name in caller, pass only url to getInfo
   - [x] Fix inner scraper loop — break early when races.length >= limit
-  - [ ] Add dotenv import + RUNJAPAN_BASE_URL / RUNJAPAN_TIMEOUT from .env in scraper
-  - [ ] Add retries + timeout to Anthropic client — maxRetries: 3, timeout: 30s
-  - [ ] Add axios-retry to scraper — 3 retries, exponential backoff, network errors + 5xx only
+  - [x] Add dotenv import + RUNJAPAN_BASE_URL / RUNJAPAN_TIMEOUT from .env in scraper
+  - [x] Add retries + timeout to Anthropic client — maxRetries: 3, timeout: 30s
+  - [x] Add axios-retry to scraper — 3 retries, exponential backoff, network errors + 5xx only
 - [ ] Setup tests (Vitest)
-  - [ ] Install Vitest
+  - [x] Install Vitest
   - [ ] Create tests/ folder structure (fixtures/, scraper.test.js, context-builder.test.js, generator.test.js, scheduler.test.js)
   - [ ] Create sample-races.json and mock-api-response.json fixtures
   - [x] Refactor generatePosts() — extract getContextPrompts() as separate async function

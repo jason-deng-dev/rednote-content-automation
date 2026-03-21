@@ -671,7 +671,7 @@ Hashtags are hardcoded per post type and appended to `description` after parsing
 |Node.js project setup|✅ Done|npm init, node-cron + playwright installed, .gitignore + .env.example in place|
 |scraper.js|✅ Done|Two-pass scrape (listing → detail pages); writes to data/races.json|
 |races.json|✅ Populated|Full schema: name, url, date, location, entryStart/End, website, images, description, info, notice, registrationOpen, registrationUrl|
-|generator.js|⚠️ Working, hardening in progress|All post types wired; race selection + dedup via post_history.json; hashtags appended; returns structured post object. Error handling, module-level side effects, and template substitution robustness still pending.|
+|generator.js|✅ Done|All post types wired; race selection + dedup; structured return; error handling; injectable deps for testing; template substitution guarded; axios-retry + Anthropic retries configured.|
 |formatter.js|🚫 Removed|Formatting is enforced via prompt structure — separate formatter step not needed|
 |scheduler.js|❌ Not started|Rotation logic + cron orchestration — calls generator with correct post type daily|
 |publisher.js|❌ Not started|File does not exist yet|
