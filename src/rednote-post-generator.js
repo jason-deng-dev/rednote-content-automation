@@ -22,11 +22,9 @@ async function generatePosts(type) {
 		model: "claude-sonnet-4-6",
 	});
 
-	// if message is successful add the race to post_history
+	const { title, hook, contents, cta, description} = JSON.parse(message.content[0].text)
 
-	/*
-	add the marathon name to post_history.json
-	*/
+	// if message is successful add the race to post_history
 	if (type == "race") {
 		postedRaces.push(raceChosen);
 		fs.writeFileSync(
@@ -37,7 +35,7 @@ async function generatePosts(type) {
 
 	const hashtags = getHashtags(type);
 
-	return { message, hashtags, comments};
+	return { title, hook, contents, cta, description, hashtags, comments};
 }
 
 async function getContextPrompts(type) {
