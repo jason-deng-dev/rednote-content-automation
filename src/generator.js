@@ -8,6 +8,8 @@ const defaultPrompts = JSON.parse(
 const defaultRaces = JSON.parse(fs.readFileSync("./data/races.json", "utf-8"));
 const defaultClient = new Anthropic({
 	apiKey: process.env["ANTHROPIC_API_KEY"],
+	maxRetries: 3, 
+	timeout: 30000
 });
 const defaultPostedRaces = fs.existsSync("data/post_history.json")
 	? JSON.parse(fs.readFileSync("data/post_history.json", "utf-8"))
