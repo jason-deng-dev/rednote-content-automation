@@ -374,19 +374,19 @@ The JSON must have exactly these fields:
 
 ### 6.3 Post Type Rotation
 
-Based on data-derived content weighting. Wearables / Equipment will be added to the rotation once the Rakuten store has sufficient product coverage — planned to replace one Health & Recovery slot.
+Based on data-derived content weighting. Wearables / Equipment replaces the Health & Recovery slot — added once wearable post type was wired into the generator.
 
 CTA destinations are not in the prompts — they are injected at runtime per post type in `generatePosts()`. See Section 5 (Technical Decisions) for rationale.
 
 |Day|Post Type|Weight Rationale|CTA Destination|
 |---|---|---|---|
-|Mon|Race Guide|Highest traffic driver|/racehub/|
-|Tue|Nutrition / Supplement|Underpublished, highest CTR|/shop/|
-|Wed|Training Science|2nd highest avg views|/mara-prep-tools/|
-|Thu|Race Guide|40% target weight|/racehub/|
-|Fri|Nutrition / Supplement|20% target, weekend browse|/shop/|
-|Sat|Training Science|Weekend training research|/mara-prep-tools/|
-|Sun|Health & Recovery|Rest day content|/community/|
+|Mon|race|Highest traffic driver|/racehub/|
+|Tue|nutritionSupplement|Underpublished, highest CTR|/shop/|
+|Wed|training|2nd highest avg views|/mara-prep-tools/|
+|Thu|race|40% target weight|/racehub/|
+|Fri|race|High-browse going into weekend|/racehub/|
+|Sat|training|Weekend long run day|/mara-prep-tools/|
+|Sun|wearable|Rest day — gear browsing|/shop/|
 
 ### 6.4 Runtime Context Injection
 
