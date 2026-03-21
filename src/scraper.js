@@ -1,7 +1,14 @@
 import "dotenv/config";
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import * as cheerio from "cheerio";
 import { writeFile } from "fs/promises";
+
+axiosRetry(axios, {
+    retries: 3,
+    retryDelay: axiosRetry.exponentialDelay,
+    retryCondition: axiosRetry.isNetworkOrIdempotentRequestError
+});
 
 const timeout = parseInt(process.env.RUNJAPAN_TIMEOUT) || 10000;
 
