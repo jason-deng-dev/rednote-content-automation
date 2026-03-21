@@ -189,7 +189,7 @@ async function chooseRace({
 	let raceSelection;
 	try {
 		raceSelection = await client.messages.create({
-			max_tokens: 1024,
+			max_tokens: 100,
 			system: systemRaceSelectionPrompt,
 			messages: [{ role: "user", content: contextChooseRace }],
 			model: "claude-sonnet-4-6",
