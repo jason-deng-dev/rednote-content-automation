@@ -59,6 +59,7 @@ async function populateRaces(limit) {
 			} catch (err) {
 				console.error(`Failed to scrape race: ${err.message}`);
 			}
+			if (races.length >= limit) break;
 		}
 
 		pageIndex++;
