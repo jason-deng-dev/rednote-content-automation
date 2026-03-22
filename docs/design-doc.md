@@ -942,3 +942,143 @@ rednote-content-automation/
 ```
 
 ---
+
+## 14. Production Operations
+
+> This section covers what happens when things go wrong — failure handling per component, prompt versioning, observability, and long-term maintenance. This is what makes the system operable in production, not just functional as a proof of concept.
+
+### 14.1 Explicit Assumptions
+
+The pipeline assumes the following conditions hold at runtime. If any of these are violated, the failure modes below apply.
+
+| Assumption | What breaks if violated |
+|---|---|
+| RunJapan website structure is stable | Scraper returns 0 or malformed races |
+| XHS web client UI is stable | Playwright selectors fail; publish fails |
+| `races.json` is populated and valid when daily cron fires | Generator has no race context; Race Guide posts fail |
+| Claude API returns valid JSON matching the expected schema | `JSON.parse()` fails; generator throws and aborts |
+| Server has a stable internet connection | Any outbound call (scraper, Claude API, Playwright) can fail |
+| XHS session cookies in `auth.json` are still valid | Publisher fails to authenticate; publish fails silently |
+| The running Claude model (`claude-sonnet-4-5`) is not deprecated | Generator calls fail with a 404 or model-not-found error |
+
+---
+
+### 14.2 Failure Handling Per Component
+
+#### Scraper (`scraper.js`)
+
+- **Per-race failure (default):** The inner loop wraps each `getInfo()` call in try/catch. If a single race detail page times out, 404s, or has malformed HTML, the error is logged and the scraper continues to the next race. Partial data is better than no data.
+- **Retry behaviour:** `axios-retry` wraps the axios instance with 3 retries and exponential backoff (1s → 2s → 4s). Only retries transient failures (network errors, 5xx). 404s and 400s are not retried — retrying won't fix them.
+- **Full scrape failure:** `races.json` is only overwritten on a successful run. If the scraper crashes entirely, the previous `races.json` is preserved and the generator can continue running on stale-but-valid data.
+- **Manual recovery:** Re-run `node scripts/run-scraper.js` to trigger a fresh scrape.
+
+#### Generator (`generator.js`)
+
+- **Error propagation strategy:** Errors are re-thrown with specific messages per layer (race selection failure vs. generation failure vs. file write failure) rather than caught silently. This means the scheduler's catch block knows exactly which stage failed.
+- **API retry behaviour:** The Anthropic SDK is configured with `maxRetries: 3` and a 30-second timeout. The SDK handles exponential backoff on 429 (rate limit) and 5xx automatically — no manual retry logic needed. The 30s timeout replaces the SDK's default 10-minute timeout; responses for this use case are under 500 tokens and a 10-minute hang would stall the entire pipeline.
+- **Abort on failure:** If generation fails after retries are exhausted, there is nothing to publish — the correct behaviour is to abort the run. Errors bubble to the scheduler, which owns the single catch point and logs the failure.
+- **JSON parsing defence:** Claude occasionally wraps JSON output in ` ```json ` fences despite explicit instructions not to. `generator.js` strips leading ` ```json ` and trailing ` ``` ` with a regex before calling `JSON.parse()`. If parsing still fails, the generator throws with a descriptive error.
+
+#### Publisher (`publisher.js`)
+
+- **Session persistence:** Playwright reuses the saved session from `auth.json` (written by `xhs-login.js`). If the session expires, the publisher will fail to authenticate and log the error. **Recovery:** Re-run `xhs-login.js` to refresh the session.
+- **Playwright automation failure:** If the XHS web client rejects the automation (UI change, bot detection), the publisher logs the failure and exits. The generated post is available in `post_archive/` for manual posting.
+- **Semi-automated fallback:** If Playwright automation is unreliable for a given period, the fallback path is: generate the post → copy body/description/comments from the archive → post manually via the XHS app. This eliminates bot detection risk while saving approximately 80% of manual effort (composition is the bottleneck, not clicking).
+- **Platform content rejection:** If XHS rejects the post content (community guideline violation, spam detection), the failure is logged with the rejection signal. The post is not written to `post_history.json` — it remains eligible for retry or manual review. The operator can retrieve the post from `post_archive/`, modify it, and repost manually.
+
+#### Scheduler / Orchestrator (`scheduler.js`)
+
+- **Single catch point:** All pipeline errors bubble to the scheduler's top-level catch block, which logs the full error (including failed stage, error message, and stack) to `pipeline.log`.
+- **No cascading failures:** A failed daily post does not affect the next day's run — each cron invocation is stateless. The scheduler reads rotation state from the day index, not from prior run success.
+
+---
+
+### 14.3 Observability
+
+The pipeline logs each stage to `pipeline.log`. A healthy run produces entries at each stage. A missing entry indicates where the pipeline stopped.
+
+**What to check if something looks wrong:**
+
+| Signal | Likely cause |
+|---|---|
+| Race count in log drops below 30 | Scraper selectors broken (RunJapan site change) |
+| Generator stage missing from log | Claude API failure or races.json empty |
+| Publisher stage missing from log | Generator threw and aborted |
+| Publisher failed entry in log | Playwright failure or XHS session expired |
+| `post_history.json` not growing week-over-week | Publish not completing successfully |
+
+**Post archive as audit trail:** Every generated post is saved to `post_archive/` before publishing. This provides a record of exactly what was sent to XHS — useful for debugging content issues, reviewing quality drift, or reposting failed posts manually.
+
+---
+
+### 14.4 Prompt Versioning
+
+Prompts are stored in `config/prompts.json`, fully separated from pipeline logic (see Section 5: Technical Decisions — Prompt Storage). This separation means:
+
+- **Git is the version history.** Every change to `prompts.json` is a commit — diffs are readable, rollback is `git checkout <commit> -- config/prompts.json`.
+- **Safe update process:**
+  1. Edit `config/prompts.json`
+  2. Run `node scripts/test-gen.js` to generate a sample post with the new prompt
+  3. Review the output — check for tone drift, format violations, audience framing issues
+  4. Commit if acceptable: `git commit -m "prompt: <what changed and why>"`
+- **Rollback:** `git log config/prompts.json` shows all prompt history. `git checkout <hash> -- config/prompts.json` restores any previous version instantly.
+- **Major revisions:** Tag significant prompt updates in git (e.g. `prompt-v2`) for easy reference when correlating prompt changes with post performance data.
+- **Performance-driven iteration:** Post engagement data informs prompt updates over time — see Section 11.1 for the planned feedback loop. As more data accumulates, prompts are updated to reflect what actually drives views and saves.
+
+---
+
+### 14.5 Manual Override & Operator Intervention
+
+The pipeline is fully automated but not fully autonomous — there are situations where a human needs to step in.
+
+**XHS content rejection**
+If XHS blocks a post (community guideline violation, spam detection, sensitive topic flag), the publisher logs the rejection and exits without writing to `post_history.json`. The generated post is preserved in `post_archive/`.
+
+Intervention path:
+1. Retrieve the post from `post_archive/`
+2. Review — identify why it may have been rejected (flagged keywords, topic sensitivity, link in body)
+3. Edit the post manually to address the issue
+4. Post via the XHS app directly (bypasses Playwright entirely)
+
+**Playwright automation failure**
+If the XHS web client changes or bot detection triggers, automated publishing stops working. The semi-automated fallback is the override path: run the generator manually (`node scripts/test-gen.js`), copy the output from `post_archive/`, and post via the app. This keeps posts going while the automation is being fixed.
+
+**Bad generated content**
+If `test-gen.js` output is reviewed before a deploy and the quality is unacceptable (wrong tone, framing drift, format violations), do not publish — update `prompts.json`, regenerate, and review again before enabling the cron.
+
+**Cron is running but posts look wrong**
+Disable the cron (`docker-compose down` or comment out the cron line in `scheduler.js`), diagnose via `pipeline.log`, fix the issue, and re-enable. Every post is archived so nothing is lost during the pause.
+
+---
+
+### 14.6 Long-Term Maintenance
+
+The pipeline is designed to be handed off after May 2026 and continue running with minimal intervention. The most likely maintenance events and how to handle them:
+
+**RunJapan site structure change**
+- Symptom: Race count in `pipeline.log` drops sharply or to 0
+- Fix: Inspect current HTML structure in browser, update cheerio selectors in `scraper.js`
+- No code changes needed elsewhere — scraper is self-contained
+
+**XHS web client redesign**
+- Symptom: Publisher fails to locate elements; Playwright selector errors in log
+- Fix: Update selectors in `publisher.js` to match new UI
+- Continuity: Use semi-automated fallback (Section 9.1) while fixes are made — no post gap
+
+**Prompt decay (content underperforms over time)**
+- Symptom: XHS engagement metrics declining week-over-week
+- Fix: Review post performance by type, update underperforming templates in `prompts.json`, commit and tag the change
+- Frequency: Review quarterly or when a content type drops below baseline engagement
+
+**Claude model deprecation**
+- Symptom: Generator API calls return model-not-found error
+- Fix: Update the model constant in `generator.js` to the current recommended model; run `test-gen.js` to verify output quality before deploying
+
+**XHS session expiry**
+- Symptom: Publisher fails to authenticate
+- Fix: Re-run `node scripts/xhs-login.js` to refresh `auth.json`
+
+**Environment consistency**
+- Playwright browser binaries are environment-sensitive and a common source of silent failures on new machines. The Docker + docker-compose deployment (see Section 5) ensures binaries behave identically across environments. For any new deployment, use Docker rather than running directly on the host.
+
+---
