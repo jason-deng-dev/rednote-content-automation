@@ -1,0 +1,75 @@
+{
+  "notes": "Selectors discovered via DevTools and Playwright codegen on creator.xiaohongshu.com. data-v-* attributes are Vue scope IDs and may change on XHS frontend deploys — prefer text-based and data-placeholder selectors where possible.",
+  "selectors": {
+    "open_editor_btn": {
+      "selector": "getByText('写长文')",
+      "description": "Button to open the long-form text post editor — a span inside a div, text content '写长文'",
+      "type": "text",
+      "element": "span.title[data-v-96911380] inside a div"
+    },
+    "new_post_btn": {
+      "selector": "getByText('新的创作')",
+      "description": "Button to start a new post after entering the editor",
+      "type": "text"
+    },
+    "title_input": {
+      "selector": "getByPlaceholder('输入标题')",
+      "description": "Title input field — standard input with placeholder, use .fill()",
+      "type": "placeholder"
+    },
+    "content_editor": {
+      "selector": "locator('[data-placeholder=\"输入文字，内容将自动保存\"]')",
+      "description": "Main post body — ProseMirror rich text editor. Click to focus, then use page.keyboard.type(). Cannot use .fill().",
+      "type": "data-placeholder"
+    },
+    "format_btn": {
+      "selector": "getByText('一键排版')",
+      "description": "Auto-format button — click after typing content body",
+      "type": "text"
+    },
+    "next_btn": {
+      "selector": "getByText('下一步')",
+      "description": "Next step button — moves from content editor to description/tags page",
+      "type": "text"
+    },
+    "description_editor": {
+      "selector": "locator('[data-placeholder=\"输入正文描述，真诚有价值的分享予人温暖\"]')",
+      "description": "Description/tags field on the second page — also ProseMirror. Click to focus, then use page.keyboard.type().",
+      "type": "data-placeholder"
+    },
+    "publish_btn": {
+      "selector": "getByRole('button', { name: '发布' })",
+      "description": "Publish button — use getByRole to avoid matching '发布笔记' and '定时发布' which also contain '发布'",
+      "type": "role"
+    },
+    "comment_textarea": {
+      "selector": "locator('#content-textarea')",
+      "description": "Comment input field on the published post page — stable ID selector, use .fill()",
+      "type": "id"
+    },
+    "comment_send_btn": {
+      "selector": "getByRole('button', { name: '发送' })",
+      "description": "Send button for posting a comment",
+      "type": "role"
+    },
+    "post_link_FRAGILE": {
+      "selector": "getByRole('link').filter({ hasText: /^$/ }).nth(1)",
+      "description": "FRAGILE — matches empty link text, nth(1) is positional. Used to navigate to published post from profile page. Needs a better approach before using in production.",
+      "type": "fragile",
+      "note": "XHS opens profile in a new tab (page1) after publishing. Need to find a stable way to identify the most recently published post."
+    }
+  },
+  "flow": [
+    "Navigate to creator.xiaohongshu.com/publish/publish",
+    "Click 写长文 → Click 新的创作",
+    "Fill title_input",
+    "Click content_editor → keyboard.type(body)",
+    "Click format_btn → Click next_btn",
+    "Click description_editor → keyboard.type(description + hashtags)",
+    "Click publish_btn",
+    "XHS redirects and opens profile in new tab (page1)",
+    "Navigate page1 to published post",
+    "Click comment section → fill comment_textarea → click comment_send_btn",
+    "Repeat for each comment in comments array"
+  ]
+}
