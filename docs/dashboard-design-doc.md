@@ -230,9 +230,8 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 
 - **Catalog size** — total products cached in PostgreSQL
 - **WooCommerce live** — how many products have been pushed to the store
-- **Untranslated** — count of products with `translated_at IS NULL` (health indicator)
 - **Last activity** — timestamp of last Rakuten fetch or WooCommerce push
-- **Error indicator** — any recent API failures (Rakuten, DeepL, WooCommerce)
+- **Error indicator** — any recent API failures (Rakuten, WooCommerce)
 
 ---
 
@@ -271,7 +270,6 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 ### 10.1 Catalog Stats
 
 - Total products cached in PostgreSQL
-- Translated vs untranslated count
 - Products pushed to WooCommerce vs not yet pushed
 - Stale products (cache older than 24h) — count with a force-refresh option per category
 - **Per-category breakdown** — product count for each of the five planned top-level categories:
@@ -280,7 +278,7 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
   - 🥤 Nutrition & Supplements
   - 🧴 Recovery & Care
   - 👕 Sportswear
-  - Each row shows: cached / translated / pushed to WC
+  - Each row shows: cached / pushed to WC
 
 ### 10.2 Pricing Config Editor
 
@@ -295,22 +293,16 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 - Table of all WooCommerce push attempts from `import_log`: timestamp, product name, status (success / failed / skipped), error message if failed
 - **Failed imports panel** — products with `status = 'failed'` surfaced as a list with a one-click retry button per product
 
-### 10.4 DeepL Quota Tracker
-
-- Current month character usage vs limit
-- Shown as a health indicator — if quota is exhausted, new products display in raw Japanese with no warning to customers
-
-### 10.5 Manual Trigger
+### 10.4 Manual Trigger
 
 - "Fetch more products" button with category dropdown + count input
-- Fetches from Rakuten, normalises, batch-translates, and caches in PostgreSQL in one operation
+- Fetches from Rakuten, normalises, prices, and caches in PostgreSQL — WooCommerce push triggered separately
+- Product request flow trigger: manually submit a keyword to test the on-page request flow end-to-end
 
 ---
 
 ## 11. Open Questions
 
-- What form does the dashboard take? Web UI, CLI, or terminal output?
-- Where does it run — same server as the pipelines, or separate?
 - How is prompt quality scored? (Parse success alone, or semantic review?)
 - Does the Claude-assisted fix mode run automatically on failure, or on-demand?
 - Should the dashboard send alerts (email, Telegram) when a pipeline fails, or is checking it manually sufficient?
@@ -318,8 +310,16 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 
 ---
 
-## 12. Next Steps
+## 12. Resolved Decisions
 
-- Finalize architecture and tech stack (to be decided once all three pipelines are operational)
-- Define prompt quality scoring criteria based on observed generator output
+- **Form:** Web UI (React SPA + Express API)
+- **Deployment:** Same AWS Lightsail instance as all three pipelines
+- **Translation tracking:** Removed — translation is handled by TranslatePress on the WordPress side, not tracked in the dashboard
+
+---
+
+## 13. Next Steps
+
 - Implement per-pipeline structured logging as a prerequisite (logs need consistent format for the dashboard to parse)
+- Define prompt quality scoring criteria based on observed generator output
+- Build dashboard after all three pipelines are deployed to Lightsail
