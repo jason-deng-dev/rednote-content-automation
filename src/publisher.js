@@ -46,12 +46,13 @@ async function publishPost({ title, hook, contents, cta, description, hashtags, 
 			await page.keyboard.type(`${hashtag}`);
 			await page.waitForTimeout(1000);
 			await page.keyboard.press('Enter');
-		}
-
+		}0
+		await page.waitForTimeout(1000);
 		await page.getByRole('button', { name: '发布' }).click();
 		await page.waitForURL('**/success?source&bind_status=not_bind&__debugger__=&proxy=');
 		console.log('Post published successfully');
-
+		archivePost(new Date().toISOString(), { title, hook, contents, cta, description, hashtags, comments });
+		await page.waitForTimeout(3000);
 		await page.goto('https://www.xiaohongshu.com/user/profile/68b4ecc6000000001802f0e9?tab=note&subTab=note');
 		await page.waitForSelector('#userPostedFeeds .note-item');
 		await page.locator('#userPostedFeeds .note-item').first().click();
@@ -69,7 +70,6 @@ async function publishPost({ title, hook, contents, cta, description, hashtags, 
 				console.error(`Comment ${i + 1} failed: ${err.message}`);
 			}
 		}
-		archivePost(new Date().toISOString(), { title, hook, contents, cta, description, hashtags, comments });
 
 		console.log('Comments posted successfully');
 	} catch (err) {
@@ -132,6 +132,7 @@ function archivePost(dateAndTime, post) {
 	}
 	archive[dateAndTime] = post;
 	fs.writeFileSync(filePath, JSON.stringify(archive, null, 2));
+	console.log(`Post archived to ${weekStart}.json`);
 }
 
 export { publishPost, checkAuth };
