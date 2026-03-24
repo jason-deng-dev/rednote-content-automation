@@ -21,7 +21,7 @@ function startScheduler() {
 
 	// Daily: generate and publish post at 9pm CST (peak XHS engagement window)
 	nodeCron.schedule(
-		"* * * * *",
+		"*/30 * * * * *",
 		async () => {
 			
 			const type = getPostTypeTest();
@@ -38,7 +38,10 @@ function startScheduler() {
 			}
 
 			try {
-				await publishPost(post);
+				const publishRes = await publishPost(post)
+				if (publishRes !== true){
+					return;
+				};
 			} catch (err) {
 				console.error(`Publish post failed : ${err.message}`);
 				return;
