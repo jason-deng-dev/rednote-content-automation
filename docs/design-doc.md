@@ -671,14 +671,13 @@ Hashtags are hardcoded per post type and appended to `description` after parsing
 
 ### 7.5 post_archive Schema
 
-One JSON file per week, stored in `data/post_archive/`. Filename is the Monday date of that ISO week (e.g. `2026-03-23.json`). Content is an object keyed by ISO timestamp — each key maps to the post type and the full published post object.
+One JSON file per week, stored in `data/post_archive/`. Filename is the Monday date of that ISO week (e.g. `2026-03-23.json`). Content is an object keyed by ISO timestamp — each key is the full published post object.
 
 Written by `archivePost()` in `publisher.js` immediately after a successful publish, before `return true`.
 
 ```json
 {
   "2026-03-24T21:05:32.000Z": {
-    "type": "race",
     "title": "富士山マラソン完全攻略",
     "hook": "...",
     "contents": [
