@@ -802,6 +802,14 @@ XHS enforces a **300-character limit per comment**. This is enforced in the prom
 
 ---
 
+### 9.10 Race Deduplication: Variant Entry Tiers in Source Data
+
+**Challenge:** RunJapan lists the same race multiple times under different entry tiers (e.g. "Kasumigaura Marathon 2026【Regular Entry】" and "Kasumigaura Marathon 2026 【Late entry】"). These are the same event with identical content but different registration windows. Exact-name dedup in `post_history.json` fails to catch these — each variant passes the filter as a new race, causing the pipeline to generate near-identical posts about the same event.
+
+**Solution:** Normalize race names before dedup comparison by stripping everything from `【` onward. At selection time in `generator.js`, filter out any candidate race whose normalized name matches a normalized name already in `post_history`. Check runs both directions — candidate is substring of history entry, or history entry is substring of candidate — to catch partial overlaps. Raw `races.json` is kept intact; dedup logic lives entirely at selection time.
+
+---
+
 ## 10. Testing Strategy
 
 ### 10.1 Philosophy
