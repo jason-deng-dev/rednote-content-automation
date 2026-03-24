@@ -87,9 +87,9 @@ async function checkAuth() {
 
 	try {
 		await page.goto('https://creator.xiaohongshu.com/publish/publish');
-
+		await page.waitForTimeout(2000);
 		// error handling for auth failure on publish page
-		if (page.url().includes('/login')) {
+		if (await page.locator('#login-btn').isVisible()) {
 			throw new Error('Authentication expired — run refresh-auth.bat to re-login');
 		}
 
@@ -99,6 +99,8 @@ async function checkAuth() {
 		if (await page.locator('#login-btn').first().isVisible()) {
 			throw new Error('Authentication expired — run refresh-auth.bat to re-login');
 		}
+		console.log('Authentication successful')
+		return true
 	} catch (err) {
 		// console.error('Publish failed:', err.message);
 		if (err.message.includes('Authentication')) {
@@ -110,4 +112,4 @@ async function checkAuth() {
 	}
 }
 
-export { publishPost, checkAuth};
+export { publishPost, checkAuth };
