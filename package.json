@@ -9,7 +9,8 @@
   "scripts": {
     "test": "vitest",
     "devScraper": "node --watch src/scraper.js",
-    "devPostGen": "node --watch src/generator.js"
+    "devPostGen": "node --watch src/generator.js",
+    "start": "node scripts/run-scheduler.js"
   },
   "repository": {
     "type": "git",
