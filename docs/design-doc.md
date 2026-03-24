@@ -949,6 +949,8 @@ rednote-content-automation/
     │   ├── context-builder.test.js         # Tests buildContext() in isolation (no API calls)
     │   └── generator.test.js               # Tests generatePost() with mocked Anthropic client
     ├── docs/
+    ├── Dockerfile                          # Image build instructions — base OS, dependencies, app files
+    ├── docker-compose.yml                  # Runtime config — env vars, volumes, restart policy
     ├── auth.json                           # XHS session state (gitignored — credential file)
     ├── .env
     ├── .env.example
