@@ -92,6 +92,22 @@ async function getContextPrompts(
 	return { comments, contextToUse, raceName };
 }
 
+
+function cleanName(str) {
+	if (!str.includes('【')){
+		return str
+	} else {
+		const index = str.indexOf('【')
+		if (str[index-1] == ' '){
+			return str.slice(0, index-1)
+		} else {
+			return str.slice(0, index)
+		}
+		
+	}
+
+}
+
 async function chooseRace({
 	races = defaultRaces,
 	postedRaces = defaultPostedRaces,
