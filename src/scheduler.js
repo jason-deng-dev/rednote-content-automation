@@ -53,6 +53,7 @@ async function Run(){
 				return;
 			}
 
+			console.log('Starting Authentication check...')
 			try {
 				const authRes = await checkAuth();
 				if (!authRes) {
@@ -66,6 +67,8 @@ async function Run(){
 				}
 			}
 			let post;
+
+
 			console.log('Starting XHS article generation...')
 			try {
 				post = await generatePost(type);
@@ -85,6 +88,7 @@ async function Run(){
 				console.error(`Publish post failed : ${err.message}`);
 				return
 			}
+			console.log('Process complete')
 		}
 
 Run();

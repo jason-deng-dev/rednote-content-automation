@@ -69,6 +69,7 @@ async function publishPost({ title, hook, contents, cta, description, hashtags, 
 				console.error(`Comment ${i + 1} failed: ${err.message}`);
 			}
 		}
+		console.log('Comments posted successfully')
 	} catch (err) {
 		console.error('Publish failed:', err.message);
 		return false;
