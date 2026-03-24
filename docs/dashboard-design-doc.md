@@ -71,22 +71,59 @@ Example flow:
 1. RedNote pipeline fails at publisher stage — `auth.json` session expired
 2. Dashboard detects failure, identifies error type
 3. Feeds error context to Claude
-4. Claude responds: "Your XHS session has expired. Run `node scripts/xhs-login.js`, log in manually when the browser opens, then restart the scheduler."
-5. Operator follows steps, pipeline resumes
+4. Claude responds: "Your XHS session has expired. Click the **Login to XHS** button to refresh your session."
+5. Operator clicks the button, logs in via the embedded browser view, pipeline resumes
 
 ---
 
-## 5. Open Questions
+## 5. XHS Session Management
+
+XHS sessions expire periodically (typically every few weeks). Rather than requiring the operator to SSH into the server and run a script, the dashboard exposes a browser-based re-authentication flow.
+
+### How It Works
+
+1. Operator clicks **"Login to XHS"** button in the dashboard
+2. Server spawns a Playwright-controlled browser instance
+3. Operator interacts with the XHS login page directly — the browser window is streamed into the dashboard via an embedded **noVNC viewer**, so they never leave the browser tab
+4. Playwright captures the resulting session cookies automatically
+5. Cookies are saved as `auth.json` on the AWS server
+6. All future automated publishing runs use the refreshed `auth.json`
+
+### Why This Approach
+
+- **Solves bot detection** — it's a real human login producing a real session, not a scripted credential submission
+- **No server access required** — operator never touches SSH, the terminal, or any files
+- **No credentials stored in code** — `auth.json` is a session artifact, not a hardcoded password
+- **Self-service re-auth** — when the session expires, the operator clicks one button and is done in under a minute
+
+### Session Expiry Detection
+
+The dashboard should surface session state as a status indicator on the RedNote pipeline card:
+- **Session active** — last successful publish timestamp + estimated expiry (30 days from last login)
+- **Session expiring soon** — warning at <7 days remaining
+- **Session expired / publish failed** — error state with the Login button prominently shown
+
+### Implementation Notes
+
+- Backend: `POST /api/xhs/login` — spawns Playwright with `headful: true`, starts a noVNC-compatible VNC server pointing at that browser instance
+- Frontend: dashboard opens an `<iframe>` or dedicated panel with the noVNC web client, connecting to the VNC stream
+- On successful login detection (Playwright observes redirect to XHS home), server closes the browser, saves `auth.json`, returns success to the dashboard
+- `auth.json` is never transmitted to the client — it stays on the server
+
+---
+
+## 6. Open Questions
 
 - What form does the dashboard take? Web UI, CLI, or terminal output?
 - Where does it run — same server as the pipelines, or separate?
 - How is prompt quality scored? (Parse success alone, or semantic review?)
 - Does the Claude-assisted fix mode run automatically on failure, or on-demand?
 - Should the dashboard send alerts (email, Telegram) when a pipeline fails, or is checking it manually sufficient?
+- noVNC vs. alternative browser streaming approach for the XHS login flow — noVNC requires a VNC server on the AWS instance; simpler alternative is Playwright's `slowMo` + screenshot polling, but that's less interactive
 
 ---
 
-## 6. Next Steps
+## 7. Next Steps
 
 - Finalize architecture and tech stack (to be decided once all three pipelines are operational)
 - Define prompt quality scoring criteria based on observed generator output
