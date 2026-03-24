@@ -104,22 +104,19 @@
     - [x] Catch publish failure — log error, do not post comments
     - [x] Catch comment failure — log which comment failed, continue with remaining
 - [ ] Deploy
-  - [ ] Provision Linux VPS (Onamae VPS 2GB or Tencent Cloud new Linux CVM — Tokyo region, 2GB RAM minimum)
-  - [ ] SSH into VPS and verify access
-  - [ ] Install Docker on VPS
-  - [ ] Install Git on VPS
+  - [ ] Provision AWS Lightsail instance (Linux, $10/mo — IPv6-only, 2 GB RAM, 2 vCPUs, 60 GB SSD, 3 TB transfer, hosted outside mainland China)
+  - [ ] SSH into Lightsail instance and verify access
+  - [ ] Install Docker on Lightsail instance
+  - [ ] Install Git on Lightsail instance
   - [ ] Write Dockerfile
   - [ ] Write docker-compose.yml
   - [ ] Test container locally
-  - [ ] Clone repo onto VPS
-  - [ ] Create .env file on VPS with production API keys (never committed to git)
-  - [ ] Write scripts/refresh-auth.bat — Windows batch file for operator: runs xhs-login.js in headed browser, then SCPs auth.json to VPS automatically
-  - [ ] Set up SSH key on operator's local Windows machine (one-time setup, required for SCP in refresh-auth.bat)
-  - [ ] Test full auth refresh flow: operator double-clicks refresh-auth.bat → browser opens → logs in → auth.json auto-uploaded to VPS
-  - [ ] Transfer auth.json to VPS (initial setup)
-  - [ ] Run docker-compose up on VPS and verify pipeline starts
+  - [ ] Clone repo onto Lightsail instance
+  - [ ] Create .env file on Lightsail instance with production API keys (never committed to git)
+  - [ ] Transfer auth.json to Lightsail instance (initial setup)
+  - [ ] Run docker-compose up on Lightsail instance and verify pipeline starts
   - [ ] Verify first scheduled cron run fires correctly
-  - [ ] Hand off to employer — document two things: (1) docker-compose up to start pipeline, (2) double-click refresh-auth.bat when XHS logs out
+  - [ ] Hand off to employer — document: (1) docker-compose up to start pipeline, (2) use "Login to XHS" button in dashboard when session expires
 - [ ] Tune prompt output format for XHS page layout
   - [ ] Update prompts to produce fewer lines per section, more content per line — allows 一键排版 to split pages at correct section boundaries
 - [ ] Build demo page
