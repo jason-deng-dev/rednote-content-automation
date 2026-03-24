@@ -112,7 +112,18 @@ The dashboard should surface session state as a status indicator on the RedNote 
 
 ---
 
-## 6. Open Questions
+## 6. Pipeline Configuration
+
+The dashboard should allow the operator to configure the RedNote posting schedule without touching code or the server:
+
+- **Posts per day** — number input (e.g. 1–3 posts/day)
+- **Post times** — time picker(s) for each scheduled post slot
+
+Changes update the cron schedule in `scheduler.js` (or equivalent config) at runtime.
+
+---
+
+## 7. Open Questions
 
 - What form does the dashboard take? Web UI, CLI, or terminal output?
 - Where does it run — same server as the pipelines, or separate?
@@ -123,7 +134,7 @@ The dashboard should surface session state as a status indicator on the RedNote 
 
 ---
 
-## 7. Next Steps
+## 8. Next Steps
 
 - Finalize architecture and tech stack (to be decided once all three pipelines are operational)
 - Define prompt quality scoring criteria based on observed generator output
