@@ -90,8 +90,30 @@ Both files written to the shared Docker volume:
 - Read by Race Hub container and XHS container
 
 **`scraper/run_log.json`**
-- Per-run metadata: timestamp, races scraped, failure count, failed URLs, outcome
-- Read by Dashboard to show scraper health and last run time
+
+Object keyed by ISO timestamp. Each entry represents one scraper run.
+
+```json
+{
+  "2026-03-25T02:00:00.000Z": {
+    "outcome": "success | failed",
+    "races_scraped": 87,
+    "failure_count": 2,
+    "failed_urls": ["https://runjapan.jp/race/E123456"],
+    "error_msg": null
+  }
+}
+```
+
+| Field | Type | Notes |
+|---|---|---|
+| `outcome` | string | `"success"` or `"failed"` |
+| `races_scraped` | number | Number of races successfully written to races.json |
+| `failure_count` | number | Number of detail pages that failed to scrape |
+| `failed_urls` | string[] | URLs of races that failed — empty array on clean run |
+| `error_msg` | string \| null | Top-level error message if run aborted, `null` otherwise |
+
+Read by Dashboard to show scraper health and last run time.
 
 ---
 

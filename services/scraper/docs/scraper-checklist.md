@@ -1,9 +1,9 @@
 - [x] Setup
   - [x] Port scraper.js from services/xhs/src/scraper.js → services/scraper/scraper.js
   - [x] Port tests/ and fixtures/
-  - [ ] Create package.json
-  - [ ] Write .env.example
-  - [ ] Write .dockerignore
+  - [x] Create package.json
+  - [x] Write .env.example
+  - [x] Write .dockerignore
 - [ ] Standalone scraper container
   - [ ] Add structured run_log.json output — timestamp, races scraped, failure count, failed URLs, outcome
   - [ ] Validate output — abort + preserve previous races.json if < 30 races returned

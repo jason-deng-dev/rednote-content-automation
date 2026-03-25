@@ -600,7 +600,35 @@ POST https://api.anthropic.com/v1/messages
 }
 ```
 
-### 7.3 post_history.json Schema
+### 7.3 run_log.json Schema
+
+Object keyed by ISO timestamp. Each entry represents one pipeline run.
+
+```json
+{
+  "2026-03-25T06:10:28.030Z": {
+    "type": "race",
+    "outcome": "success | failed",
+    "errorStage": "auth | generate | publish | null",
+    "errorMsg": "string | null",
+    "input_tokens": 1727,
+    "output_tokens": 1241
+  }
+}
+```
+
+| Field | Type | Notes |
+|---|---|---|
+| `type` | string | Post type — `race`, `training`, `nutritionSupplement`, `wearable` |
+| `outcome` | string | `"success"` or `"failed"` |
+| `errorStage` | string \| null | Which stage failed — `"auth"`, `"generate"`, `"publish"`, or `null` on success |
+| `errorMsg` | string \| null | Error message, or `null` on success |
+| `input_tokens` | number | Claude API input tokens consumed. `0` if failed before generation |
+| `output_tokens` | number | Claude API output tokens consumed. `0` if failed before generation |
+
+---
+
+### 7.4 post_history.json Schema
 
 A flat array of race name strings used to filter already-used races from future selection.
 
