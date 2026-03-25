@@ -18,7 +18,7 @@ axiosRetry(client, {
 
 const timeout = parseInt(process.env.RUNJAPAN_TIMEOUT) || 10000;
 
-async function populateRaces(limit) {
+async function populateRaces(limit = null) {
 	console.log('Starting race data refresh...')
 	const races = [];
 	let pageIndex = 1;
@@ -28,7 +28,8 @@ async function populateRaces(limit) {
 		"https://runjapan.jp/entry/runtes/smp/racesearchdetail.do";
 	const formBody =
 		"command=search&distanceClass=0&availableFlag=0&distanceUnit1=1&distanceUnit2=1";
-	while (races.length < limit) {
+	
+	while (limit === null || races.length < limit) {
 
 		const res =
 			pageIndex === 1
@@ -79,7 +80,7 @@ async function populateRaces(limit) {
 			} catch (err) {
 				console.error(`Failed to scrape race: ${err.message}`);
 			}
-			if (races.length >= limit) break;
+			if (limit !== null && races.length >= limit) break;
 		}
 
 		pageIndex++;
