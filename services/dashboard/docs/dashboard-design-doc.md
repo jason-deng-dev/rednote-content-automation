@@ -183,13 +183,13 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 - Weekly grid — one row per day, each row shows all configured post slots
 - Per slot: time picker (24h CST) + post type dropdown (Race Guide / Training / Nutrition / Wearables)
 - Add slot button per day, remove button per slot
-- Save button writes to `xhs/config.json` via `POST /api/schedule`
+- Save button writes to `xhs/config.json` via `POST /api/xhs/schedule`
 - Scheduler picks up changes at runtime without restart — watches `xhs/config.json` for changes and re-registers cron jobs on update
 
 ### 8.2 Live Log Stream
 
 - Scrollable log panel showing real-time stdout from the XHS automation process
-- Streamed from the server via SSE (Server-Sent Events) — `GET /api/logs/stream`
+- Streamed from the server via SSE (Server-Sent Events) — `GET /api/xhs/logs/stream`
 - New lines appended as they arrive, auto-scrolls to bottom
 - Lines are colour-coded: errors in red, success messages in green, neutral in default
 
@@ -320,16 +320,17 @@ All endpoints read from / write to the shared Docker volume unless noted. No dat
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/api/schedule` | Read `xhs/config.json` — returns per-day post schedule |
-| `POST` | `/api/schedule` | Write `xhs/config.json` — scheduler picks up changes at runtime |
-| `GET` | `/api/run-history` | Read `xhs/run_log.json` — full post run history |
-| `GET` | `/api/post-archive` | Read `xhs/post_archive/` — published post archive |
-| `GET` | `/api/pipeline-state` | Read `xhs/pipeline_state.json` and `scraper/pipeline_state.json` — returns `{ xhs: "idle|running|failed", scraper: "idle|running|failed" }` |
-| `GET` | `/api/auth-status` | Derive XHS session status from `xhs/auth.json` mtime |
-| `POST` | `/api/trigger` | Spawn manual XHS run — accepts `{ type }` body param |
-| `GET` | `/api/logs/stream` | SSE — streams XHS process stdout in real time |
+| `GET` | `/api/xhs/schedule` | Read `xhs/config.json` — returns per-day post schedule |
+| `POST` | `/api/xhs/schedule` | Write `xhs/config.json` — scheduler picks up changes at runtime |
+| `GET` | `/api/xhs/run-history` | Read `xhs/run_log.json` — full post run history |
+| `GET` | `/api/xhs/post-archive` | Read `xhs/post_archive/` — published post archive |
+| `GET` | `/api/xhs/auth-status` | Derive XHS session status from `xhs/auth.json` mtime |
+| `POST` | `/api/xhs/trigger` | Spawn manual XHS run — accepts `{ type }` body param |
+| `GET` | `/api/xhs/logs/stream` | SSE — streams XHS process stdout in real time |
 | `POST` | `/api/xhs/login` | Spawn `xhs-login.js`, begin screenshot polling |
 | `GET` | `/api/xhs/login/stream` | SSE — streams screenshots from login browser for QR code display |
+| `GET` | `/api/pipeline-state` | Read `xhs/pipeline_state.json` and `scraper/pipeline_state.json` — returns `{ xhs: "idle|running|failed", scraper: "idle|running|failed" }` |
+| `POST` | `/api/scraper/trigger` | Spawn manual scraper run via `docker exec` |
 
 ### Shared File Schemas
 
@@ -443,7 +444,7 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 - **Single instance, everything co-located** — one `docker-compose.yml` manages all five containers
 - **Shared volume is two-way** — pipelines write state (logs, output), dashboard writes config; pipelines watch their config files and adjust at runtime without restarting
 - **Commands vs reads** — dashboard reads state from shared volume; only calls internal APIs for triggering actions (Rakuten :3002 for fetch/retry, process spawning for XHS manual trigger)
-- **Two external-facing servers** — Scraper :3001 (public, serves race data to WordPress) and Dashboard :3000 (operator-facing, auth-gated)
+- **Two external-facing servers** — Race Hub :3001 (public, serves race data to WordPress) and Dashboard :3000 (operator-facing, auth-gated)
 - **Rakuten :3002 is internal only** — never exposed outside the Docker network
 
 ---

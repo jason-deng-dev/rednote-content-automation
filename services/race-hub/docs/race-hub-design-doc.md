@@ -66,7 +66,6 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 |`GET`|`/api/races`|All races, supports query params|
 |`GET`|`/api/races/:id`|Single race detail|
 |`GET`|`/api/races/upcoming`|Races with `date >= today`, sorted by date|
-|`POST`|`/api/sync`|Manual pipeline trigger (requires `X-Sync-Key` header)|
 
 ### 3.2 Query Params for `/api/races`
 
@@ -80,10 +79,10 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 ### 3.3 Implementation Notes
 
-- Reads `races.json` from the shared Docker volume on each request (or caches in memory with a TTL — TBD)
+- Reads `races.json` from the shared Docker volume on each request (read-on-request — no cache)
 - `GET /api/races/upcoming` must be defined before `GET /api/races/:id` in Express — otherwise Express matches "upcoming" as an `:id` param
 - CORS configured to allow `running.moximoxi.net` as origin
-- `POST /api/sync` spawns the scraper process and requires `X-Sync-Key` header matching an env var
+- Manual scrape trigger is handled by the Dashboard (`POST /api/scraper/trigger`) — Race Hub is a pure data server with no process-spawning logic
 
 ---
 
@@ -131,7 +130,7 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 |Data delivery|Express API serving races.json|WP custom post types + WP REST API|No WP DB schema needed; scraper just updates a file; any developer can understand the flow|
 |Frontend embedding|React SPA as WordPress plugin|Standalone deployment, WP theme templates|Operator never leaves WordPress; maintainable by any WP developer; no separate hosting needed|
 |Data store|races.json flat file (read-only for Race Hub)|PostgreSQL, SQLite|Sufficient for ~100-200 races; zero infra overhead; easy to inspect|
-|Memory vs disk read|TBD — in-memory cache with TTL vs read-on-request|—|In-memory is faster; read-on-request is simpler and always fresh. Decide at build time.|
+|Memory vs disk read|Read-on-request|In-memory cache with TTL|~50KB file, reads are instantaneous, no cache invalidation needed after scraper runs|
 
 ---
 
@@ -175,11 +174,11 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 ---
 
-## 8. Open Questions
+## 8. Resolved Decisions
 
-- **Image handling:** Hotlink race images from RunJapan CDN, or download and proxy through the API? Hotlinking is simpler but fragile if RunJapan changes image URLs.
-- **Cache strategy:** Read `races.json` on every request (simple, always fresh) or cache in memory with a TTL (e.g. 1 hour)? For ~60 races this is negligible, so read-on-request is probably fine.
-- **Alerts:** Should the dashboard show an alert if the weekly scrape returns < 30 races? Yes — add to dashboard spec.
+- **Image handling:** Hotlink from RunJapan CDN. If RunJapan changes image URLs, the scraper gets updated at the same time — they're from the same source. Downloading and re-serving adds infra complexity for no real benefit.
+- **Cache strategy:** Read-on-request. `races.json` is ~50KB for 60 races — reads are instantaneous, and there's no cache invalidation needed after a scrape runs.
+- **Alerts:** Dashboard shows an alert if the weekly scrape returns < 30 races — already in the dashboard spec (§3).
 
 ---
 
