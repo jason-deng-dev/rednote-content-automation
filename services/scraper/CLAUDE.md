@@ -7,15 +7,11 @@
 - If a file or folder isn't in the design doc structure, confirm before creating it
 
 ## Repo Structure
-Refer to `docs/scraper-design-doc.md` Section 13. Key files:
-- `scraper.js` — RunJapan scraper
-- `normalizer.js` — data normalization + dedup
-- `wp-sync.js` — WordPress REST API sync
-- `races.json` — central data store
-- `pipeline.log` — stage-by-stage run log
-- `wp-plugin/` — WordPress custom post type plugin
-- `frontend/server/` — Express API
-- `frontend/client/` — React SPA
+Refer to `docs/scraper-design-doc.md` Section 11. Key files:
+- `scraper.js` — RunJapan scraper (two-pass, session cookie handling)
+- `run-scraper.js` — entry point
+- `tests/scraper.test.js` — shape/completeness tests
+- `tests/fixtures/sample-races.json` — fixture data
 
 ## Keeping Docs in Sync
 - When a checklist item is completed, mark it as done in `docs/scraper-checklist.md`
@@ -27,9 +23,8 @@ Jason is working through The Odin Project (76% through NodeJS). He has solid fun
 - JavaScript, React, Express, REST APIs, PostgreSQL, Prisma, auth basics, npm/Node modules, async/await
 
 **New territory in this project** (go slower, explain more):
-- Web scraping (Cheerio/Playwright)
+- Web scraping (Cheerio, session cookie handling)
 - node-cron scheduling
-- WordPress REST API sync
 - Data pipeline architecture
 
 When explaining new concepts, frame them against things Jason already knows (e.g. scraping is just making HTTP requests and parsing the response, like fetch + reading JSON but for HTML).

@@ -9,9 +9,11 @@
 
 ## Repo Structure
 Refer to `docs/xhs-design-doc.md` Section 12. Key files:
-- `src/` — all pipeline JS files (scraper, generator, formatter, publisher)
-- `data/` — races.json, post_history.json, post_archive/
-- `demo/` — static portfolio showcase page + pre-generated posts
+- `src/` — generator.js, scheduler.js, publisher.js
+- `scripts/` — run-scheduler.js, xhs-login.js, test-gen.js
+- `config/` — prompts.json
+- `data/` — races.json (local copy for testing), post_history.json, post_archive/
+- `tests/` — unit tests + fixtures
 
 ## Keeping Docs in Sync — REQUIRED, DO NOT SKIP
 **After every task, before moving on:**
