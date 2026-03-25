@@ -120,7 +120,7 @@
   - [x] Verify all 7 post types fire in order (scheduler test mode — queue-based, back-to-back)
   - [x] Verify race dedup works — no repeat races across cycle
 - [ ] Structured run logging (dashboard prerequisite)
-  - [ ] Append to `xhs/run_log.json` on every pipeline run — timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output, cost_usd
+  - [ ] Append to `xhs/run_log.json` on every pipeline run — timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output
   - [ ] Pull token counts from `usage` field on every Claude API response and include in log entry
 - [ ] Shared volume migration
   - [ ] Update all file read/write paths to use shared volume mount (scraper/races.json, xhs/run_log.json, xhs/post_archive/, xhs/auth.json)
@@ -142,7 +142,7 @@
   - [ ] Serve React SPA as static files
 - [ ] Dashboard — React SPA (dashboard/client/)
   - [ ] Home page — 3 pipeline cards (XHS, Scraper, Rakuten) with live state indicators
-  - [ ] XHS section: schedule grid, live log stream, XHS auth status + login flow, key metrics, post archive viewer, manual trigger + preview mode, run history, Claude API cost tracker
+  - [ ] XHS section: schedule grid, live log stream, XHS auth status + login flow, key metrics, post archive viewer, manual trigger + preview mode, run history, Claude API token tracker
   - [ ] Race Scraper section: key metrics, failed URLs list, races.json viewer, run history, manual trigger
   - [ ] Rakuten section: catalog stats per category, pricing config editor, import log + retry, manual trigger
 - [ ] Deploy

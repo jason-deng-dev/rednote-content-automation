@@ -116,7 +116,7 @@ The shared volume is the communication bus between all containers. Pipelines wri
 | `scraper/races.json` | Scraper | Race Hub, XHS | All upcoming race data from RunJapan |
 | `scraper/run_log.json` | Scraper | Dashboard | Per-run: timestamp, races scraped, failure count, failed URLs, outcome |
 | `scraper/config.json` | Dashboard | Scraper | `scrape_limit` |
-| `xhs/run_log.json` | XHS | Dashboard | Per-run: timestamp, post_type, outcome, error_stage, tokens_input, tokens_output, cost_usd |
+| `xhs/run_log.json` | XHS | Dashboard | Per-run: timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output |
 | `xhs/post_archive/` | XHS | Dashboard | Published post content, weekly JSON files |
 | `xhs/auth.json` | XHS (xhs-login.js) | XHS (publisher.js) | XHS session cookies |
 | `xhs/config.json` | Dashboard | XHS | Per-day post schedule — XHS re-registers cron jobs on change |

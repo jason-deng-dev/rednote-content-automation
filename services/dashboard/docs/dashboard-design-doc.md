@@ -229,11 +229,12 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 - Columns: timestamp, post type, outcome (success / failed), error message if failed
 - Fills the gap left by `post_archive/` which only records successful posts — failed runs currently leave no trace
 
-### 8.8 Claude API Cost Tracker
+### 8.8 Claude API Token Tracker
 
 - Tokens used per post (input + output) logged from the `usage` field on each API response
-- Cumulative tokens and estimated cost this week / this month
-- Per-post cost visible in the run history table
+- Cumulative tokens this week / this month
+- Per-post token counts visible in the run history table
+- Cost calculation is left to the operator — token pricing changes over time
 
 ---
 
@@ -367,7 +368,7 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 | `scraper/races.json` | Scraper | XHS, Race Hub | Race data for XHS post generation + WordPress race hub |
 | `scraper/run_log.json` | Scraper | Dashboard | Scrape run history — timestamp, races scraped, failure count, failed URLs, outcome |
 | `scraper/config.json` | Dashboard | Scraper | `scrape_limit` (default: all races) |
-| `xhs/run_log.json` | XHS | Dashboard | Post run history — timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output, cost_usd |
+| `xhs/run_log.json` | XHS | Dashboard | Post run history — timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output |
 | `xhs/post_archive/` | XHS | Dashboard | Published post content (weekly JSON files keyed by ISO timestamp) |
 | `xhs/auth.json` | XHS (xhs-login.js) | XHS (publisher.js) | XHS session cookies — mtime used by dashboard to derive session age |
 | `xhs/config.json` | Dashboard | XHS | Per-day post slots (time + post type) — XHS watches for changes and re-registers cron jobs at runtime |
