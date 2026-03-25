@@ -4,9 +4,7 @@
   - [x] Write .dockerignore
   - [x] Write .gitignore
 - [ ] Express API (race-hub/server.js)
-  - [ ] GET /api/races — with query param filtering (status, date range, search, sort)
-  - [ ] GET /api/races/:id
-  - [ ] GET /api/races/upcoming
+  - [ ] GET /api/races — serve full races.json
   - [ ] Add CORS header for running.moximoxi.net
   - [ ] Write Dockerfile
 - [ ] React SPA WordPress Plugin (race-hub/wp-plugin/)

@@ -63,24 +63,12 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 |Method|Endpoint|Description|
 |---|---|---|
-|`GET`|`/api/races`|All races, supports query params|
-|`GET`|`/api/races/:id`|Single race detail|
-|`GET`|`/api/races/upcoming`|Races with `date >= today`, sorted by date|
+|`GET`|`/api/races`|Serves full `races.json` — no filtering, no params|
 
-### 3.2 Query Params for `/api/races`
-
-|Param|Values|Example|
-|---|---|---|
-|`status`|`open`, `closed`|`?status=open`|
-|`after`|ISO date string|`?after=2026-06-01`|
-|`before`|ISO date string|`?before=2026-12-31`|
-|`search`|Race name substring|`?search=osaka`|
-|`sort`|`date_asc`, `date_desc`|`?sort=date_asc`|
-
-### 3.3 Implementation Notes
+### 3.2 Implementation Notes
 
 - Reads `races.json` from the shared Docker volume on each request (read-on-request — no cache)
-- `GET /api/races/upcoming` must be defined before `GET /api/races/:id` in Express — otherwise Express matches "upcoming" as an `:id` param
+- All filtering, sorting, search, and detail views are handled client-side in the React SPA
 - CORS configured to allow `running.moximoxi.net` as origin
 - Manual scrape trigger is handled by the Dashboard (`POST /api/scraper/trigger`) — Race Hub is a pure data server with no process-spawning logic
 
@@ -138,13 +126,11 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 ### Phase 1 — Express API
 
-1. Build Express server: `GET /api/races`, `GET /api/races/:id`, `GET /api/races/upcoming`
-2. Add query param filtering (status, date range, search, sort)
-3. Add CORS for `running.moximoxi.net`
-4. Add `POST /api/sync` manual trigger with `X-Sync-Key` header auth
-5. Dockerfile + docker-compose integration
+1. Build Express server: `GET /api/races` — serves full `races.json`
+2. Add CORS for `running.moximoxi.net`
+3. Dockerfile + docker-compose integration
 
-**Exit criteria:** API returns filtered race data from `races.json`. Manual sync trigger works.
+**Exit criteria:** `GET /api/races` returns the full race list from `races.json`.
 
 ### Phase 2 — React SPA WordPress Plugin
 
@@ -166,18 +152,13 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 **Solution:** Add CORS headers to the Express API allowing `running.moximoxi.net` as an origin. Use the `cors` npm package — one-liner configuration.
 
-### 7.2 Route Order: `/api/races/upcoming` vs `/api/races/:id`
-
-**Challenge:** Express matches routes top-to-bottom. If `GET /api/races/:id` is registered before `GET /api/races/upcoming`, a request to `/api/races/upcoming` will match `:id` with the value `"upcoming"` and return a 404 (no race with id "upcoming").
-
-**Solution:** Register `/api/races/upcoming` before `/api/races/:id` in `server.js`.
-
 ---
 
 ## 8. Resolved Decisions
 
 - **Image handling:** Hotlink from RunJapan CDN. If RunJapan changes image URLs, the scraper gets updated at the same time — they're from the same source. Downloading and re-serving adds infra complexity for no real benefit.
 - **Cache strategy:** Read-on-request. `races.json` is ~50KB for 60 races — reads are instantaneous, and there's no cache invalidation needed after a scrape runs.
+- **Filtering:** Client-side in React SPA. ~60 races is trivially small — fetch once on page load, filter/sort/search in memory. No server-side query params needed.
 - **Alerts:** Dashboard shows an alert if the weekly scrape returns < 30 races — already in the dashboard spec (§3).
 
 ---
