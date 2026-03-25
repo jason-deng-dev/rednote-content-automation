@@ -22,6 +22,15 @@ function startScheduler() {
 	nodeCron.schedule('* * * * *', Run, { timezone: 'Asia/Shanghai' });
 
 	// Monthly: reset post_history.json
+	nodeCron.schedule('0 0 1 * *', () => {
+		try {
+			fs.writeFileSync('data/post_history.json', JSON.stringify([], null, 2))
+			console.log('post_history.json reset successful')
+		} catch(err) {
+			console.error(`post_history.json reset failed`)
+			return
+		}
+	}, { timezone: 'Asia/Shanghai' });
 }
 
 let postTypes = ['race', 'nutritionSupplement', 'training', 'race', 'race', 'training', 'wearable'];
