@@ -3,9 +3,9 @@
   - [x] Write .env.example
   - [x] Write .dockerignore
   - [x] Write .gitignore
-- [ ] Express API (race-hub/server.js)
-  - [ ] GET /api/races — serve full races.json
-  - [ ] Add CORS header for running.moximoxi.net
+- [x] Express API (race-hub/server.js)
+  - [x] GET /api/races — serve full races.json
+  - [x] Add CORS header for running.moximoxi.net
   - [ ] Write Dockerfile
 - [ ] React SPA WordPress Plugin (race-hub/wp-plugin/)
   - [ ] Race listing view — card grid, search bar, filter panel (status, date range)
