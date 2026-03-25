@@ -56,6 +56,7 @@ async function Run() {
 	while (jobQueue.length > 0) {
 		jobQueue.shift();
 		isRunning = true;
+
 		try {
 			const type = getPostTypeTest();
 			if (type === undefined) {
@@ -77,10 +78,12 @@ async function Run() {
 				}
 			}
 			let post;
-
+			let input_tokens;
+			let output_tokens;
 			console.log('Starting XHS article generation...');
 			try {
 				post = await generatePost(type);
+				({ input_tokens, output_tokens } = post);
 			} catch (err) {
 				console.error(`Generate post failed : ${err.message}`);
 				return;
@@ -104,6 +107,6 @@ async function Run() {
 	}
 }
 
-Run()
+Run();
 
 export { startScheduler };

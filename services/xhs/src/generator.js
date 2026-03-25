@@ -27,7 +27,7 @@ async function generatePost(
 	} = {},
 ) {
 	const systemPrompt = prompts.systemPrompt;
-	const { comments, contextToUse, raceName } = await getContextPrompts(type, {
+	let { comments, contextToUse, raceName, input_tokens, output_tokens} = await getContextPrompts(type, {
 		races,
 		postedRaces,
 		client,
@@ -52,6 +52,8 @@ async function generatePost(
 		throw new Error(`Post generation failed: ${err.message}`);
 	}
 
+	input_tokens += message.usage.input_tokens;
+	output_tokens += message.usage.output_tokens;
 	const { title, hook, contents, cta, description } = messageParsed;
 
 	// if message is successful add the race to post_history
@@ -62,7 +64,7 @@ async function generatePost(
 
 	const hashtags = getHashtags(type);
 
-	return { title, hook, contents, cta, description, hashtags, comments };
+	return { title, hook, contents, cta, description, hashtags, comments,  input_tokens, output_tokens};
 }
 
 async function getContextPrompts(
@@ -70,13 +72,15 @@ async function getContextPrompts(
 	{ races = defaultRaces, postedRaces = defaultPostedRaces, client = defaultClient, prompts = defaultPrompts } = {},
 ) {
 	let raceName = '';
+	let input_tokens = 0;
+	let output_tokens = 0;
 	if (type == 'race') {
-		raceName = await chooseRace({ races, postedRaces, client, prompts });
+		({raceName, input_tokens, output_tokens} = await chooseRace({ races, postedRaces, client, prompts }));
 	}
 
 	const { contextToUse, comments } = buildContext(type, prompts, races, raceName);
 
-	return { comments, contextToUse, raceName };
+	return { comments, contextToUse, raceName, input_tokens, output_tokens};
 }
 
 function cleanName(str) {
@@ -109,6 +113,7 @@ async function chooseRace({
 	let contextChooseRace = prompts.contextRaceSelection + raceStr;
 	console.log('Starting race selection...')
 	let raceSelection;
+	
 	try {
 		raceSelection = await client.messages.create({
 			max_tokens: 100,
@@ -120,8 +125,10 @@ async function chooseRace({
 		throw new Error(`Choose race failed: ${err.message}`);
 	}
 
+	const {input_tokens, output_tokens} = raceSelection.usage
 	console.log(`Race selection complete — ${raceSelection.content[0].text}`)
-	return raceSelection.content[0].text;
+	const raceName =  raceSelection.content[0].text;
+	return {raceName, input_tokens, output_tokens};
 }
 
 function getHashtags(type) {
