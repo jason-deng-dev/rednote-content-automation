@@ -1,0 +1,22 @@
+- [ ] Setup
+  - [ ] Create package.json
+  - [ ] Write .env.example
+  - [ ] Write .dockerignore
+- [ ] Express API (race-hub/server/)
+  - [ ] GET /api/races — with query param filtering (status, date range, search, sort)
+  - [ ] GET /api/races/:id
+  - [ ] GET /api/races/upcoming
+  - [ ] POST /api/sync — manual trigger (X-Sync-Key auth)
+  - [ ] Add CORS header for running.moximoxi.net
+  - [ ] Write Dockerfile
+- [ ] React SPA WordPress Plugin (race-hub/wp-plugin/)
+  - [ ] Race listing view — card grid, search bar, filter panel (status, date range)
+  - [ ] Race detail view — full info, entry status, Register Now button (registrationUrl), CTAs
+  - [ ] UI states — loading skeleton, empty state, error state
+  - [ ] Bundle with Vite → wp-plugin/dist/
+  - [ ] WordPress plugin — register [race_hub] shortcode, enqueue bundled assets
+  - [ ] Upload plugin to running.moximoxi.net
+  - [ ] Add shortcode to race hub page
+  - [ ] Smoke test end-to-end
+
+---

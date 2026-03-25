@@ -1,22 +1,16 @@
-- [ ]  Phase 1 — Data Pipeline
-    - [x]  Port scraper.js from services/xhs/src/scraper.js → services/scraper/scraper.js ✅
-    - [ ]  Validate races.json output — abort if < 30 races returned
-    - [ ]  Wire weekly cron (Sunday 2am JST)
+- [x] Setup
+  - [x] Port scraper.js from services/xhs/src/scraper.js → services/scraper/scraper.js
+  - [x] Port tests/ and fixtures/
+  - [ ] Create package.json
+  - [ ] Write .env.example
+  - [ ] Write .dockerignore
+- [ ] Standalone scraper container
+  - [ ] Add structured run_log.json output — timestamp, races scraped, failure count, failed URLs, outcome
+  - [ ] Validate output — abort + preserve previous races.json if < 30 races returned
+  - [ ] Wire weekly cron (Sunday 2am JST)
+  - [ ] Write Dockerfile
+- [ ] Deploy
+  - [ ] Verify container starts and cron fires correctly with docker-compose up
+  - [ ] Verify races.json written to shared volume on run
 
-- [ ]  Phase 2 — Express API
-    - [ ]  GET /api/races with query param filtering (status, date range, search, sort)
-    - [ ]  GET /api/races/:id
-    - [ ]  GET /api/races/upcoming
-    - [ ]  POST /api/sync manual trigger (X-Sync-Key auth)
-    - [ ]  Add CORS header for running.moximoxi.net
-    - [ ]  Deploy to AWS Lightsail
-
-- [ ]  Phase 3 — React SPA WordPress Plugin
-    - [ ]  Race listing view — card grid, search bar, filter panel (status, date range)
-    - [ ]  Race detail view — full info, entry status, Register Now button (registrationUrl), CTAs
-    - [ ]  UI states — loading skeleton, empty state, error state
-    - [ ]  Bundle with Vite → wp-plugin/dist/
-    - [ ]  WordPress plugin — register [race_hub] shortcode, enqueue bundled assets
-    - [ ]  Upload plugin to running.moximoxi.net
-    - [ ]  Add shortcode to race hub page
-    - [ ]  Smoke test end-to-end
+---

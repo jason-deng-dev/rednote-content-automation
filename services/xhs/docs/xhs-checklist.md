@@ -129,6 +129,14 @@
   - [x] Scheduler watches xhs/config.json for changes and re-registers cron jobs at runtime
   - [x] Write xhs/pipeline_state.json to shared volume on run start (running) and run end (idle / failed) — dashboard reads this for GET /api/pipeline-state
   - [x] Remove scraper.js from XHS container — reads scraper/races.json from shared volume instead
-- [x] Write Dockerfile (XHS container)
-- [x] Write .dockerignore
+- [ ] Docker & Deploy
+  - [x] Write Dockerfile (XHS container)
+  - [x] Write .dockerignore
+  - [x] Complete Dockerfile — install Playwright + Chromium browser dependencies
+  - [ ] Verify container starts and cron fires correctly with docker-compose up
+  - [ ] Transfer auth.json to Lightsail instance
+  - [ ] Verify XHS container runs correctly on Lightsail
+- [ ] Tune prompt output format for XHS page layout
+  - [ ] Update prompts to produce fewer lines per section, more content per line — allows 一键排版 to split pages at correct section boundaries
+
 ---
