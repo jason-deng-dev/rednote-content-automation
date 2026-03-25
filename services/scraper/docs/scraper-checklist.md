@@ -4,13 +4,13 @@
   - [x] Create package.json
   - [x] Write .env.example
   - [x] Write .dockerignore
-- [ ] Standalone scraper container
+- [x] Standalone scraper container
   - [x] Add structured run_log.json output — timestamp, races scraped, failure count, failed URLs, outcome
   - [x] Add pipeline_state.json output — running/idle/failed
   - [x] Validate output — abort + preserve previous races.json if < 30 races returned
-  - [ ] Wire weekly cron (Sunday 2am JST)
-- [ ] Dashboard integration
-  - [ ] Support manual trigger via docker exec from dashboard (no Express server needed)
+  - [x] Wire weekly cron (Sunday 2am JST)
+- [x] Dashboard integration
+  - [x] Support manual trigger via docker exec from dashboard (no Express server needed)
 - [ ] Docker & Deploy
   - [ ] Write Dockerfile
   - [ ] Verify container starts and cron fires correctly with docker-compose up
