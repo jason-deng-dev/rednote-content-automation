@@ -78,7 +78,7 @@ Example flow:
 
 ## 5. XHS Session Management
 
-XHS sessions expire periodically (typically every few weeks). Rather than requiring the operator to SSH into the server and run a script, the dashboard exposes a browser-based re-authentication flow.
+XHS sessions expire periodically (typically every few weeks, or when signed in from another browser/device). Rather than requiring the operator to SSH into the server and run a script, the dashboard exposes a browser-based re-authentication flow.
 
 ### How It Works
 
@@ -324,28 +324,28 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 │   cron only            Express :3001         scheduler.js       cron: fetch pipeline    │
 │   scraper.js weekly    (always up)           generator.js       PostgreSQL              │
 │   no HTTP              serves races.json     publisher.js       Express :3002           │
-│          │             to WordPress               │             (internal only)          │
-│          │                   │                    │                    │                 │
-│          ▼                   ▼                    ▼                    ▼                 │
-│    ┌──────────────────────────────────────────────────────────────────────┐              │
-│    │                          shared volume                               │              │
-│    │                                                                      │              │
-│    │  scraper/                xhs/                    rakuten/            │              │
-│    │   races.json ←            run_log.json ←          run_log.json ←     │              │
-│    │   run_log.json ←          post_archive/ ←         catalog_stats.json←│              │
-│    │   config.json →           auth.json ←             import_log.json ←  │              │
-│    │                           config.json →            config.json →      │              │
-│    │                                                                      │              │
-│    │   ← pipeline writes          → dashboard writes                     │              │
-│    └───────────────────────────────────┬──────────────────────────────────┘              │
+│          │             to WordPress               │             (internal only)         │
+│          │                   │                    │                    │                │
+│          ▼                   ▼                    ▼                    ▼                │
+│    ┌──────────────────────────────────────────────────────────────────────┐             │
+│    │                          shared volume                               │             │
+│    │                                                                      │             │
+│    │  scraper/                xhs/                    rakuten/            │             │
+│    │   races.json ←            run_log.json ←          run_log.json ←     │             │
+│    │   run_log.json ←          post_archive/ ←         catalog_stats.json←│             │
+│    │   config.json →           auth.json ←             import_log.json ←  │             │
+│    │                           config.json →            config.json →     │             │
+│    │                                                                      │             │
+│    │   ← pipeline writes          → dashboard writes                      │             │
+│    └───────────────────────────────────┬──────────────────────────────────┘             │
 │                                        │ reads all                                      │
 │                                        ▼                                                │
-│                      ┌───────────────────────────────────┐                             │
-│                      │        Dashboard container         │                             │
-│                      │  Express :3000 + React SPA         │                             │
-│                      │  (operator-facing only)            │                             │
-│                      │  commands → Rakuten :3002          │                             │
-│                      └───────────────┬───────────────────┘                             │
+│                      ┌───────────────────────────────────┐                              │
+│                      │        Dashboard container        │                              │
+│                      │  Express :3000 + React SPA        │                              │
+│                      │  (operator-facing only)           │                              │
+│                      │  commands → Rakuten :3002         │                              │
+│                      └───────────────┬───────────────────┘                              │
 │                                      │                                                  │
 └──────────────────────────────────────┼──────────────────────────────────────────────────┘
                 │                      │                                │

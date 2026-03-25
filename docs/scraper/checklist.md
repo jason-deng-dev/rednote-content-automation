@@ -1,0 +1,22 @@
+- [ ]  Phase 1 — Data Pipeline
+    - [ ]  Port scraper.js from rednote-content-automation/src/scraper.js
+    - [ ]  Validate races.json output — abort if < 30 races returned
+    - [ ]  Wire weekly cron (Sunday 2am JST)
+
+- [ ]  Phase 2 — Express API
+    - [ ]  GET /api/races with query param filtering (status, date range, search, sort)
+    - [ ]  GET /api/races/:id
+    - [ ]  GET /api/races/upcoming
+    - [ ]  POST /api/sync manual trigger (X-Sync-Key auth)
+    - [ ]  Add CORS header for running.moximoxi.net
+    - [ ]  Deploy to AWS Lightsail
+
+- [ ]  Phase 3 — React SPA WordPress Plugin
+    - [ ]  Race listing view — card grid, search bar, filter panel (status, date range)
+    - [ ]  Race detail view — full info, entry status, Register Now button (registrationUrl), CTAs
+    - [ ]  UI states — loading skeleton, empty state, error state
+    - [ ]  Bundle with Vite → wp-plugin/dist/
+    - [ ]  WordPress plugin — register [race_hub] shortcode, enqueue bundled assets
+    - [ ]  Upload plugin to running.moximoxi.net
+    - [ ]  Add shortcode to race hub page
+    - [ ]  Smoke test end-to-end

@@ -120,25 +120,46 @@
   - [x] Verify all 7 post types fire in order (scheduler test mode — queue-based, back-to-back)
   - [x] Verify race dedup works — no repeat races across cycle
   - [ ] Record OBS demo video of full cycle
-- [ ] Dashboard — schedule configuration
-  - [ ] Define per-day schedule config (day → time + post type) to replace hardcoded dayTypeMap and cron time
-  - [ ] Expose schedule config via dashboard UI
-  - [ ] Wire config changes to update scheduler at runtime
+- [ ] Structured run logging (dashboard prerequisite)
+  - [ ] Append to `xhs/run_log.json` on every pipeline run — timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output, cost_usd
+  - [ ] Pull token counts from `usage` field on every Claude API response and include in log entry
+- [ ] Shared volume migration
+  - [ ] Update all file read/write paths to use shared volume mount (scraper/races.json, xhs/run_log.json, xhs/post_archive/, xhs/auth.json)
+  - [ ] Move hardcoded dayTypeMap + cron times out of scheduler.js into xhs/config.json
+  - [ ] Scheduler watches xhs/config.json for changes and re-registers cron jobs at runtime
+  - [ ] Remove scraper.js from XHS container — reads scraper/races.json from shared volume instead
+- [ ] Dashboard — Express API (dashboard/server/)
+  - [ ] GET /api/schedule — read xhs/config.json
+  - [ ] POST /api/schedule — write xhs/config.json
+  - [ ] GET /api/run-history — serve xhs/run_log.json
+  - [ ] GET /api/post-archive — serve xhs/post_archive/
+  - [ ] GET /api/pipeline-state — current state (idle / running / failed)
+  - [ ] GET /api/auth-status — derive session status from auth.json mtime
+  - [ ] POST /api/trigger — spawn manual run with post type param
+  - [ ] GET /api/logs/stream — SSE live log stream
+  - [ ] POST /api/xhs/login — spawn xhs-login.js, begin screenshot polling
+  - [ ] GET /api/xhs/login/stream — SSE screenshot stream for QR code display
+  - [ ] Serve React SPA as static files
+- [ ] Dashboard — React SPA (dashboard/client/)
+  - [ ] Home page — 3 pipeline cards (RedNote, Race Scraper, Rakuten) with live state indicators
+  - [ ] RedNote section: schedule grid, live log stream, XHS auth status + login flow, key metrics, post archive viewer, manual trigger + preview mode, run history, Claude API cost tracker
+  - [ ] Race Scraper section: key metrics, failed URLs list, races.json viewer, run history, manual trigger
+  - [ ] Rakuten section: catalog stats per category, pricing config editor, import log + retry, manual trigger
 - [ ] Deploy
-  - [ ] Provision AWS Lightsail instance (Linux, $10/mo — IPv6-only, 2 GB RAM, 2 vCPUs, 60 GB SSD, 3 TB transfer, hosted outside mainland China)
+  - [ ] Provision AWS Lightsail instance (Linux, $10/mo — 2 GB RAM, 2 vCPUs, 60 GB SSD, 3 TB transfer, hosted outside mainland China)
   - [ ] SSH into Lightsail instance and verify access
-  - [ ] Install Docker on Lightsail instance
-  - [ ] Install Git on Lightsail instance
-  - [x] Write Dockerfile
+  - [ ] Install Docker + Docker Compose on Lightsail instance
+  - [x] Write Dockerfile (XHS container)
   - [x] Write .dockerignore
-  - [ ] Write docker-compose.yml
-  - [ ] Test container locally
+  - [ ] Write Dockerfiles for Scraper container and Dashboard container
+  - [ ] Write docker-compose.yml — 5 containers (Scraper, Race Hub, XHS, Rakuten, Dashboard) + shared volume
+  - [ ] Test all containers locally with docker-compose up
   - [ ] Clone repo onto Lightsail instance
   - [ ] Create .env file on Lightsail instance with production API keys (never committed to git)
-  - [ ] Transfer auth.json to Lightsail instance (initial setup)
-  - [ ] Run docker-compose up on Lightsail instance and verify pipeline starts
+  - [ ] Transfer initial auth.json to Lightsail instance
+  - [ ] Run docker-compose up on Lightsail instance and verify all containers start
   - [ ] Verify first scheduled cron run fires correctly
-  - [ ] Hand off to employer — document: (1) docker-compose up to start pipeline, (2) use "Login to XHS" button in dashboard when session expires
+  - [ ] Hand off to employer — document: (1) docker-compose up to start pipelines, (2) use "Login to XHS" button in dashboard when session expires
 - [ ] Tune prompt output format for XHS page layout
   - [ ] Update prompts to produce fewer lines per section, more content per line — allows 一键排版 to split pages at correct section boundaries
 - [ ] Build demo page

@@ -974,40 +974,59 @@ The data to build these deep links already exists in `races.json` (`registration
 
 ```
 rednote-content-automation/
-    ├── src/
-    │   ├── scraper.js                  # Self-contained RunJapan scraper
-    │   ├── generator.js                # Core — Claude API integration
-    │   ├── scheduler.js                # Rotation logic + cron orchestration
-    │   └── publisher.js                # Playwright browser automation
+    ├── src/                                # XHS container — scheduler, generator, publisher
+    │   ├── generator.js                    # Claude API integration — all 4 post types
+    │   ├── scheduler.js                    # Rotation logic + cron orchestration; watches xhs/config.json
+    │   └── publisher.js                    # Playwright browser automation — publish + archive + auth check
     ├── config/
-    │   └── prompts.json                # System prompt, post-type context templates — tunable without touching code
-    ├── data/
-    │   ├── races.json                  # Scraped race data output
-    │   ├── post_history.json           # Race names already used — filtered out of future race selection
-    │   └── post_archive/               # Weekly post archive — one JSON file per week (Monday date filename)
+    │   └── prompts.json                    # System prompt, post-type context templates
+    ├── dashboard/
+    │   ├── server/
+    │   │   └── index.js                    # Dashboard Express :3000 — all /api/* endpoints + static SPA serving
+    │   └── client/                         # React SPA (Vite) — operator-facing dashboard UI
     ├── scripts/
-    │   ├── run-scraper.js              # Entry point — runs populateRaces(25)
-    │   ├── run-scheduler.js            # Entry point — starts cron scheduler
-    │   ├── test-gen.js                 # Dev tool — real API calls to populate mock-api-response.json fixture
-    │   └── xhs-login.js               # One-time auth setup — saves XHS session to auth.json
+    │   ├── run-scheduler.js                # Entry point — starts cron scheduler
+    │   ├── test-gen.js                     # Dev tool — real API calls to populate fixture
+    │   └── xhs-login.js                    # Auth setup — auto-navigates to QR code, saves auth.json
     ├── tests/
     │   ├── fixtures/
-    │   │   ├── sample-races.json           # Pre-scraped race subset for controlled test input
-    │   │   ├── mock-api-response.json      # Verified API responses for all 4 post types
-    │   │   └── post_history.json           # Fixture for dedup tests
-    │   ├── scraper.test.js                 # Validates scraper output shape and completeness
-    │   ├── context-builder.test.js         # Tests buildContext() in isolation (no API calls)
-    │   └── generator.test.js               # Tests generatePost() with mocked Anthropic client
+    │   │   ├── sample-races.json
+    │   │   ├── mock-api-response.json
+    │   │   └── post_history.json
+    │   ├── scraper.test.js
+    │   ├── context-builder.test.js
+    │   └── generator.test.js
     ├── docs/
-    ├── Dockerfile                          # Image build instructions — base OS, dependencies, app files
-    ├── docker-compose.yml                  # Runtime config — env vars, volumes, restart policy
-    ├── auth.json                           # XHS session state (gitignored — credential file)
+    ├── Dockerfile                          # XHS container image
+    ├── .dockerignore
     ├── .env
     ├── .env.example
     ├── .gitignore
     ├── package.json
     └── README.md
 ```
+
+**Shared volume (runtime only — not in repo):**
+```
+/data/                                      # Docker shared volume mount
+    ├── scraper/
+    │   ├── races.json                      # Written by Scraper container (marathon-hub-race-scraper repo)
+    │   ├── run_log.json                    # Written by Scraper container
+    │   └── config.json                     # Written by Dashboard — scrape limit
+    ├── xhs/
+    │   ├── run_log.json                    # Written by XHS container — per-run metrics + token costs
+    │   ├── post_archive/                   # Written by XHS container — weekly post archive
+    │   ├── post_history.json               # Written by XHS container — race dedup
+    │   ├── auth.json                       # Written by xhs-login.js — XHS session cookies
+    │   └── config.json                     # Written by Dashboard — per-day post schedule
+    └── rakuten/
+        ├── run_log.json                    # Written by Rakuten container
+        ├── catalog_stats.json              # Written by Rakuten container
+        ├── import_log.json                 # Written by Rakuten container
+        └── config.json                     # Written by Dashboard — pricing, margins, fetch config
+```
+
+**Note:** `scraper.js` has been removed from this repo. The XHS container reads `scraper/races.json` from the shared volume — race scraping is handled by the Scraper container in `marathon-hub-race-scraper`.
 
 ---
 

@@ -1,32 +1,32 @@
-# Claude Code Instructions
-> This file configures Claude Code's behaviour for this repo.
-> See [docs/design-doc.md](docs/design-doc.md) for full project context.
-
-## Before Writing Any Code
-- Read `docs/design-doc.md` in full before starting any task
-- Follow the repo structure defined in Section 12 of the design doc exactly
-- If a file or folder isn't in the design doc structure, confirm before creating it
+# Claude Code Instructions — automation-ecosystem
 
 ## Repo Structure
-Refer to `docs/design-doc.md` Section 12. Key files:
-- `src/` — all pipeline JS files (scraper, generator, formatter, publisher)
-- `data/` — races.json, post_history.json, post_archive/
-- `demo/` — static portfolio showcase page + pre-generated posts
 
-## Keeping Docs in Sync — REQUIRED, DO NOT SKIP
-**After every task, before moving on:**
-- Mark completed checklist items in `docs/checklist.md` — do this automatically, never ask for permission
-- If a new dependency, technical decision, or architectural choice was made — update `docs/design-doc.md` Section 5 (Technical Decisions)
-- If a new engineering challenge was solved — add it to `docs/design-doc.md` Section 9
-- If the current state of any component changed — update `docs/design-doc.md` Section 8.1 (Current Status)
+```
+automation-ecosystem/
+    ├── xhs/          # XHS automation pipeline (scheduler, generator, publisher)
+    ├── scraper/      # Scraper container (cron only — writes races.json to shared volume)
+    ├── race-hub/     # Race Hub container (Express :3001 — serves races.json to WordPress)
+    ├── rakuten/      # Rakuten product aggregator pipeline
+    ├── dashboard/    # Monitoring dashboard (Express :3000 + React SPA)
+    └── docs/         # All project docs
+        ├── xhs/          design-doc.md, checklist.md
+        ├── scraper/      design-doc.md, checklist.md
+        ├── rakuten/      design-doc.md, checklist.md
+        └── dashboard-design-doc.md
+```
 
-This is not optional. Do not wait to be reminded.
+## Before Writing Any Code
+- Read the relevant design doc in `docs/<pipeline>/design-doc.md` before starting any task
+- For dashboard work, read `docs/dashboard-design-doc.md`
+- Each pipeline subdirectory has its own `CLAUDE.md` with pipeline-specific instructions — read it
 
-## !! CRITICAL — Never Ask Jason For Code or File Contents !!
-**ALWAYS read files yourself using Read, Glob, or Grep. NEVER ask Jason to share code, paste a file, or describe what's in the repo. Check yourself every time.**
+## Keeping Docs in Sync — REQUIRED
+- Mark completed checklist items in `docs/<pipeline>/checklist.md` after every task
+- Update `docs/<pipeline>/design-doc.md` when technical decisions or architecture changes
+- Never skip this
 
 ## General Rules
-- Never overwrite or modify `.env` — use `.env.example` for new keys
-- Always read the relevant section of the design doc before implementing a new component
-- The system prompt and content strategy are defined in Section 6 of the design doc — do not deviate from the MOXI persona, XHS format rules, or content weighting without flagging it first
-- If something is unclear or undecided in the design doc, flag it and add it to Section 11 (Open Questions) rather than making assumptions
+- Never overwrite or modify any `.env` file
+- `**/node_modules`, `**/.env`, `**/auth.json` are all gitignored
+- Each pipeline has its own `package.json` and must be installed independently (`cd xhs && npm install`, etc.)
