@@ -266,7 +266,7 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 ### 9.5 Manual Trigger
 
 - "Run scraper now" button — fires the scrape on demand outside the weekly cron
-- Number input to cap the scrape limit (default: all races)
+- Always scrapes all races — no limit config needed
 
 ---
 
@@ -428,7 +428,6 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 | `scraper/races.json` | Scraper | XHS, Race Hub | Race data for XHS post generation + WordPress race hub |
 | `scraper/pipeline_state.json` | Scraper | Dashboard | Current scraper state — `{ state: "idle | running | failed" }` |
 | `scraper/run_log.json` | Scraper | Dashboard | Scrape run history — timestamp, races scraped, failure count, failed URLs, outcome |
-| `scraper/config.json` | Dashboard | Scraper | `scrape_limit` (default: all races) |
 | `xhs/pipeline_state.json` | XHS | Dashboard | Current XHS state — `{ state: "idle | running | failed" }` |
 | `xhs/run_log.json` | XHS | Dashboard | Post run history — timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output |
 | `xhs/post_archive/` | XHS | Dashboard | Published post content (weekly JSON files keyed by ISO timestamp) |

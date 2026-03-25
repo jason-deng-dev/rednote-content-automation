@@ -1015,8 +1015,7 @@ services/xhs/
 /data/                                      # Docker shared volume mount point
     ├── scraper/
     │   ├── races.json                      # Written by Scraper container — XHS reads from here at runtime
-    │   ├── run_log.json                    # Written by Scraper container
-    │   └── config.json                     # Written by Dashboard — scrape limit
+    │   └── run_log.json                    # Written by Scraper container
     ├── xhs/
     │   ├── run_log.json                    # Written by XHS — per-run metrics + token costs
     │   ├── post_archive/                   # Written by XHS — weekly post archive
