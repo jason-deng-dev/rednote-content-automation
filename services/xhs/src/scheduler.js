@@ -20,6 +20,8 @@ function startScheduler() {
 
 	// Daily: generate and publish post at 9pm CST (peak XHS engagement window)
 	nodeCron.schedule('* * * * *', Run, { timezone: 'Asia/Shanghai' });
+
+	// Monthly: reset post_history.json
 }
 
 let postTypes = ['race', 'nutritionSupplement', 'training', 'race', 'race', 'training', 'wearable'];
@@ -106,7 +108,7 @@ async function Run() {
 		console.log('Process complete');
 		const timestamp = new Date().toISOString();
 		const log = { type, outcome, errorStage, errorMsg, input_tokens, output_tokens };
-		const filePath = `./data/run_log.json`;
+		const filePath = `${process.env.DATA_DIR}/xhs/run_log.json`;
 		if (!fs.existsSync(filePath)) {
 			fs.writeFileSync(filePath, JSON.stringify({}));
 		}

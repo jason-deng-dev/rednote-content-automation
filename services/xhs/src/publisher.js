@@ -124,7 +124,7 @@ function archivePost(dateAndTime, post) {
 	const diff = day === 0 ? -6 : 1 - day;
 	date.setDate(date.getDate() + diff);
 	const weekStart = date.toISOString().split('T')[0]; // "2026-03-23"
-	const filePath = `./data/post_archive/${weekStart}.json`;
+	const filePath = `${process.env.DATA_DIR}/xhs/post_archive/${weekStart}.json`;
 	let archive = {};
 
 	if (fs.existsSync(filePath)) {

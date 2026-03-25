@@ -3,7 +3,7 @@ import fs from 'fs';
 import Anthropic from '@anthropic-ai/sdk';
 
 const defaultPrompts = JSON.parse(fs.readFileSync('./config/prompts.json', 'utf-8'));
-const defaultRaces = JSON.parse(fs.readFileSync('./data/races.json', 'utf-8'));
+const defaultRaces = JSON.parse(fs.readFileSync(`${process.env.DATA_DIR}/scraper/races.json`, 'utf-8'));
 const defaultClient = new Anthropic({
 	apiKey: process.env['ANTHROPIC_API_KEY'],
 	maxRetries: 3,
