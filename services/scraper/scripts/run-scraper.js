@@ -1,4 +1,4 @@
-import { populateRaces } from "./scraper.js";
+import { populateRaces } from "../src/scraper.js";
 
 console.log("Starting scrape...");
 await populateRaces();
