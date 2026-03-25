@@ -1,12 +1,12 @@
-- [ ] Setup
-  - [ ] Create package.json
-  - [ ] Write .env.example
-  - [ ] Write .dockerignore
-- [ ] Express API (race-hub/server/)
+- [x] Setup
+  - [x] Create package.json
+  - [x] Write .env.example
+  - [x] Write .dockerignore
+  - [x] Write .gitignore
+- [ ] Express API (race-hub/server.js)
   - [ ] GET /api/races — with query param filtering (status, date range, search, sort)
   - [ ] GET /api/races/:id
   - [ ] GET /api/races/upcoming
-  - [ ] POST /api/sync — manual trigger (X-Sync-Key auth)
   - [ ] Add CORS header for running.moximoxi.net
   - [ ] Write Dockerfile
 - [ ] React SPA WordPress Plugin (race-hub/wp-plugin/)
