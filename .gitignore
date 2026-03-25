@@ -1,3 +1,6 @@
 **/node_modules
 **/.env
 **/auth.json
+services/xhs/data/scraper/
+services/xhs/data/xhs/
+services/xhs/data/post_history.json
