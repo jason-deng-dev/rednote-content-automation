@@ -2,7 +2,7 @@
 
 **Platform:** running.moximoxi.net — Japanese marathon platform for Chinese runners
 
-**GitHub:** [https://github.com/jason-deng-dev/automation-ecosystem](https://github.com/jason-deng-dev/automation-ecosystem) (`rakuten/`)
+**GitHub:** [https://github.com/jason-deng-dev/automation-ecosystem](https://github.com/jason-deng-dev/automation-ecosystem) (`services/rakuten/`)
 
 **Author:** Jason Deng
 
@@ -28,7 +28,7 @@ Product ingestion needs to be:
 - **Translated** — product names and descriptions are in Japanese; the platform audience reads Chinese
 - **Priced intelligently** — sale price must account for Rakuten cost, estimated shipping, and target margin
 - **Scalable** — bulk import dozens of products at once, not one at a time
-- **Browsable** — staff (and portfolio reviewers) need a UI to search, filter, and select products before importing
+- **Browsable** — operators need a UI to search, filter, and select products before importing
 
 ### 1.3 Goals
 
@@ -648,34 +648,7 @@ Customer clicks through to WooCommerce product page and adds to cart
 
 ---
 
-## 12. Portfolio & Resume Framing
-
-### 12.1 What This Project Demonstrates
-
-- **Real marketplace API integration** — Rakuten Ichiba APIs with search, ranking, and genre tree traversal; not a toy API
-- **Multi-API orchestration** — Rakuten + DeepL + WooCommerce REST in a single pipeline with error isolation per service
-- **PostgreSQL as a cache layer** — TTL-based freshness logic, not just a dumb data store
-- **Pricing business logic** — configurable margin formula with per-category shipping estimates
-- **Production system** — imports go directly into a live WooCommerce store serving real users
-- **Full-stack React + Express** — filtering-heavy SPA with multi-state UI (loading, translated, imported, error)
-
-### 12.2 Talking Points for Interviews
-
-**"Tell me about a project involving external APIs."**
-
-> Built a product aggregator that orchestrates three external APIs in a single pipeline: Rakuten Ichiba for product data, DeepL for Japanese-to-Chinese translation, and WooCommerce REST for store import. Each service has independent error handling — if DeepL is down, products still display in Japanese with a "translation pending" flag. If WooCommerce is unreachable, the import queues and logs without losing data.
-
-**"How did you handle API rate limits?"**
-
-> Implemented a PostgreSQL cache layer with a 24-hour TTL. Browse sessions hit the cache — only cache misses and forced refreshes call the Rakuten API. Before any WooCommerce import, we re-fetch from Rakuten to get the current price, so the one API call that matters most is always fresh.
-
-**"Walk me through the pricing logic."**
-
-> The formula is: sale price = (Rakuten cost + shipping estimate) / (1 - margin%). Shipping estimates and margin percentages are configurable per category — nutrition products ship lighter than equipment, so they have lower shipping estimates and slightly lower margins. The config lives in a single file, so adjusting margins doesn't touch business logic.
-
----
-
-## 13. Open Questions & Resolved Decisions
+## 12. Open Questions & Resolved Decisions
 
 ### Resolved
 - **Currency:** CNY. Sale prices stored and displayed in Chinese Yuan. JPY → CNY conversion applied at pricing calculation time.
@@ -694,7 +667,7 @@ Customer clicks through to WooCommerce product page and adds to cart
 
 ---
 
-## 14. Repository Structure
+## 13. Repository Structure
 
 ```
 automation-ecosystem/rakuten/

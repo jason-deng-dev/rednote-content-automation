@@ -1,38 +1,41 @@
-# Claude Code Instructions
+# # Claude Code Instructions
 > This file configures Claude Code's behaviour for this repo.
-> See [docs/design-doc.md](docs/design-doc.md) for full project context.
+> See [docs/rakuten-design-doc.md](docs/rakuten-design-doc.md) for full project context.
+
 ## Before Writing Any Code
-- Read `docs/design-doc.md` in full before starting any task
-- Follow the repo structure defined in Section 13 of the design doc exactly
+- Read `docs/rakuten-design-doc.md` in full before starting any task
+- Follow the repo structure defined in Section 14 of the design doc exactly
 - If a file or folder isn't in the design doc structure, confirm before creating it
 
 ## Repo Structure
-Refer to `docs/design-doc.md` Section 13. Key files:
-- `scraper.js` — RunJapan scraper
-- `normalizer.js` — data normalization + dedup
-- `wp-sync.js` — WordPress REST API sync
-- `races.json` — central data store
-- `pipeline.log` — stage-by-stage run log
-- `wp-plugin/` — WordPress custom post type plugin
-- `frontend/server/` — Express API
-- `frontend/client/` — React SPA
+Refer to `docs/rakuten-design-doc.md` Section 14. Key files:
+- `server/services/rakutenAPI.js` — Rakuten API wrapper
+- `server/services/normalizeItems.js` — product normalization
+- `server/services/deepl.js` — DeepL translation
+- `server/services/pricing.js` — margin formula
+- `server/services/woocommerce.js` — WooCommerce REST API wrapper
+- `server/db/cache.js` — PostgreSQL cache layer
+- `server/config/genres.js` — Rakuten genre ID map
+- `server/config/pricing_config.js` — per-category margin + shipping config
+- `client/` — React SPA
 
 ## Keeping Docs in Sync
-- When a checklist item is completed, mark it as done in `docs/checklist.md`
-- When a technical decision is made that differs from or extends the design doc, update the relevant section in `docs/design-doc.md` and note the rationale
-- When a new engineering challenge is encountered and solved, add it to Section 9 of `docs/design-doc.md`
+- When a checklist item is completed, mark it as done in `docs/rakuten-checklist.md`
+- When a technical decision is made that differs from or extends the design doc, update the relevant section in `docs/rakuten-design-doc.md` and note the rationale
+- When a new engineering challenge is encountered and solved, add it to Section 11 of `docs/rakuten-design-doc.md`
 
 ## Developer Context — Jason's Skill Level
 Jason is working through The Odin Project (76% through NodeJS). He has solid fundamentals in:
 - JavaScript, React, Express, REST APIs, PostgreSQL, Prisma, auth basics, npm/Node modules, async/await
 
 **New territory in this project** (go slower, explain more):
-- Web scraping (Cheerio/Playwright)
-- node-cron scheduling
-- WordPress REST API sync
-- Data pipeline architecture
+- Third-party product API integration (Rakuten)
+- DeepL translation API
+- WooCommerce REST API
+- Pricing/margin calculation logic
+- PostgreSQL caching layer design
 
-When explaining new concepts, frame them against things Jason already knows (e.g. scraping is just making HTTP requests and parsing the response, like fetch + reading JSON but for HTML).
+When explaining new concepts, frame them against things Jason already knows (e.g. Rakuten API is just a REST API with auth headers, same pattern as any API he's used in Odin projects).
 
 ## Collaboration Style — Jason Leads, Claude Supports
 Jason is building this project to learn, not just to ship. Default to a teaching/guiding mode:
@@ -53,4 +56,5 @@ The goal is that Jason understands every part of this system when it's done — 
 ## General Rules
 - Never overwrite or modify `.env` — use `.env.example` for new keys
 - Always read the relevant section of the design doc before implementing a new component
-- If something is unclear or undecided in the design doc, flag it and add it to Section 12 (Open Questions) rather than making assumptions
+- Pricing formula is defined in Section 4.3 of the design doc — do not modify the formula without updating the doc
+- If something is unclear or undecided in the design doc, flag it and add it to Section 13 (Open Questions) rather than making assumptions

@@ -14,7 +14,7 @@ Three automation pipelines are running in production:
 
 - **Race Scraper Pipeline** — weekly RunJapan scrape → `races.json`
 - **Rakuten Product Aggregator** — product data pipeline
-- **RedNote Content Generator** — daily Claude-powered XHS post generation and publishing
+- **XHS Pipeline** — daily Claude-powered XHS post generation and publishing
 
 Currently, the only way to check pipeline health is to read raw log files. This is fine during development but breaks down at handoff — a non-technical operator shouldn't need to dig through logs to know if something is broken.
 
@@ -26,7 +26,7 @@ A unified monitoring dashboard gives a single place to check the health of all t
 
 - Surface the operational status of all three pipelines in one place
 - Track success/failure rates per pipeline run
-- Monitor prompt generation quality (RedNote pipeline)
+- Monitor prompt generation quality (XHS pipeline)
 - Make the system self-diagnosing: when a pipeline fails, surface enough context for the operator to understand what broke and how to fix it
 - Reduce operator burden — no raw log reading required for routine checks
 
@@ -51,7 +51,7 @@ A unified monitoring dashboard gives a single place to check the health of all t
 - Failure rate per product / category
 - Data freshness
 
-### RedNote Content Generator
+### XHS Pipeline
 - Posts generated per day
 - Posts published successfully vs. failed
 - Post type distribution (race / training / nutrition / wearable)
@@ -68,7 +68,7 @@ When a pipeline run fails, the dashboard feeds the error context (pipeline name,
 Claude returns a plain-English explanation of what likely went wrong and a step-by-step fix — displayed directly in the dashboard. The operator follows the steps without needing to understand the underlying code.
 
 Example flow:
-1. RedNote pipeline fails at publisher stage — `auth.json` session expired
+1. XHS pipeline fails at publisher stage — `auth.json` session expired
 2. Dashboard detects failure, identifies error type
 3. Feeds error context to Claude
 4. Claude responds: "Your XHS session has expired. Click the **Login to XHS** button to refresh your session."
@@ -100,7 +100,7 @@ XHS sessions expire periodically (typically every few weeks, or when signed in f
 
 ### Session Expiry Detection
 
-The dashboard surfaces session state as a status indicator on the RedNote pipeline card:
+The dashboard surfaces session state as a status indicator on the XHS pipeline card:
 - **Session active** — last successful publish timestamp + estimated expiry (30 days from last login)
 - **Session expiring soon** — warning at <7 days remaining
 - **Session expired / publish failed** — error state with the Login button prominently shown
@@ -116,7 +116,7 @@ The dashboard surfaces session state as a status indicator on the RedNote pipeli
 
 ## 6. Pipeline Configuration
 
-The dashboard should allow the operator to configure the RedNote posting schedule without touching code or the server.
+The dashboard should allow the operator to configure the XHS posting schedule without touching code or the server.
 
 ### Per-Day Schedule Config
 
@@ -149,7 +149,7 @@ The schedule is stored in `xhs/config.json` on the shared volume. The dashboard 
 
 The home page shows one card per pipeline. Each card surfaces the most critical info at a glance without needing to navigate into the full pipeline view.
 
-### 7.1 RedNote Pipeline Card
+### 7.1 XHS Pipeline Card
 
 - **Current run state** — live indicator: Idle / Running / Failed
 - **Weekly posts** — success count / failed count / success ratio (e.g. 6/7 — 86%)
@@ -174,7 +174,7 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 
 ---
 
-## 8. RedNote Dashboard Section — Full Spec
+## 8. XHS Dashboard Section — Full Spec
 
 ### 8.1 Schedule Management
 
@@ -193,7 +193,7 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 
 ### 8.3 XHS Authentication
 
-- Session status indicator on the RedNote card:
+- Session status indicator on the XHS card:
   - **Active** — last successful publish timestamp + estimated expiry (30 days from last login)
   - **Expiring soon** — warning at <7 days remaining
   - **Expired / failed** — error state with Login button prominently shown
@@ -258,7 +258,7 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 ### 9.4 Run History
 
 - Table of past scrape runs: timestamp, races scraped, failure count, outcome
-- Same pattern as RedNote run history — failed runs currently leave no trace
+- Same pattern as XHS run history — failed runs currently leave no trace
 
 ### 9.5 Manual Trigger
 

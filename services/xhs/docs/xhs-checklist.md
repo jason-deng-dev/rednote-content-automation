@@ -141,8 +141,8 @@
   - [ ] GET /api/xhs/login/stream — SSE screenshot stream for QR code display
   - [ ] Serve React SPA as static files
 - [ ] Dashboard — React SPA (dashboard/client/)
-  - [ ] Home page — 3 pipeline cards (RedNote, Race Scraper, Rakuten) with live state indicators
-  - [ ] RedNote section: schedule grid, live log stream, XHS auth status + login flow, key metrics, post archive viewer, manual trigger + preview mode, run history, Claude API cost tracker
+  - [ ] Home page — 3 pipeline cards (XHS, Scraper, Rakuten) with live state indicators
+  - [ ] XHS section: schedule grid, live log stream, XHS auth status + login flow, key metrics, post archive viewer, manual trigger + preview mode, run history, Claude API cost tracker
   - [ ] Race Scraper section: key metrics, failed URLs list, races.json viewer, run history, manual trigger
   - [ ] Rakuten section: catalog stats per category, pricing config editor, import log + retry, manual trigger
 - [ ] Deploy
@@ -162,9 +162,6 @@
   - [ ] Hand off to employer — document: (1) docker-compose up to start pipelines, (2) use "Login to XHS" button in dashboard when session expires
 - [ ] Tune prompt output format for XHS page layout
   - [ ] Update prompts to produce fewer lines per section, more content per line — allows 一键排版 to split pages at correct section boundaries
-- [ ] Build demo page
-  - [ ] Generate one post per category and save to demo/posts/
-  - [ ] Build demo/index.html with XHS-style post previews
-  - [ ] Deploy demo page
+- [ ] Build demo page — see docs/portfolio-design-doc.md §3
 
 ---

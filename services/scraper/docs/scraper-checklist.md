@@ -1,5 +1,5 @@
 - [ ]  Phase 1 — Data Pipeline
-    - [ ]  Port scraper.js from rednote-content-automation/src/scraper.js
+    - [x]  Port scraper.js from services/xhs/src/scraper.js → services/scraper/scraper.js ✅
     - [ ]  Validate races.json output — abort if < 30 races returned
     - [ ]  Wire weekly cron (Sunday 2am JST)
 

@@ -1,24 +1,24 @@
 # Claude Code Instructions
 > This file configures Claude Code's behaviour for this repo.
-> See [docs/design-doc.md](docs/design-doc.md) for full project context.
+> See [docs/xhs-design-doc.md](docs/xhs-design-doc.md) for full project context.
 
 ## Before Writing Any Code
-- Read `docs/design-doc.md` in full before starting any task
+- Read `docs/xhs-design-doc.md` in full before starting any task
 - Follow the repo structure defined in Section 12 of the design doc exactly
 - If a file or folder isn't in the design doc structure, confirm before creating it
 
 ## Repo Structure
-Refer to `docs/design-doc.md` Section 12. Key files:
+Refer to `docs/xhs-design-doc.md` Section 12. Key files:
 - `src/` — all pipeline JS files (scraper, generator, formatter, publisher)
 - `data/` — races.json, post_history.json, post_archive/
 - `demo/` — static portfolio showcase page + pre-generated posts
 
 ## Keeping Docs in Sync — REQUIRED, DO NOT SKIP
 **After every task, before moving on:**
-- Mark completed checklist items in `docs/checklist.md` — do this automatically, never ask for permission
-- If a new dependency, technical decision, or architectural choice was made — update `docs/design-doc.md` Section 5 (Technical Decisions)
-- If a new engineering challenge was solved — add it to `docs/design-doc.md` Section 9
-- If the current state of any component changed — update `docs/design-doc.md` Section 8.1 (Current Status)
+- Mark completed checklist items in `docs/xhs-checklist.md` — do this automatically, never ask for permission
+- If a new dependency, technical decision, or architectural choice was made — update `docs/xhs-design-doc.md` Section 5 (Technical Decisions)
+- If a new engineering challenge was solved — add it to `docs/xhs-design-doc.md` Section 9
+- If the current state of any component changed — update `docs/xhs-design-doc.md` Section 8.1 (Current Status)
 
 This is not optional. Do not wait to be reminded.
 

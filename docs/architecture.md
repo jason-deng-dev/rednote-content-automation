@@ -26,7 +26,7 @@ Running the platform manually at scale is not viable. Three core operations — 
 
 **Solution:** A fully automated content pipeline. Claude generates structured posts in the MOXI brand voice, calibrated against 115 manually written posts and 60k+ views of real performance data. Playwright publishes directly to XHS on a configurable daily schedule. Zero manual effort per post.
 
-→ See `docs/xhs/design-doc.md`
+→ See `services/xhs/docs/xhs-design-doc.md`
 
 ---
 
@@ -36,7 +36,7 @@ Running the platform manually at scale is not viable. Three core operations — 
 
 **Solution:** A weekly automated scraper pulls all upcoming race data from RunJapan and writes it to a shared data store. A persistent Race Hub server exposes this data via REST API. The race hub page on WordPress embeds a React SPA that fetches from the API — always showing live, current race listings with search, filter, and direct registration links.
 
-→ See `docs/scraper/design-doc.md`
+→ See `services/scraper/docs/scraper-design-doc.md` and `services/race-hub/docs/race-hub-design-doc.md`
 
 ---
 
@@ -46,7 +46,7 @@ Running the platform manually at scale is not viable. Three core operations — 
 
 **Solution:** An automated pipeline that fetches products from the Rakuten API, normalises and caches them in PostgreSQL, calculates prices using a configurable margin formula, and pushes them to WooCommerce. Translation is handled by DeepL via TranslatePress on first customer view. A "request a product" flow on the storefront lets customers trigger the pipeline in real time if they can't find what they need.
 
-→ See `docs/rakuten/design-doc.md`
+→ See `services/rakuten/docs/rakuten-design-doc.md`
 
 ---
 
@@ -151,7 +151,7 @@ The monitoring dashboard gives a non-technical operator full visibility and cont
 **XHS session re-auth:**
 XHS sessions expire every few weeks. The operator clicks "Login to XHS" in the dashboard — the server spawns a Playwright browser, auto-navigates to the QR code login screen, and streams screenshots via SSE. The operator scans the QR code with their phone. Playwright detects the successful login, saves `auth.json` to the shared volume, and the pipeline resumes. No terminal access required.
 
-→ See `docs/dashboard-design-doc.md`
+→ See `services/dashboard/docs/dashboard-design-doc.md`
 
 ---
 
@@ -159,9 +159,11 @@ XHS sessions expire every few weeks. The operator clicks "Login to XHS" in the d
 
 | What you're looking for | Where to look |
 |---|---|
-| XHS pipeline — how posts are generated and published | `docs/xhs/design-doc.md` |
-| XHS pipeline — what's built and what's left | `docs/xhs/checklist.md` |
-| Scraper + Race Hub — how race data flows to WordPress | `docs/scraper/design-doc.md` |
-| Rakuten pipeline — product ingestion and pricing | `docs/rakuten/design-doc.md` |
-| Dashboard — full UI spec and API endpoints | `docs/dashboard-design-doc.md` |
+| XHS pipeline — how posts are generated and published | `services/xhs/docs/xhs-design-doc.md` |
+| XHS pipeline — what's built and what's left | `services/xhs/docs/xhs-checklist.md` |
+| Scraper — RunJapan scraping, races.json schema | `services/scraper/docs/scraper-design-doc.md` |
+| Race Hub — Express API + React SPA WordPress plugin | `services/race-hub/docs/race-hub-design-doc.md` |
+| Rakuten pipeline — product ingestion and pricing | `services/rakuten/docs/rakuten-design-doc.md` |
+| Dashboard — full UI spec and API endpoints | `services/dashboard/docs/dashboard-design-doc.md` |
 | System architecture and container layout | this file |
+| Portfolio evidence, interview talking points, resume framing | `docs/portfolio-design-doc.md` |

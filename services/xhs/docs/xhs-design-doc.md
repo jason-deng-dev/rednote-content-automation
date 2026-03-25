@@ -2,7 +2,7 @@
 
 **Platform:** running.moximoxi.net — Japanese marathon platform for Chinese runners
 
-**GitHub:** [https://github.com/jason-deng-dev/automation-ecosystem](https://github.com/jason-deng-dev/automation-ecosystem) (`xhs/`)
+**GitHub:** [https://github.com/jason-deng-dev/automation-ecosystem](https://github.com/jason-deng-dev/automation-ecosystem) (`services/xhs/`)
 
 **Author:** Jason Deng
 
@@ -47,8 +47,8 @@ Most automated content systems are built on assumptions. This one is built on **
 ### 1.4 Goals
 
 - Generate varied, on-brand Chinese-language XHS posts daily using the Claude API
-- Source live race data from the race-updater pipeline as generation context
-- Auto-publish to RedNote with zero human intervention required
+- Source live race data from the shared volume (`scraper/races.json`, written by the Scraper container)
+- Auto-publish to XHS with zero human intervention required
 - Funnel every post toward one of four platform destinations
 - Weight content types by proven performance data, not intuition
 
@@ -196,22 +196,20 @@ Only **7 Nutrition posts** have been published vs **48 Race Guide posts**. Yet N
 DATA  →  SCHEDULE  →  GENERATE  →  PUBLISH
 ```
 
-- **Stage 1 — DATA:** Race scraper pulls all upcoming Japanese marathon data into `races.json` weekly via cron
+- **Stage 1 — DATA:** `races.json` is written weekly by the Scraper container to the shared Docker volume — the XHS container reads it from there at runtime
 - **Stage 2 — SCHEDULE:** Scheduler determines today's post type and publish time from a configurable per-day schedule (day → time + post type), replacing the hardcoded 7-day rotation
 - **Stage 3 — GENERATE:** Claude API receives race context + system prompt → produces paste-ready structured post
 - **Stage 4 — PUBLISH:** Browser automation posts to MOXI爱跑步 XHS account
 
 ### 4.2 Component Breakdown
 
-#### scraper.js (self-contained)
+#### races.json (shared volume input)
 
-- Two-pass scrape: fetch listing page → extract race links → fetch each detail page
-- Pass 1: GET `runjapan.jp` homepage, use cheerio to find all race card links (each contains a `raceId` param e.g. `raceId=E335908`)
-- Pass 2: For each race link, GET the detail page and extract structured data via regex
-- Scrapes all ~60 upcoming races (RunJapan only shows upcoming events, no date filtering needed)
-- Fully replaces `data/races.json` on each run
-- Runs weekly via cron — race listings don't change fast enough to warrant daily scraping
-- Controlled via `.env`: `RUNJAPAN_BASE_URL`, `RUNJAPAN_TIMEOUT`
+- Written by the **Scraper container** (`automation-ecosystem/scraper/`) weekly via cron
+- Lives on the shared Docker volume at `scraper/races.json` — the XHS container mounts the same volume and reads from it at runtime
+- Full schema: `name`, `url`, `date`, `location`, `entryStart`, `entryEnd`, `website`, `images`, `description`, `info`, `notice`, `registrationOpen`, `registrationUrl`
+- The XHS container never writes to `races.json` — it is a pure consumer of scraper output
+- See `services/scraper/docs/scraper-design-doc.md` for full scraper implementation details
 
 #### generator.js (core)
 
@@ -228,7 +226,6 @@ DATA  →  SCHEDULE  →  GENERATE  →  PUBLISH
 - One cron job is registered per slot at startup — editable via dashboard without touching code
 - Calls `generatePost(type)` with the correct post type
 - Passes the result to `publisher.js`
-- Weekly cron: trigger scraper → update `races.json`
 - Daily cron: determine type → generate → publish
 - Logs each stage to `pipeline.log`
 - Flags failures for manual review
@@ -244,12 +241,8 @@ DATA  →  SCHEDULE  →  GENERATE  →  PUBLISH
 ### 4.3 Data Flow
 
 ```
-RunJapan website
-    ↓  (HTTP scrape, daily cron)
-scraper.js
-    ↓  (writes)
-races.json
-    ↓  (reads)
+scraper/races.json  (shared Docker volume — written by Scraper container weekly)
+    ↓  (reads at runtime)
 scheduler.js  ←  7-day rotation logic (determines post type)
     ↓  (calls generatePost(type))
 generator.js
@@ -269,11 +262,9 @@ XHS / Xiaohongshu (MOXI爱跑步 account)
 |---|---|---|---|
 |Generation engine|Claude API (Sonnet)|OpenAI GPT-4, template strings|Superior Chinese-language quality; better instruction-following for format-constrained output|
 |Browser automation|Playwright|Base64 injection, Puppeteer, manual|Better stability, built-in waiting, screenshot debugging vs brittle base64 approach|
-|Post scheduling|Node-cron / shell cron|n8n, Zapier|Keeps infra local; consistent with race-updater cron pattern; no external dependency|
-|Data source|races.json (file read)|Direct DB query, live scrape|Lowest coupling — race-updater owns data; generator is a pure consumer|
+|Post scheduling|Node-cron / shell cron|n8n, Zapier|Keeps infra local; consistent with Scraper container cron pattern; no external dependency|
+|Data source|races.json (shared volume read)|Direct DB query, live scrape|Lowest coupling — Scraper container owns data; XHS generator is a pure consumer|
 |Language|Node.js / JavaScript|Python|Consistent with rest of stack; no context switching|
-|HTTP requests (scraper)|axios|node-fetch, native fetch|More reliable for scraping; better error handling and timeout support|
-|HTML parsing (scraper)|cheerio|jsdom, regex|Lightweight jQuery-style API; purpose-built for server-side HTML parsing|
 |Prompt storage|`config/prompts.json`|Hardcoded in JS, `.env`|Separates tunable content (persona, templates) from pipeline logic; employer can adjust prompts without touching code|
 |CTA injection|Runtime code injection per post type|Hardcoded in system prompt|System prompt is sent on every API call — putting CTA targets there wastes tokens on context irrelevant to the current post type. Injecting a natural-language CTA description per type in `generatePost()` keeps the system prompt lean and makes each call's context more precise. Claude also doesn't need to know actual URLs — those are hardcoded in the pipeline and injected after parsing.|
 |Deployment / handoff|Docker + docker-compose|Manual server setup, PM2|Ensures consistent runtime environment across machines; Playwright browser binaries are notoriously environment-sensitive; allows non-technical handoff with a single `docker-compose up`|
@@ -283,11 +274,9 @@ XHS / Xiaohongshu (MOXI爱跑步 account)
 |API mocking in tests|Mock `@anthropic-ai/sdk` client|Real API calls in tests|Eliminates token cost on every test run, makes tests deterministic, and allows CI to run without a live API key.|
 |No formatter.js|Prompt-enforced structure|Separate formatter module|Structured output (`{ title, hook, contents[], cta, description }`) with explicit format rules in the prompt eliminates the need for a post-processing validation step — Claude produces paste-ready output directly.|
 |Error handling — generator|Re-throw with specific messages per layer|Return error values; single top-level catch|If generation fails there is nothing to publish — aborting is correct. Specific per-layer messages (race selection, generation, file write) identify exactly which step failed. Errors bubble up to the scheduler which owns the single catch point.|
-|Error handling — scraper|Log and continue per race; scrape still writes output|Abort entire scrape on first failure|One bad detail page (timeout, 404, malformed HTML) should not abort the full run. The inner loop catches `getInfo()` failures, logs them, and continues — partial data is better than no data.|
 |API response parsing|Strip markdown fences then `JSON.parse()`|Structured outputs API (tools + schema)|Prompt-level JSON instruction alone is not reliable — Claude wraps JSON in ` ```json ` fences even when explicitly told not to. Defense-in-depth: the system prompt instructs raw JSON output AND `generator.js` strips any leading ` ```json ` / trailing ` ``` ` with a regex before calling `JSON.parse()`. This makes parsing robust regardless of model behavior: `text.trim().replace(/^\`\`\`json\s*/, '').replace(/\`\`\`\s*$/, '')`.|
 |Dependency injection (generator)|Optional `{ races, postedRaces, client, prompts }` param with `default*` fallbacks|Module-level globals only; factory function|Tests must inject fixture data and a mock client — without this, every test run hits the real API and uses real data. Optional params keep production calls unchanged (no args = defaults) while letting tests override any dependency. Deps are threaded through the full call chain: `generatePost` → `getContextPrompts` → `chooseRace`.|
 |Retries — Anthropic SDK|`maxRetries: 3` configured at client creation; 30s timeout|Manual try/catch retry loop|SDK handles exponential backoff on 429 and 5xx automatically — no manual retry logic needed. 3 retries balances resilience vs latency. Timeout reduced from SDK default (10min) to 30s — responses for this use case are short (< 500 tokens), so 10min is excessive and would stall the pipeline on a hung request.|
-|Retries — scraper (axios)|`axios-retry` with 3 retries, exponential backoff, network errors + 5xx only|Manual retry loop; no retries|axios has no built-in retry. `axios-retry` is a one-liner setup that adds exponential backoff (1s → 2s → 4s). Only retries transient failures (network errors, 5xx) — 404s and 400s are not retried since retrying won't fix them. Complements the existing log-and-continue error handling: retries exhaust first, then the outer catch logs and skips the race.|
 
 ---
 
@@ -705,8 +694,8 @@ If the week file already exists, the new entry is merged into the existing objec
 |---|---|---|
 |Manually written posts|✅ Done|115 posts — performance data extracted and analyzed|
 |Node.js project setup|✅ Done|npm init, node-cron + playwright installed, .gitignore + .env.example in place|
-|scraper.js|✅ Done|Two-pass scrape (listing → detail pages); writes to data/races.json|
-|races.json|✅ Populated|Full schema: name, url, date, location, entryStart/End, website, images, description, info, notice, registrationOpen, registrationUrl|
+|scraper.js (Scraper container)|✅ Done|Lives in `automation-ecosystem/scraper/` — see scraper design doc|
+|races.json (shared volume)|✅ Populated|Written by Scraper container; XHS container reads from shared volume at runtime|
 |generator.js|✅ Done|All post types wired; race selection + dedup; structured return; error handling; injectable deps for testing; template substitution guarded; axios-retry + Anthropic retries configured.|
 |formatter.js|🚫 Removed|Formatting is enforced via prompt structure — separate formatter step not needed|
 |scheduler.js|✅ Done|startScheduler() with weekly scraper cron (Mon 8am CST) and daily post cron (9pm CST); getPostType() 7-day rotation; error handling per cron; run-scheduler.js entry point|
@@ -734,13 +723,6 @@ If the week file already exists, the new entry is merged into the existing objec
 1. Wire full cron: scrape → generate → format → publish in one shot
 2. Add `post_history.json` to track recent topics — inject as "do not repeat" context
 3. Validate end-to-end manually before leaving on autopilot
-
-### 8.5 Phase 4 — Portfolio Demo Page
-
-1. Run pipeline once per content category to generate one high-quality post each (Race Guide, Training Science, Nutrition, Health & Recovery)
-2. Save outputs as static JSON to `demo/posts/`
-3. Build `demo/index.html` — XHS-style post preview, one card per category
-4. Deploy as standalone static page for portfolio showcase
 
 ---
 
@@ -800,25 +782,7 @@ XHS enforces a **300-character limit per comment**. This is enforced in the prom
 
 **Hashtag strategy:** Tags are hardcoded per post type in the pipeline (not generated by Claude) and appended to `description` after parsing the Claude response. This avoids hallucinated or off-brand tags and keeps the tag set consistent and controlled.
 
-### 9.7 Scraper Pagination: Session-Dependent Navigation
-
-**Challenge:** RunJapan's search results are paginated, but page 2+ URLs (e.g. `?command=page&pageIndex=2`) only return results when the server can resolve an active search session. The session is established by the initial `?command=search` request and tied to a cookie. When axios hits page 2 directly without that cookie, the server has no session context and returns an empty result set — silently, with no error.
-
-**Symptoms:** Scraper consistently returns only 10 races (one page) regardless of the `limit` parameter. Page 2 URL is structurally correct but returns 0 cards.
-
-**Solution:** Add a cookie jar to the axios instance using `tough-cookie` and `axios-cookiejar-support`. The jar automatically captures cookies set by the page 1 response and sends them with every subsequent request — exactly replicating the browser's session behaviour. No manual cookie extraction or header manipulation required.
-
-### 9.8 Scraper Returns Only Enterable Races by Default
-
-**Challenge:** RunJapan's search form submits a POST request (not GET) with a form body including `availableFlag: 1`, which filters results to currently-open-entry races only. Our scraper was using a GET request to `?command=search`, which caused the server to apply this default filter — returning only ~22 enterable races and missing major races (Tokyo, Osaka, Kyoto) whose entry windows had already closed.
-
-**Symptoms:** Scraper returns 22 races in a fresh session; browser logged-in session appeared to show 60 because the user had previously searched with the filter unchecked. Incognito browser confirmed the same 22 result count.
-
-**Discovery:** Network tab inspection of a manual form submission (with "Enterable tournaments only" unchecked) revealed the actual POST payload. Key fields: `command=search`, `distanceClass=0`, `availableFlag=1` (the enterable-only flag).
-
-**Solution:** Change the initial page 1 request from GET to POST with a form-encoded body matching the manual search, setting `availableFlag=0` to include all races regardless of entry status. Subsequent pagination requests (`?command=page&pageIndex=N`) remain GET requests using the session cookie established by the initial POST.
-
-### 9.9 Deployment Constraint: Operator in China + Great Firewall
+### 9.7 Deployment Constraint: Operator in China + Great Firewall
 
 **Challenge:** The pipeline operator is based in mainland China. Running the Docker container on a local machine introduces two hard problems:
 
@@ -843,7 +807,7 @@ XHS enforces a **300-character limit per comment**. This is enforced in the prom
 
 ---
 
-### 9.10 Race Deduplication: Variant Entry Tiers in Source Data
+### 9.8 Race Deduplication: Variant Entry Tiers in Source Data
 
 **Challenge:** RunJapan lists the same race multiple times under different entry tiers (e.g. "Kasumigaura Marathon 2026【Regular Entry】" and "Kasumigaura Marathon 2026 【Late entry】"). These are the same event with identical content but different registration windows. Exact-name dedup in `post_history.json` fails to catch these — each variant passes the filter as a new race, causing the pipeline to generate near-identical posts about the same event.
 
@@ -877,15 +841,6 @@ tests/
 ```
 
 ### 10.4 Test Coverage
-
-#### Scraper (`scraper.test.js`)
-
-The scraper is tested against live output — we can't guarantee which races appear, so tests validate shape and completeness, not exact content.
-
-- All required fields present on every race object (`name`, `date`, `location`, `entryStart`, `entryEnd`, `registrationOpen`, `registrationUrl`, `website`, `description`)
-- No `null` or `undefined` values on required fields
-- Minimum race count threshold (e.g. ≥ 30)
-- Date fields match expected format
 
 #### Context Builder (`context-builder.test.js`)
 
@@ -973,60 +928,59 @@ The data to build these deep links already exists in `races.json` (`registration
 ## 13. Repository Structure
 
 ```
-automation-ecosystem/xhs/
-    ├── src/                                # XHS container — scheduler, generator, publisher
-    │   ├── generator.js                    # Claude API integration — all 4 post types
-    │   ├── scheduler.js                    # Rotation logic + cron orchestration; watches xhs/config.json
+services/xhs/
+    ├── src/
+    │   ├── generator.js                    # Claude API integration — all post types
+    │   ├── scheduler.js                    # Cron orchestration; watches xhs/config.json for schedule changes
     │   └── publisher.js                    # Playwright browser automation — publish + archive + auth check
     ├── config/
     │   └── prompts.json                    # System prompt, post-type context templates
-    ├── dashboard/
-    │   ├── server/
-    │   │   └── index.js                    # Dashboard Express :3000 — all /api/* endpoints + static SPA serving
-    │   └── client/                         # React SPA (Vite) — operator-facing dashboard UI
     ├── scripts/
     │   ├── run-scheduler.js                # Entry point — starts cron scheduler
-    │   ├── test-gen.js                     # Dev tool — real API calls to populate fixture
-    │   └── xhs-login.js                    # Auth setup — auto-navigates to QR code, saves auth.json
+    │   ├── test-gen.js                     # Dev tool — real API call to generate a sample post
+    │   ├── xhs-login.js                    # Auth setup — auto-navigates to QR code, saves auth.json
+    │   └── xhs-selectors.json              # Playwright selectors for XHS web client
     ├── tests/
     │   ├── fixtures/
-    │   │   ├── sample-races.json
-    │   │   ├── mock-api-response.json
-    │   │   └── post_history.json
-    │   ├── scraper.test.js
+    │   │   ├── sample-races.json           # Controlled race data for generator tests
+    │   │   ├── mock-api-response.json      # Hardcoded Claude response for deterministic tests
+    │   │   └── post_history.json           # Fixture for dedup tests
     │   ├── context-builder.test.js
     │   └── generator.test.js
+    ├── data/                               # Committed for local dev and cross-device testing
+    │   ├── races.json                      #   Race data (used by generator locally; at runtime read from shared volume)
+    │   ├── post_history.json               #   Race name dedup tracker (empty {} to start)
+    │   └── post_archive/                   #   Archive of generated posts
     ├── docs/
-    ├── Dockerfile                          # XHS container image
+    │   ├── xhs-design-doc.md
+    │   └── xhs-checklist.md
+    ├── Dockerfile
     ├── .dockerignore
-    ├── .env
-    ├── .env.example
-    ├── .gitignore
-    ├── package.json
-    └── README.md
+    ├── .env.example                        # Only ANTHROPIC_API_KEY needed for local testing
+    └── package.json
 ```
+
+**Local testing note:** Clone the repo, `cd services/xhs`, `npm install`, copy `.env.example` to `.env` and fill in `ANTHROPIC_API_KEY`. Run `node scripts/test-gen.js` to test post generation. `data/races.json` is committed so generation works without running the scraper first.
 
 **Shared volume (runtime only — not in repo):**
 ```
-/data/                                      # Docker shared volume mount
+/data/                                      # Docker shared volume mount point
     ├── scraper/
-    │   ├── races.json                      # Written by Scraper container (automation-ecosystem/scraper/)
+    │   ├── races.json                      # Written by Scraper container — XHS reads from here at runtime
     │   ├── run_log.json                    # Written by Scraper container
     │   └── config.json                     # Written by Dashboard — scrape limit
     ├── xhs/
-    │   ├── run_log.json                    # Written by XHS container — per-run metrics + token costs
-    │   ├── post_archive/                   # Written by XHS container — weekly post archive
-    │   ├── post_history.json               # Written by XHS container — race dedup
+    │   ├── run_log.json                    # Written by XHS — per-run metrics + token costs
+    │   ├── post_archive/                   # Written by XHS — weekly post archive
+    │   ├── post_history.json               # Written by XHS — race name dedup
     │   ├── auth.json                       # Written by xhs-login.js — XHS session cookies
     │   └── config.json                     # Written by Dashboard — per-day post schedule
     └── rakuten/
-        ├── run_log.json                    # Written by Rakuten container
-        ├── catalog_stats.json              # Written by Rakuten container
-        ├── import_log.json                 # Written by Rakuten container
-        └── config.json                     # Written by Dashboard — pricing, margins, fetch config
+        ├── run_log.json
+        ├── catalog_stats.json
+        ├── import_log.json
+        └── config.json
 ```
-
-**Note:** `scraper.js` has been removed from this pipeline. The XHS container reads `scraper/races.json` from the shared volume — race scraping is handled by the Scraper container in `automation-ecosystem/scraper/`.
 
 ---
 
@@ -1051,13 +1005,6 @@ The pipeline assumes the following conditions hold at runtime. If any of these a
 ---
 
 ### 14.2 Failure Handling Per Component
-
-#### Scraper (`scraper.js`)
-
-- **Per-race failure (default):** The inner loop wraps each `getInfo()` call in try/catch. If a single race detail page times out, 404s, or has malformed HTML, the error is logged and the scraper continues to the next race. Partial data is better than no data.
-- **Retry behaviour:** `axios-retry` wraps the axios instance with 3 retries and exponential backoff (1s → 2s → 4s). Only retries transient failures (network errors, 5xx). 404s and 400s are not retried — retrying won't fix them.
-- **Full scrape failure:** `races.json` is only overwritten on a successful run. If the scraper crashes entirely, the previous `races.json` is preserved and the generator can continue running on stale-but-valid data.
-- **Manual recovery:** Re-run `node scripts/run-scraper.js` to trigger a fresh scrape.
 
 #### Generator (`generator.js`)
 
@@ -1088,8 +1035,7 @@ The pipeline logs each stage to `pipeline.log`. A healthy run produces entries a
 
 | Signal | Likely cause |
 |---|---|
-| Race count in log drops below 30 | Scraper selectors broken (RunJapan site change) |
-| Generator stage missing from log | Claude API failure or races.json empty |
+| Generator stage missing from log | Claude API failure or races.json empty/stale |
 | Publisher stage missing from log | Generator threw and aborted |
 | Publisher failed entry in log | Playwright failure or XHS session expired |
 | `post_history.json` not growing week-over-week | Publish not completing successfully |
