@@ -127,6 +127,7 @@
   - [ ] Update all file read/write paths to use shared volume mount (scraper/races.json, xhs/run_log.json, xhs/post_archive/, xhs/auth.json)
   - [ ] Move hardcoded dayTypeMap + cron times out of scheduler.js into xhs/config.json
   - [ ] Scheduler watches xhs/config.json for changes and re-registers cron jobs at runtime
+  - [ ] Write xhs/pipeline_state.json to shared volume on run start (running) and run end (idle / failed) — dashboard reads this for GET /api/pipeline-state
   - [ ] Remove scraper.js from XHS container — reads scraper/races.json from shared volume instead
 - [ ] Dashboard — Express API (dashboard/server/)
   - [ ] GET /api/schedule — read xhs/config.json
