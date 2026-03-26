@@ -8,7 +8,7 @@
   - [x] Add CORS header for running.moximoxi.net
 - [ ] React SPA WordPress Plugin (race-hub/wp-plugin/)
   - [x] Scaffold Vite + React project in `wp-plugin/`
-  - [ ] Install and configure Tailwind CSS
+  - [x] Install and configure Tailwind CSS
   - [ ] Configure `tailwind.config.js` with design system tokens (colours, spacing, fonts, border-radius: 0) per `docs/design-system.md`
   - [ ] Scope all Tailwind styles under a `.race-hub-root` wrapper class to avoid clashing with WordPress/Flatsome theme CSS
   - [ ] Race listing view — card grid, search bar, filter panel (status, date range)

@@ -47,7 +47,8 @@
 
 | Token | Value | Usage |
 |---|---|---|
-| `--font-sans` | `'Inter', 'Noto Sans SC', sans-serif` | All UI text |
+| `--font-headline` | `'Manrope', sans-serif` | Editorial headings, page titles, card names — uppercase, tight tracking |
+| `--font-sans` | `'Inter', 'Noto Sans SC', sans-serif` | All UI body text, labels, metadata |
 | `--font-size-xs` | `11px` | Labels, badges |
 | `--font-size-sm` | `13px` | Captions, metadata |
 | `--font-size-base` | `15px` | Body text |
