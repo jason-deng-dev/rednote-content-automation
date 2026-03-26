@@ -61,8 +61,10 @@ RunJapan (runjapan.jp) — the most complete Japanese marathon listing source.
 | `registrationUrl` | Direct signup link |
 | `website` | Race official site |
 | `description` | Race description text |
-| `info` | Additional race info |
-| `notice` | Notices / warnings |
+| `description_zh` | Chinese translation of description (DeepL EN→ZH-HANS) |
+| `info` | Additional race info (structured key-value) |
+| `notice` | Notices / warnings (English) |
+| `notice_zh` | Chinese translations of notice items (DeepL EN→ZH-HANS) |
 | `images` | Array of image URLs |
 
 ---
@@ -87,6 +89,7 @@ Both files written to the shared Docker volume:
 **`scraper/races.json`**
 - Array of race objects (see §3 for schema)
 - Includes `last_updated` ISO timestamp at top level
+- Contains both English and Chinese fields per race (`description`, `description_zh`, `notice`, `notice_zh`)
 - Read by Race Hub container and XHS container
 
 **`scraper/pipeline_state.json`**
@@ -166,6 +169,26 @@ Read by Dashboard to show scraper health and last run time.
 5. Dockerfile + docker-compose integration
 
 **Exit criteria:** `races.json` contains 30+ races with complete data. Cron runs cleanly weekly. `run_log.json` written on each run.
+
+### 7.3 Phase 2 — Chinese Translation
+
+After scraping, run a translation pass using DeepL API (EN → ZH-HANS) on the following fields per race:
+
+- `description` → `description_zh`
+- `notice[]` → `notice_zh[]` (translate each item individually)
+
+**Strategy:**
+- Translate immediately after each scrape run, before writing `races.json`
+- Only translate races where `description_zh` is missing or `description` has changed — avoid re-translating unchanged content to conserve DeepL quota
+- Race `name` is a proper noun — leave untranslated
+- `info` key-value fields: labels are translated by the UI locale strings; values (dates, times, numbers, organiser names) are left as-is
+
+**Failure handling:**
+- If DeepL is unavailable or quota exceeded: write `races.json` with `description_zh: null`, `notice_zh: null` for affected races — UI falls back to English fields gracefully
+
+**Technical decisions:**
+- DeepL API key stored in scraper `.env`
+- Batch translate per scrape run (not lazy on API request) — keeps the API layer stateless and fast
 
 ---
 

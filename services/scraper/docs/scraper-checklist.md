@@ -11,6 +11,12 @@
   - [x] Wire weekly cron (Sunday 2am JST)
 - [x] Dashboard integration
   - [x] Support manual trigger via docker exec from dashboard (no Express server needed)
+- [ ] Chinese Translation (DeepL EN→ZH-HANS)
+  - [ ] Add DEEPL_API_KEY to .env.example
+  - [ ] After scrape, translate description → description_zh and notice[] → notice_zh[] per race
+  - [ ] Skip translation if description_zh already exists and description unchanged
+  - [ ] Graceful fallback — write null for _zh fields if DeepL unavailable, UI falls back to English
+  - [ ] Verify translated fields present in output races.json
 - [ ] Docker & Deploy
   - [ ] Write Dockerfile
   - [ ] Verify container starts and cron fires correctly with docker-compose up

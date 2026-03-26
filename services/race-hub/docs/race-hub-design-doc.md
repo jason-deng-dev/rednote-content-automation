@@ -63,7 +63,9 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 |Method|Endpoint|Description|
 |---|---|---|
-|`GET`|`/api/races`|Serves full `races.json` — no filtering, no params|
+|`GET`|`/api/races`|Serves full `races.json` — optional `?lang` param|
+|`GET`|`/api/races?lang=zh`|Same response, but `description_zh` and `notice_zh` fields included in output|
+|`GET`|`/api/races?lang=en`|English-only response (default) — `_zh` fields stripped|
 
 ### 3.2 Implementation Notes
 
@@ -71,6 +73,7 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 - All filtering, sorting, search, and detail views are handled client-side in the React SPA
 - CORS configured to allow `running.moximoxi.net` as origin
 - Manual scrape trigger is handled by the Dashboard (`POST /api/scraper/trigger`) — Race Hub is a pure data server with no process-spawning logic
+- `?lang` param shapes the response: `lang=zh` includes `description_zh` and `notice_zh[]`; default (`lang=en`) strips those fields. The SPA reads `?lang` from the page URL and forwards it to the API.
 
 ---
 
@@ -119,6 +122,50 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 ---
 
+## 4b. Internationalisation (i18n)
+
+The platform's live deployment targets Chinese runners — the SPA must render in Chinese. The portfolio version (English) runs from the same codebase and same deployment.
+
+### Language Switching
+
+Language is controlled via a URL query param: `?lang=zh` for Chinese, `?lang=en` (or no param) for English.
+
+- The SPA reads `window.location.search` on mount to determine the active language
+- The language is passed as a `?lang` query param to `GET /api/races` so the server can include or exclude `_zh` fields accordingly
+- No localStorage, no cookies — language is purely URL-driven, making it shareable and predictable
+
+### Two deployments, one codebase
+
+| URL | Language | Use |
+|---|---|---|
+| `running.moximoxi.net/racehub/` | Chinese (default, `?lang=zh`) | Live deployment for users |
+| `running.moximoxi.net/racehub/?lang=en` | English | Portfolio showcase |
+
+### UI Strings
+
+All static UI strings (labels, placeholders, section headings, CTA copy) live in locale files:
+
+```
+wp-plugin/src/locales/
+    en.js   — English strings
+    zh.js   — Chinese strings (simplified)
+```
+
+A `useLang()` hook reads the URL param and returns the correct locale object. Components import the hook and use `t.someKey` for all visible text — no hardcoded English strings in JSX.
+
+### Race Data
+
+Chinese content comes from the scraper's translation pass (DeepL EN→ZH-HANS):
+
+- `description_zh` — Chinese translation of `description`
+- `notice_zh[]` — Chinese translations of `notice[]` items
+
+The API only returns `_zh` fields when `?lang=zh` is passed — keeping the default response lean.
+
+**Fallback:** If `description_zh` is `null` (DeepL unavailable or untranslated), the SPA falls back to the English `description` field silently.
+
+---
+
 ## 5. Technical Decisions
 
 |Decision|Choice|Alternatives Considered|Rationale|
@@ -129,6 +176,8 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 |Memory vs disk read|Read-on-request|In-memory cache with TTL|~50KB file, reads are instantaneous, no cache invalidation needed after scraper runs|
 |Bundler|Vite|Create React App, Webpack|Fast dev server, clean static output for WordPress plugin embedding; Next.js rejected — SSR/file-based routing add complexity with no benefit for a WordPress-embedded widget|
 |Styling|Tailwind CSS|Plain CSS modules, CSS-in-JS|Matches dashboard stack for consistency; design system tokens configured in tailwind.config.js; fast to build utility-heavy UI|
+|i18n strategy|URL `?lang` param + locale files|Two separate repos, separate deployments, runtime language switcher|Single codebase, one deployment; `?lang=zh` for live, `?lang=en` for portfolio; no localStorage complexity|
+|Chinese race content|`_zh` fields in races.json (scraper translates)|Separate races_zh.json, translate in Race Hub on-request|Single source of truth; no sync problem; translation only happens once in scraper pipeline|
 
 ---
 
@@ -151,6 +200,18 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 5. Smoke test end-to-end: WordPress page loads → React SPA fetches from Lightsail API → races display
 
 **Exit criteria:** Race hub page on running.moximoxi.net shows live races with filtering, detail view, and signup links working.
+
+### Phase 3 — Internationalisation
+
+1. Write `wp-plugin/src/locales/en.js` and `wp-plugin/src/locales/zh.js` — all UI strings
+2. Implement `useLang()` hook — reads `?lang` from URL, returns active locale object
+3. Replace all hardcoded English strings in JSX with `t.key` references
+4. Add `?lang` param to the `GET /api/races` fetch in App.jsx
+5. Add `?lang` handling to `server.js` — include or strip `_zh` fields from response accordingly
+6. Render `description_zh` / `notice_zh` in Drawer when `lang=zh`, with fallback to English fields if `_zh` is null
+7. Smoke test: `?lang=zh` shows Chinese copy + Chinese race descriptions; `?lang=en` shows English throughout
+
+**Exit criteria:** `?lang=zh` and `?lang=en` both render correctly. Live deployment defaults to Chinese. Portfolio URL uses English.
 
 ---
 
@@ -231,6 +292,12 @@ automation-ecosystem/
             ├── server.js               #   Express API
             ├── wp-plugin/              #   WordPress plugin
             │   ├── race-hub.php        #     Registers [race_hub] shortcode, enqueues assets
+            │   ├── src/
+            │   │   ├── locales/
+            │   │   │   ├── en.js       #     English UI strings
+            │   │   │   └── zh.js       #     Chinese UI strings (simplified)
+            │   │   └── hooks/
+            │   │       └── useLang.js  #     Reads ?lang URL param, returns active locale
             │   └── dist/              #     Vite build output (bundled React SPA)
             ├── Dockerfile
             └── package.json

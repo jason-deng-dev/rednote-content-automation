@@ -90,6 +90,18 @@ cd services/scraper && npm install
 
 ---
 
+## Bilingual Deployment
+
+The platform targets Chinese runners — the live deployment renders entirely in Chinese. The same codebase and deployment serves English via `?lang=en` for portfolio purposes.
+
+- **Scraper** uses the DeepL API to translate race descriptions and notices into Simplified Chinese (`description_zh`, `notice_zh[]`) and writes both languages into `races.json`
+- **Race Hub** serves `_zh` fields when `?lang=zh` is requested, strips them otherwise
+- **Race Hub SPA** reads `?lang` from the page URL, loads the matching locale file (`locales/zh.js` or `locales/en.js`), and falls back to English if a Chinese field is null
+
+No separate deployment, no duplicate data files — language is a URL param.
+
+---
+
 ## Status
 
 In development. See each service's `<service>-checklist.md` for current progress.

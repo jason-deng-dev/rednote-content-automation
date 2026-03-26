@@ -158,7 +158,36 @@ XHS sessions expire every few weeks. The operator clicks "Login to XHS" in the d
 
 ---
 
-## 7. Where to Go Next
+## 7. Bilingual Strategy
+
+The platform targets Chinese runners — all user-facing content defaults to Simplified Chinese. English is available via URL param for portfolio and development use.
+
+**How translation flows through the system:**
+
+```
+RunJapan (English)
+  → scraper.js extracts description + notice[]
+  → DeepL API translates → description_zh, notice_zh[]
+  → written into scraper/races.json
+  → Race Hub serves ?lang=zh → includes _zh fields
+  → SPA reads ?lang from URL → renders Chinese copy
+```
+
+**Key decisions:**
+
+| Concern | Approach |
+|---|---|
+| Race content translation | Scraper pipeline — DeepL runs once after each scrape, results stored in `races.json` |
+| UI string translation | Locale files in SPA — `locales/en.js` + `locales/zh.js`, loaded via `useLang()` hook |
+| Language switching | URL param `?lang=zh` / `?lang=en` — no cookies, no localStorage |
+| Live vs portfolio | Same deployment: `running.moximoxi.net/racehub/` (Chinese), `/racehub/?lang=en` (English) |
+| Null fallback | If `description_zh` is null (DeepL unavailable), SPA silently renders `description` instead |
+
+Translation only affects the Scraper and Race Hub services. XHS pipeline generates content directly in Chinese via Claude. Rakuten uses TranslatePress on WordPress for product descriptions.
+
+---
+
+## 8. Where to Go Next
 
 | What you're looking for | Where to look |
 |---|---|
@@ -168,5 +197,6 @@ XHS sessions expire every few weeks. The operator clicks "Login to XHS" in the d
 | Race Hub — Express API + React SPA WordPress plugin | `services/race-hub/docs/race-hub-design-doc.md` |
 | Rakuten pipeline — product ingestion and pricing | `services/rakuten/docs/rakuten-design-doc.md` |
 | Dashboard — full UI spec and API endpoints | `services/dashboard/docs/dashboard-design-doc.md` |
-| System architecture and container layout | this file |
+| System architecture and container layout | this file (§3–§6) |
+| Bilingual strategy — translation pipeline, language switching | this file (§7) |
 | Portfolio evidence, interview talking points, resume framing | `docs/portfolio-design-doc.md` |

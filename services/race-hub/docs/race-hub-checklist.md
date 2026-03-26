@@ -48,6 +48,15 @@
   - [ ] Upload plugin to running.moximoxi.net
   - [ ] Add shortcode to race hub page
   - [ ] Smoke test end-to-end
+- [ ] Internationalisation (i18n)
+  - [ ] Write `src/locales/en.js` — all English UI strings (labels, placeholders, headings, CTA copy)
+  - [ ] Write `src/locales/zh.js` — Chinese translations of all UI strings
+  - [ ] Implement `useLang()` hook — reads `?lang` URL param, returns active locale object
+  - [ ] Replace all hardcoded English strings in JSX with `t.key` references
+  - [ ] Add `?lang` param to `GET /api/races` fetch in App.jsx
+  - [ ] Add `?lang` handling in server.js — include `_zh` fields when `lang=zh`, strip them otherwise
+  - [ ] Render `description_zh` / `notice_zh` in Drawer when `lang=zh`, fallback to English fields if `_zh` is null
+  - [ ] Smoke test: `?lang=zh` shows Chinese; `?lang=en` shows English; null `_zh` gracefully falls back
 - [ ] Docker & Deploy
   - [ ] Write Dockerfile
   - [ ] Verify container starts and serves races.json correctly with docker-compose up
