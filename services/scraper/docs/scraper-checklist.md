@@ -12,7 +12,7 @@
 - [x] Dashboard integration
   - [x] Support manual trigger via docker exec from dashboard (no Express server needed)
 - [ ] Incremental Scraping
-  - [ ] On scraper startup, load existing races.json (if present) and build Map<url, race> for O(1) lookup
+  - [x] On scraper startup, load existing races.json (if present) and build Map<url, race> for O(1) lookup
   - [ ] During listing scrape, collect all race URLs from RunJapan
   - [ ] For each URL: if already in Map, reuse existing race object — skip re-scraping detail page
   - [ ] Only scrape detail page for URLs not present in existing races.json (new races)

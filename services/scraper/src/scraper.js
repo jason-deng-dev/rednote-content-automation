@@ -6,6 +6,7 @@ import { writeFile } from 'fs/promises';
 import { wrapper } from 'axios-cookiejar-support';
 import { CookieJar } from 'tough-cookie';
 import fs from 'fs';
+import * as deepl from 'deepl-node';
 
 const jar = new CookieJar();
 const client = wrapper(axios.create({ jar }));
@@ -121,8 +122,8 @@ async function populateRaces(limit = null) {
 		}
 
 		// write races.json
-		
-		const cleanedRaces = cleanRaces(allRaces)
+
+		const cleanedRaces = cleanRaces(allRaces);
 		const output = { last_updated: new Date().toISOString(), races: cleanedRaces };
 		await writeFile(races_file_path, JSON.stringify(output, null, 2));
 		races_scraped = races.length;
@@ -256,6 +257,51 @@ function cleanRaces(races) {
 	});
 }
 
-async function translateRaces(races) {}
+async function translateRaces(races) {
+	const authKey = process.env.DEEPL_API_KEY;
+	const deeplClient = new deepl.DeepLClient(authKey);
+	const translatedRaces = await Promise.all(
+		races.map(async (race) => {
+			const { name, date, location, entryStart, entryEnd, description, info, notice } = race;
+			const name_zh = (await deeplClient.translateText(name, null, 'ZH-HANS')).text;
+			const date_zh = (await deeplClient.translateText(date, null, 'ZH-HANS')).text;
+			const location_zh = (await deeplClient.translateText(location, null, 'ZH-HANS')).text;
+			const entryStart_zh = (await deeplClient.translateText(entryStart, null, 'ZH-HANS')).text;
+			const entryEnd_zh = (await deeplClient.translateText(entryEnd, null, 'ZH-HANS')).text;
+			const description_zh = (await deeplClient.translateText(description, null, 'ZH-HANS')).text;
+			const info_zh = Object.fromEntries(
+				await Promise.all(
+					Object.entries(info).map(async ([key, value]) => {
+						if (typeof value === 'string') {
+							const key_zh = (await deeplClient.translateText(key, null, 'ZH-HANS')).text;
+							const value_zh = (await deeplClient.translateText(value, null, 'ZH-HANS')).text;
+							return [key_zh, value_zh];
+						} else {
+							const key_zh = (await deeplClient.translateText(key, null, 'ZH-HANS')).text;
+							const value_zh = Object.fromEntries(
+								await Promise.all(
+									Object.entries(value).map(async ([innerKey, innerValue]) => {
+										const inner_key_zh = (await deeplClient.translateText(innerKey, null, 'ZH-HANS')).text;
+										const inner_value_zh = (await deeplClient.translateText(innerValue, null, 'ZH-HANS')).text;
+										return [inner_key_zh, inner_value_zh];
+									}),
+								),
+							);
+
+							return [key_zh, value_zh];
+						}
+					}),
+				),
+			);
+
+			const notice_zh = await Promise.all(
+				notice.map(async (item) => (await deeplClient.translateText(item, null, 'ZH-HANS')).text),
+			);
+
+			return { ...race, name_zh, date_zh, location_zh, entryStart_zh, entryEnd_zh, description_zh, info_zh, notice_zh };
+		}),
+	);
+	return translatedRaces
+}
 
 export { populateRaces, getInfo };
