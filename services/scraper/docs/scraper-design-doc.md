@@ -258,6 +258,14 @@ After the full scrape is complete, run a translation pass using DeepL API (EN �
 
 **Why keep races.json as an array:** Race Hub and the SPA both consume races as an array. The `Map` is in-memory only — `races.json` stays as `[]` with no changes needed to any consumer.
 
+### 8.5 Concurrent DeepL Requests Trigger Rate Limiting
+
+**Challenge:** The initial translation implementation used `Promise.all` to translate all races concurrently. Each race made one DeepL API call per field (name, date, location, entryStart, entryEnd, description, each info key, each info value, each notice item) — resulting in hundreds of simultaneous requests. DeepL rejected these with a "Too many requests" error.
+
+**Solution:** Two changes. First, batch all translatable strings for a race into a single array and make one `translateText` call per race (DeepL accepts an array of strings and returns results in order). Second, process races sequentially with a `for` loop instead of `Promise.all` — one batched call at a time, no concurrent requests.
+
+**Tradeoff:** Sequential processing is slower than concurrent, but translation only runs on new races (existing races reuse cached `_zh` fields from incremental scraping). In practice, most weekly runs translate zero races.
+
 ---
 
 ## 9. Testing Strategy

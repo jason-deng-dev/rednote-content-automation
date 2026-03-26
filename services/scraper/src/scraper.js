@@ -260,60 +260,59 @@ function cleanRaces(races) {
 async function translateRaces(races) {
 	const authKey = process.env.DEEPL_API_KEY;
 	const deeplClient = new deepl.DeepLClient(authKey);
-	const translatedRaces = await Promise.all(
-		races.map(async (race) => {
-			const { name, date, location, entryStart, entryEnd, description, info, notice } = race;
+	const translatedRaces = [];
+	for (const race of races) {
+		const { name, date, location, entryStart, entryEnd, description, info, notice } = race;
 
-			// Flatten all strings into one array, track indices for reassembly
-			const texts = [];
-			const push = (str) => { texts.push(str); return texts.length - 1; };
+		// Flatten all strings into one array, track indices for reassembly
+		const texts = [];
+		const push = (str) => { texts.push(str); return texts.length - 1; };
 
-			const i = {
-				name: push(name),
-				date: push(date),
-				location: push(location),
-				entryStart: push(entryStart),
-				entryEnd: push(entryEnd),
-				description: push(description),
-				info: Object.entries(info).map(([key, value]) => {
-					const keyIdx = push(key);
-					if (typeof value === 'string') {
-						return { keyIdx, valueIdx: push(value) };
-					} else {
-						return { keyIdx, nested: Object.entries(value).map(([k, v]) => ({ k: push(k), v: push(v) })) };
-					}
-				}),
-				notice: notice.map(push),
-			};
+		const i = {
+			name: push(name),
+			date: push(date),
+			location: push(location),
+			entryStart: push(entryStart),
+			entryEnd: push(entryEnd),
+			description: push(description),
+			info: Object.entries(info).map(([key, value]) => {
+				const keyIdx = push(key);
+				if (typeof value === 'string') {
+					return { keyIdx, valueIdx: push(value) };
+				} else {
+					return { keyIdx, nested: Object.entries(value).map(([k, v]) => ({ k: push(k), v: push(v) })) };
+				}
+			}),
+			notice: notice.map(push),
+		};
 
-			// Single DeepL call for all strings in this race
-			const results = await deeplClient.translateText(texts, null, 'ZH-HANS');
-			const t = results.map((r) => r.text);
+		// Single DeepL call for all strings in this race
+		const results = await deeplClient.translateText(texts, null, 'ZH-HANS');
+		const t = results.map((r) => r.text);
 
-			// Reassemble translated fields
-			const info_zh = Object.fromEntries(
-				i.info.map(({ keyIdx, valueIdx, nested }) => {
-					const key_zh = t[keyIdx];
-					if (nested) {
-						return [key_zh, Object.fromEntries(nested.map(({ k, v }) => [t[k], t[v]]))];
-					}
-					return [key_zh, t[valueIdx]];
-				}),
-			);
+		// Reassemble translated fields
+		const info_zh = Object.fromEntries(
+			i.info.map(({ keyIdx, valueIdx, nested }) => {
+				const key_zh = t[keyIdx];
+				if (nested) {
+					return [key_zh, Object.fromEntries(nested.map(({ k, v }) => [t[k], t[v]]))];
+				}
+				return [key_zh, t[valueIdx]];
+			}),
+		);
 
-			return {
-				...race,
-				name_zh: t[i.name],
-				date_zh: t[i.date],
-				location_zh: t[i.location],
-				entryStart_zh: t[i.entryStart],
-				entryEnd_zh: t[i.entryEnd],
-				description_zh: t[i.description],
-				info_zh,
-				notice_zh: i.notice.map((idx) => t[idx]),
-			};
-		}),
-	);
+		translatedRaces.push({
+			...race,
+			name_zh: t[i.name],
+			date_zh: t[i.date],
+			location_zh: t[i.location],
+			entryStart_zh: t[i.entryStart],
+			entryEnd_zh: t[i.entryEnd],
+			description_zh: t[i.description],
+			info_zh,
+			notice_zh: i.notice.map((idx) => t[idx]),
+		});
+	}
 	return translatedRaces;
 }
 
