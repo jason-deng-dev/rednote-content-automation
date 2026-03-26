@@ -128,18 +128,12 @@ The platform's live deployment targets Chinese runners — the SPA must render i
 
 ### Language Switching
 
-Language is controlled via a URL query param: `?lang=zh` for Chinese, `?lang=en` (or no param) for English.
+Language is controlled by a toggle button visible on the page. The active language is persisted in `localStorage` so the user's choice survives page reloads.
 
-- The SPA reads `window.location.search` on mount to determine the active language
-- The language is passed as a `?lang` query param to `GET /api/races` so the server can include or exclude `_zh` fields accordingly
-- No localStorage, no cookies — language is purely URL-driven, making it shareable and predictable
-
-### Two deployments, one codebase
-
-| URL | Language | Use |
-|---|---|---|
-| `running.moximoxi.net/racehub/` | Chinese (default, `?lang=zh`) | Live deployment for users |
-| `running.moximoxi.net/racehub/?lang=en` | English | Portfolio showcase |
+- Default language: `zh` (live deployment targets Chinese runners)
+- `useLang()` hook reads from `localStorage` on mount, exposes `[lang, setLang]`
+- Toggle button calls `setLang`, updates both state and `localStorage`
+- Language is passed as a `?lang` query param to `GET /api/races` so the server includes or excludes `_zh` fields accordingly
 
 ### UI Strings
 
@@ -151,7 +145,7 @@ wp-plugin/src/locales/
     zh.js   — Chinese strings (simplified)
 ```
 
-A `useLang()` hook reads the URL param and returns the correct locale object. Components import the hook and use `t.someKey` for all visible text — no hardcoded English strings in JSX.
+Components call `useLang()` and use `t.someKey` for all visible text — no hardcoded strings in JSX.
 
 ### Race Data
 
@@ -184,7 +178,7 @@ The API only returns `_zh` fields when `?lang=zh` is passed — keeping the defa
 |Memory vs disk read|Read-on-request|In-memory cache with TTL|~50KB file, reads are instantaneous, no cache invalidation needed after scraper runs|
 |Bundler|Vite|Create React App, Webpack|Fast dev server, clean static output for WordPress plugin embedding; Next.js rejected — SSR/file-based routing add complexity with no benefit for a WordPress-embedded widget|
 |Styling|Tailwind CSS|Plain CSS modules, CSS-in-JS|Matches dashboard stack for consistency; design system tokens configured in tailwind.config.js; fast to build utility-heavy UI|
-|i18n strategy|URL `?lang` param + locale files|Two separate repos, separate deployments, runtime language switcher|Single codebase, one deployment; `?lang=zh` for live, `?lang=en` for portfolio; no localStorage complexity|
+|i18n strategy|Toggle button + localStorage + locale files|URL `?lang` param, two separate repos/deployments|Single codebase, one deployment; toggle is more discoverable than URL params; localStorage persists user's choice across page loads; default `zh` for live deployment|
 |Chinese race content|`_zh` fields in races.json (scraper translates)|Separate races_zh.json, translate in Race Hub on-request|Single source of truth; no sync problem; translation only happens once in scraper pipeline|
 
 ---
@@ -212,14 +206,15 @@ The API only returns `_zh` fields when `?lang=zh` is passed — keeping the defa
 ### Phase 3 — Internationalisation
 
 1. Write `wp-plugin/src/locales/en.js` and `wp-plugin/src/locales/zh.js` — all UI strings
-2. Implement `useLang()` hook — reads `?lang` from URL, returns active locale object
-3. Replace all hardcoded English strings in JSX with `t.key` references
-4. Add `?lang` param to the `GET /api/races` fetch in App.jsx
-5. Add `?lang` handling to `server.js` — include or strip `_zh` fields from response accordingly
-6. Render `description_zh` / `notice_zh` in Drawer when `lang=zh`, with fallback to English fields if `_zh` is null
-7. Smoke test: `?lang=zh` shows Chinese copy + Chinese race descriptions; `?lang=en` shows English throughout
+2. Implement `useLang()` hook — reads from `localStorage` (default `'zh'`), exposes `[lang, setLang]`; `setLang` updates both state and `localStorage`
+3. Add language toggle button to FilterBar
+4. Replace all hardcoded English strings in JSX with `t.key` references
+5. Add `?lang` param to the `GET /api/races` fetch in App.jsx (re-fetch on language change)
+6. Add `?lang` handling to `server.js` — include or strip `_zh` fields from response accordingly
+7. Render all `_zh` fields in Drawer when `lang=zh` (name, date, location, entryStart/End, description, info, notice), fallback to English fields if `_zh` is null
+8. Smoke test: toggle to `zh` shows Chinese copy + Chinese race data; toggle to `en` shows English throughout; null `_zh` falls back gracefully
 
-**Exit criteria:** `?lang=zh` and `?lang=en` both render correctly. Live deployment defaults to Chinese. Portfolio URL uses English.
+**Exit criteria:** Toggle works on live deployment. Default is Chinese. English toggle works for portfolio demo. Fallback for null `_zh` fields confirmed.
 
 ---
 
