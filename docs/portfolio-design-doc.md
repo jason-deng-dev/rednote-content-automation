@@ -57,7 +57,7 @@ This is the complete list of things built for running.moximoxi.net — the level
 - Multi-API orchestration: Rakuten API + DeepL + WooCommerce REST, error-isolated per service
 
 ### Dashboard (`services/dashboard/`)
-- Operator-facing monitoring UI — Express :3000 + React SPA
+- Operator-facing monitoring UI — Next.js + Tailwind CSS (:3000, PM2 + NGINX)
 - Pipeline health cards, live log stream (SSE), run history, post archive
 - XHS session re-auth via screenshot polling — no terminal access required
 - Config writeback to shared volume (XHS schedule, Rakuten pricing, scrape limits)
@@ -178,4 +178,4 @@ A static demo page showing the XHS content pipeline output for portfolio use. Ru
 - Built a Claude-powered XHS content pipeline generating 115+ posts with 60k+ views, auto-published via Playwright — zero manual effort per post after deployment
 - Built a product aggregator orchestrating Rakuten API + DeepL + WooCommerce REST with a PostgreSQL cache layer — imports Japanese running products into WooCommerce with auto-translated Chinese listings
 - Built a weekly race scraper + React SPA WordPress plugin serving live race data from RunJapan to an embedded race hub page
-- All pipelines monitored via an operator-facing dashboard (Express + React) with SSE live logs, config writeback, and browser-based XHS session re-auth — no terminal access required for daily operations
+- All pipelines monitored via an operator-facing dashboard (Next.js + Tailwind) with SSE live logs, config writeback, and browser-based XHS session re-auth — no terminal access required for daily operations

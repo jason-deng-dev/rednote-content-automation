@@ -115,21 +115,61 @@
 ### Google Stitch
 Using [Google Stitch](https://stitch.withgoogle.com/) to accelerate UI component generation. Stitch generates React components from design prompts — use it for initial component scaffolding, then refine to match this design system.
 
-**Workflow:** describe component in Stitch → export → replace hardcoded colours/spacing/fonts with CSS variable tokens from this doc.
+**Workflow:** describe component in Stitch → export → replace hardcoded colours/spacing/fonts with design system tokens.
 
-### React SPAs (Race Hub + Dashboard)
-- Define all tokens as CSS custom properties in a global `styles/tokens.css`
-- Import `tokens.css` at the app root
-- Reference tokens directly in component CSS — no hardcoded values
+### Tailwind CSS (Race Hub + Dashboard)
+Both SPAs use Tailwind CSS. Design tokens are defined in two places that must stay in sync:
+
+1. **CSS custom properties** in `styles/tokens.css` (for any custom CSS that falls outside Tailwind utilities)
+2. **`tailwind.config.js`** extending the default theme so utility classes (`bg-accent`, `text-primary`, `border-border`) map directly to the design system values
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        bg:             '#FAFAF8',
+        surface:        '#FFFFFF',
+        border:         '#E8E8E4',
+        'text-primary': '#1A1A1A',
+        'text-secondary':'#6B6B6B',
+        'text-disabled': '#ABABAB',
+        accent:         '#C8102E',
+        'accent-hover': '#A00D24',
+        success:        '#2D6A4F',
+        warning:        '#B5770D',
+      },
+      fontFamily: {
+        sans: ['Inter', 'Noto Sans SC', 'sans-serif'],
+      },
+      spacing: {
+        // 8px base unit
+        '1': '8px', '2': '16px', '3': '24px', '4': '32px',
+        '6': '48px', '8': '64px', '12': '96px', '16': '128px',
+      },
+      borderRadius: {
+        DEFAULT: '0', // Sharp corners — Goldwin aesthetic. No rounded corners.
+      },
+      letterSpacing: {
+        tight: '-0.02em',
+        wide:  '0.08em',
+      },
+    },
+  },
+}
+```
 
 ```css
-/* styles/tokens.css */
+/* styles/tokens.css — used only where Tailwind utilities don't reach */
 :root {
   --color-bg: #FAFAF8;
   --color-accent: #C8102E;
   /* ... all tokens */
 }
 ```
+
+**Rule:** prefer Tailwind utilities first. Fall back to CSS custom properties only for things Tailwind can't express (e.g. SSE-driven dynamic inline styles, complex pseudo-selectors).
 
 ### WordPress — Flatsome Theme
 Flatsome supports global custom CSS via **Appearance → Customize → Additional CSS**. Define the same CSS custom properties there — Flatsome's UX Builder blocks and custom HTML blocks can reference them directly.
@@ -159,8 +199,8 @@ Flatsome supports global custom CSS via **Appearance → Customize → Additiona
 
 | Surface | Tech | How tokens are applied |
 |---|---|---|
-| Race Hub SPA | React (embedded in WordPress) | `tokens.css` imported at app root |
-| Dashboard SPA | React (operator-facing) | `tokens.css` imported at app root |
+| Race Hub SPA | React + Vite + Tailwind (embedded in WordPress as plugin) | `tailwind.config.js` + `tokens.css` at app root |
+| Dashboard SPA | Next.js + Tailwind (operator-facing) | `tailwind.config.js` + `tokens.css` at app root |
 | WooCommerce storefront | WordPress + Flatsome | Additional CSS in Flatsome customizer |
 | XHS posts | N/A — XHS has its own format | Not applicable |
 

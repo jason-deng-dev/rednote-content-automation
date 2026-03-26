@@ -80,7 +80,8 @@ All five containers run on a single AWS Lightsail VPS, managed by one `docker-co
 │                                        ▼                                                │
 │                      ┌───────────────────────────────────┐                             │
 │                      │        Dashboard container         │                             │
-│                      │  Express :3000 + React SPA         │                             │
+│                      │  Next.js :3000 (PM2 + NGINX)       │                             │
+│                      │  App Router pages + API routes     │                             │
 │                      │  (operator-facing only)            │                             │
 │                      │  commands → Rakuten :3002          │                             │
 │                      └───────────────┬───────────────────┘                             │
@@ -104,7 +105,7 @@ All five containers run on a single AWS Lightsail VPS, managed by one `docker-co
 | **Race Hub** | Persistent Express server (:3001). Always up. Reads `scraper/races.json` from shared volume, serves it to WordPress via `GET /api/races`. Public-facing. | — |
 | **XHS** | Daily automation pipeline. Scheduler triggers generator (Claude API) → publisher (Playwright → XHS). Reads race data from shared volume, writes logs and post archive back. | Claude API, XHS web |
 | **Rakuten** | Product ingestion pipeline. Fetches from Rakuten API, normalises, prices, caches in PostgreSQL, pushes to WooCommerce. Internal Express :3002 for dashboard commands only. | Rakuten API, WooCommerce REST API, DeepL |
-| **Dashboard** | Operator-facing monitoring UI. Express :3000 serves a React SPA. Reads all pipeline state from the shared volume. Writes config files that pipelines pick up at runtime. Calls Rakuten :3002 for commands (trigger fetch, retry import). | — |
+| **Dashboard** | Operator-facing monitoring UI. Next.js :3000 (App Router + API routes, served via PM2 + NGINX). Reads all pipeline state from the shared volume. Writes config files that pipelines pick up at runtime. Calls Rakuten :3002 for commands (trigger fetch, retry import). | — |
 
 ---
 

@@ -102,12 +102,20 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 - Empty state when filters return no results
 - Error state if Express API is unreachable
 
-### 4.4 WordPress Integration
+### 4.4 Tech Stack
+
+- **React + Vite + Tailwind CSS**
+- Tailwind configured with design system tokens from `docs/design-system.md` — same colour palette, spacing, and typography as the dashboard
+- Styling follows the design system: Goldwin-inspired minimal aesthetic, sharp corners, warm off-white background, deep red accent (`#C8102E`)
+- No border-radius on any element per design system
+
+### 4.5 WordPress Integration
 
 - React app bundled with Vite, output to `wp-plugin/dist/`
 - WordPress plugin registers shortcode `[race_hub]`
 - Shortcode enqueues the bundled JS/CSS and renders a mount point div
 - Operator adds shortcode to any WordPress page — no code changes needed
+- Tailwind output is scoped via a wrapper class to avoid clashing with the active WordPress/Flatsome theme CSS
 
 ---
 
@@ -119,6 +127,8 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 |Frontend embedding|React SPA as WordPress plugin|Standalone deployment, WP theme templates|Operator never leaves WordPress; maintainable by any WP developer; no separate hosting needed|
 |Data store|races.json flat file (read-only for Race Hub)|PostgreSQL, SQLite|Sufficient for ~100-200 races; zero infra overhead; easy to inspect|
 |Memory vs disk read|Read-on-request|In-memory cache with TTL|~50KB file, reads are instantaneous, no cache invalidation needed after scraper runs|
+|Bundler|Vite|Create React App, Webpack|Fast dev server, clean static output for WordPress plugin embedding; Next.js rejected — SSR/file-based routing add complexity with no benefit for a WordPress-embedded widget|
+|Styling|Tailwind CSS|Plain CSS modules, CSS-in-JS|Matches dashboard stack for consistency; design system tokens configured in tailwind.config.js; fast to build utility-heavy UI|
 
 ---
 
