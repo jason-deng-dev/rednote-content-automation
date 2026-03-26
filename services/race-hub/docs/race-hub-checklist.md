@@ -6,8 +6,11 @@
 - [x] Express API (race-hub/server.js)
   - [x] GET /api/races — serve full races.json
   - [x] Add CORS header for running.moximoxi.net
-  - [ ] Write Dockerfile
 - [ ] React SPA WordPress Plugin (race-hub/wp-plugin/)
+  - [ ] Scaffold Vite + React project in `wp-plugin/`
+  - [ ] Install and configure Tailwind CSS
+  - [ ] Configure `tailwind.config.js` with design system tokens (colours, spacing, fonts, border-radius: 0) per `docs/design-system.md`
+  - [ ] Scope all Tailwind styles under a `.race-hub-root` wrapper class to avoid clashing with WordPress/Flatsome theme CSS
   - [ ] Race listing view — card grid, search bar, filter panel (status, date range)
   - [ ] Race detail view — full info, entry status, Register Now button (registrationUrl), CTAs
   - [ ] UI states — loading skeleton, empty state, error state
@@ -16,5 +19,9 @@
   - [ ] Upload plugin to running.moximoxi.net
   - [ ] Add shortcode to race hub page
   - [ ] Smoke test end-to-end
+- [ ] Docker & Deploy
+  - [ ] Write Dockerfile
+  - [ ] Verify container starts and serves races.json correctly with docker-compose up
+  - [ ] Verify CORS works from WordPress origin in production
 
 ---
