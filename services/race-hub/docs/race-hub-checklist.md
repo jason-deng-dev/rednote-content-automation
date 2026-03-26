@@ -23,6 +23,7 @@
   - [ ] Date range filter — parse race date, add date range picker to FilterBar
   - [ ] Distance filter UI — quick-pick toggles (10K / Half / Full / Ultra) + custom km range input
   - [ ] Wire distance + region + date filters into App.jsx filtered memo
+  - [ ] Verify fetch works end-to-end — confirm VITE_API_URL is set correctly and race-hub server is running before testing
   - [ ] UI states — verify loading skeleton, empty state, error state all work
   - [ ] Bundle with Vite → wp-plugin/dist/
   - [ ] WordPress plugin PHP — register [race_hub] shortcode, enqueue bundled assets
