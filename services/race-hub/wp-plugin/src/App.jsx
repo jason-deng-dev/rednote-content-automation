@@ -5,6 +5,8 @@ import SkeletonCard from './components/SkeletonCard'
 import Drawer from './components/Drawer'
 import { getEntryStatus } from './utils/status'
 import extractDistance from './utils/extractDistance'
+import extractRegion from './utils/extractRegion'
+import extractDate from './utils/extractDate'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -16,8 +18,7 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedRace, setSelectedRace] = useState(null)
 
-  // ensure that our server is running and the API fetch call is correct
-  // runs a side effect(fetch, DOM manipulation, timers)
+
   useEffect(() => {
     fetch(`${API_URL}/api/races`)
       .then(r => {
@@ -25,7 +26,7 @@ export default function App() {
         return r.json()
       })
       .then(data => {
-        setRaces(extractDistance(data.races) || [])
+        setRaces(extractDate(extractRegion(extractDistance(data.races))) || [])
         setLoading(false)
       })
       .catch(err => {
@@ -34,8 +35,6 @@ export default function App() {
       })
   }, [])
 
-  // makes sure filtered is recomputed from new values, rather than recalculated from scratch unnesscarily 
-  // computes and caches a value, recomputes on when dependency changes
   const filtered = useMemo(() => {
     return races.filter(race => {
       const matchesSearch = race.name.toLowerCase().includes(search.toLowerCase())
