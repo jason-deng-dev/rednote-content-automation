@@ -1,13 +1,27 @@
+import { useEffect, useRef } from 'react'
 import Badge from './Badge'
 import { getEntryStatus } from '../utils/status'
 
 export default function RaceCard({ race, index, onClick }) {
+  const ref = useRef(null)
   const status = getEntryStatus(race.entryEnd)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { el.classList.add('is-visible'); observer.disconnect() } },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <article
+      ref={ref}
       className="bg-surface overflow-hidden shadow-sm group cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md card-animate flex flex-col"
-      style={{ animationDelay: `${index * 50}ms` }}
+      style={{ transitionDelay: `${Math.min(index, 5) * 80}ms` }}
       onClick={onClick}
     >
       {/* Image */}
