@@ -41,16 +41,16 @@
   - [x] Date range filter — parse race date, add date range picker to FilterBar
   - [x] Distance filter UI — dropdown (10K / Half / Full / Ultra) + inline popover for exact km or km range
   - [x] Wire distance + region + date filters into App.jsx filtered memo
-  - [ ] Verify fetch works end-to-end — confirm VITE_API_URL is set correctly and race-hub server is running before testing
-  - [ ] UI states — verify loading skeleton, empty state, error state all work
-- [ ] Internationalisation (i18n)
-  - [ ] Write `src/locales/en.js` — all English UI strings (labels, placeholders, headings, CTA copy)
-  - [ ] Write `src/locales/zh.js` — Chinese translations of all UI strings
-  - [ ] Implement `useLang()` hook — reads from localStorage (default `'zh'`), exposes `[lang, setLang]`
-  - [ ] Add language toggle button to FilterBar
-  - [ ] Replace all hardcoded English strings in JSX with `t.key` references
-  - [ ] Render `_zh` fields in Drawer when `lang=zh` (name, date, location, entryStart/End, description, info, notice), fallback to English fields if `_zh` is null — API always returns full data, React picks the right field
-  - [ ] Smoke test: toggle to `zh` shows Chinese; toggle to `en` shows English; null `_zh` gracefully falls back
+  - [x] Verify fetch works end-to-end — confirm VITE_API_URL is set correctly and race-hub server is running before testing
+  - [x] UI states — verify loading skeleton, empty state, error state all work
+- [x] Internationalisation (i18n)
+  - [x] Write `src/locales/en.js` — all English UI strings (labels, placeholders, headings, CTA copy)
+  - [x] Write `src/locales/zh.js` — Chinese translations of all UI strings
+  - [x] Implement `useLang()` hook — reads from localStorage (default `'zh'`), exposes `[lang, setLang]`
+  - [x] Add language toggle button to FilterBar (segmented EN / 中文 control, anchored right of count)
+  - [x] Replace all hardcoded English strings in JSX with `t.key` references (FilterBar, Drawer, Header, RaceCard, Badge, App.jsx)
+  - [x] Render `_zh` fields in Drawer when `lang=zh` (name, date, location, entryStart/End, description, info, notice), fallback to English fields if `_zh` is null — API always returns full data, React picks the right field
+  - [x] Smoke test: toggle to `zh` shows Chinese; toggle to `en` shows English; null `_zh` gracefully falls back
 - [ ] Bundle & Deploy
   - [ ] Bundle with Vite → wp-plugin/dist/
   - [ ] WordPress plugin PHP — register [race_hub] shortcode, enqueue bundled assets
