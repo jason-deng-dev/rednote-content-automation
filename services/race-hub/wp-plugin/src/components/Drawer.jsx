@@ -13,11 +13,11 @@ function InfoRows({ info }) {
         if (typeof value === 'object' && value !== null) {
           return (
             <div key={key} className="py-4 border-b border-border">
-              <label className="block text-[10px] font-bold tracking-[0.2em] text-muted uppercase mb-2">{key}</label>
+              <label className="block text-[12px] font-bold tracking-[0.15em] text-muted uppercase mb-2">{key}</label>
               {Object.entries(value).map(([subKey, subVal]) => (
                 <div key={subKey} className="mb-2">
-                  <span className="text-[11px] text-muted uppercase tracking-wide">{subKey}: </span>
-                  <span className="text-[13px] text-ink">{subVal}</span>
+                  <span className="text-[12px] text-muted uppercase tracking-wide">{subKey}: </span>
+                  <span className="text-[14px] text-ink">{subVal}</span>
                 </div>
               ))}
             </div>
@@ -26,7 +26,7 @@ function InfoRows({ info }) {
         return (
           <div key={key} className="flex items-start justify-between py-4 border-b border-border gap-4">
             <div>
-              <label className="block text-[10px] font-bold tracking-[0.2em] text-muted uppercase mb-1">{key}</label>
+              <label className="block text-[12px] font-bold tracking-[0.15em] text-muted uppercase mb-1">{key}</label>
               <span className="block text-[15px] font-medium text-ink leading-snug">{value}</span>
             </div>
           </div>
@@ -39,6 +39,8 @@ function InfoRows({ info }) {
 export default function Drawer({ race, onClose }) {
   const [lang] = useContext(LangContext)
   const text = lang === 'en' ? enText : zhText
+
+  const f = (field) => (race && lang === 'zh' && race[`${field}_zh`]) ? race[`${field}_zh`] : race?.[field]
 
   const isOpen = !!race
   const status = race ? getEntryStatus(race.entryEnd) : null
@@ -119,7 +121,7 @@ export default function Drawer({ race, onClose }) {
                 {/* Title */}
                 <section className="flex items-start justify-between gap-3 pr-10">
                   <h1 className="font-headline font-black text-2xl uppercase tracking-tighter leading-tight text-ink">
-                    {race.name}
+                    {f('name')}
                   </h1>
                   <div className="shrink-0 mt-1"><Badge status={status} label={badgeLabel} /></div>
                 </section>
@@ -129,19 +131,19 @@ export default function Drawer({ race, onClose }) {
                   {race.date && (
                     <div className="flex gap-4 py-2.5 border-b border-border">
                       <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{text.drawer_date}</span>
-                      <span className="text-[13px] text-ink">{race.date}</span>
+                      <span className="text-[13px] text-ink">{f('date')}</span>
                     </div>
                   )}
                   {race.location && (
                     <div className="flex gap-4 py-2.5 border-b border-border">
                       <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{text.drawer_location}</span>
-                      <span className="text-[13px] text-ink">{race.location}</span>
+                      <span className="text-[13px] text-ink">{f('location')}</span>
                     </div>
                   )}
                   {(race.entryStart || race.entryEnd) && (
                     <div className="flex gap-4 py-2.5 border-b border-border">
                       <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{text.drawer_entry_period}</span>
-                      <span className="text-[13px] text-ink">{[race.entryStart, race.entryEnd].filter(Boolean).join(' — ')}</span>
+                      <span className="text-[13px] text-ink">{[f('entryStart'), f('entryEnd')].filter(Boolean).join(' — ')}</span>
                     </div>
                   )}
                   {race.website && (
@@ -192,7 +194,7 @@ export default function Drawer({ race, onClose }) {
 
                 {/* Description */}
                 {race.description && (
-                  <p className="text-[13px] text-muted leading-relaxed font-body">{race.description}</p>
+                  <p className="text-[13px] text-muted leading-relaxed font-body">{f('description')}</p>
                 )}
 
                 {/* Full details — accordion */}
@@ -207,14 +209,14 @@ export default function Drawer({ race, onClose }) {
                     </button>
                     <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${infoExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                       <div className="overflow-hidden">
-                        <InfoRows info={Object.fromEntries(Object.entries(race.info).filter(([k]) => !['Date','Location'].includes(k)))} />
+                        <InfoRows info={Object.fromEntries(Object.entries(f('info')).filter(([k]) => !['Date','Location'].includes(k)))} />
                       </div>
                     </div>
                   </section>
                 )}
 
                 {/* Notice — accordion */}
-                {race.notice?.length > 0 && (
+                {f('notice')?.length > 0 && (
                   <section className="border-t border-border">
                     <button
                       onClick={() => setNotesExpanded(v => !v)}
@@ -226,7 +228,7 @@ export default function Drawer({ race, onClose }) {
                     <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${notesExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                       <div className="overflow-hidden">
                         <ul className="space-y-2 pb-4">
-                          {race.notice.map((note, i) => (
+                          {f('notice').map((note, i) => (
                             <li key={i} className="text-[13px] text-muted leading-relaxed flex gap-2">
                               <span className="shrink-0">·</span>
                               <span>{note}</span>
