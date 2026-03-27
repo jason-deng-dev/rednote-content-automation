@@ -1024,7 +1024,7 @@ services/xhs/
     │   └── config.json                     # Written by Dashboard — per-day post schedule
     └── rakuten/
         ├── run_log.json
-        ├── catalog_stats.json
+        ├── product_stats.json
         ├── import_log.json
         └── config.json
 ```

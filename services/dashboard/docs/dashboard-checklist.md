@@ -1,16 +1,16 @@
-- [ ] Dashboard — Express API (dashboard/server/)
-  - [ ] GET /api/schedule — read xhs/config.json
-  - [ ] POST /api/schedule — write xhs/config.json
-  - [ ] GET /api/run-history — serve xhs/run_log.json
-  - [ ] GET /api/post-archive — serve xhs/post_archive/
-  - [ ] GET /api/pipeline-state — current state (idle / running / failed)
-  - [ ] GET /api/auth-status — derive session status from auth.json mtime
-  - [ ] POST /api/trigger — spawn manual run with post type param
-  - [ ] GET /api/logs/stream — SSE live log stream
+- [ ] Dashboard — Next.js API routes (`app/api/`)
+  - [ ] GET /api/xhs/schedule — read xhs/config.json
+  - [ ] POST /api/xhs/schedule — write xhs/config.json
+  - [ ] GET /api/xhs/run-history — serve xhs/run_log.json
+  - [ ] GET /api/xhs/post-archive — serve xhs/post_archive/
+  - [ ] GET /api/xhs/auth-status — derive session status from auth.json mtime
+  - [ ] POST /api/xhs/trigger — spawn manual XHS run with post type param
+  - [ ] GET /api/xhs/logs/stream — SSE live XHS log stream
   - [ ] POST /api/xhs/login — spawn xhs-login.js, begin screenshot polling
   - [ ] GET /api/xhs/login/stream — SSE screenshot stream for QR code display
-  - [ ] Serve React SPA as static files
-- [ ] Dashboard — React SPA (dashboard/client/)
+  - [ ] GET /api/pipeline-state — read xhs + scraper pipeline_state.json files
+  - [ ] POST /api/scraper/trigger — spawn manual scraper run via docker exec
+- [ ] Dashboard — Next.js App Router pages (`app/`)
   - [ ] Home page — 3 pipeline cards (XHS, Scraper, Rakuten) with live state indicators
   - [ ] XHS section: schedule grid, live log stream, XHS auth status + login flow, key metrics, post archive viewer, manual trigger + preview mode, run history, Claude API token tracker
   - [ ] Race Scraper section: key metrics, failed URLs list, races.json viewer, run history, manual trigger
@@ -19,8 +19,8 @@
   - [ ] Provision AWS Lightsail instance (Linux, $10/mo — 2 GB RAM, 2 vCPUs, 60 GB SSD, 3 TB transfer, hosted outside mainland China)
   - [ ] SSH into Lightsail instance and verify access
   - [ ] Install Docker + Docker Compose on Lightsail instance
-  - [ ] Write Dockerfiles for Scraper container and Dashboard container
-  - [ ] Write docker-compose.yml — 5 containers (Scraper, Race Hub, XHS, Rakuten, Dashboard) + shared volume
+  - [ ] Write Dockerfiles for all containers (Scraper, Race Hub, XHS, Rakuten, Dashboard)
+  - [ ] Write docker-compose.yml — 5 containers + PostgreSQL container + shared volume
   - [ ] Test all containers locally with docker-compose up
   - [ ] Clone repo onto Lightsail instance
   - [ ] Create .env file on Lightsail instance with production API keys (never committed to git)

@@ -393,9 +393,10 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 │    │                                                                      │             │
 │    │  scraper/                xhs/                    rakuten/            │             │
 │    │   races.json ←            run_log.json ←          run_log.json ←     │             │
-│    │   run_log.json ←          pipeline_state.json ←   catalog_stats.json←│             │
+│    │   run_log.json ←          pipeline_state.json ←   product_stats.json←│             │
 │    │   pipeline_state.json ←   post_archive/ ←         import_log.json ←  │             │
-│    │   config.json →           auth.json ←             config.json →      │             │
+│    │   config.json →           post_history.json ←     config.json →      │             │
+│    │                           auth.json ←                                 │             │
 │    │                           config.json →                               │             │
 │    │                                                                      │             │
 │    │   ← pipeline writes          → dashboard writes                      │             │
@@ -411,12 +412,12 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 │                      └───────────────┬───────────────────┘                              │
 │                                      │                                                  │
 └──────────────────────────────────────┼──────────────────────────────────────────────────┘
-                │                      │                                │
-              HTTPS                  HTTPS                           HTTPS
-          GET /api/races          (operator)                    (push products)
-          (race hub WP plugin)        │                                │
-                │                     ▼                                ▼
-       [WordPress race hub]    [Operator browser]          [WooCommerce REST API]
+                                       │
+                                     HTTPS
+                                   (operator)
+                                       │
+                                       ▼
+                               [Operator browser]
 ```
 
 **Note on Scraper vs Race Hub:** separated by single responsibility. The Scraper is a pure cron process — no HTTP server, no persistent process. The Race Hub container runs Express persistently (always up) and reads `scraper/races.json` from the shared volume to serve to WordPress. Either can be restarted or updated independently.
@@ -433,10 +434,11 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 | `xhs/pipeline_state.json` | XHS | Dashboard | Current XHS state — `{ state: "idle | running | failed" }` |
 | `xhs/run_log.json` | XHS | Dashboard | Post run history — timestamp, post_type, outcome, error_stage, error_message, tokens_input, tokens_output |
 | `xhs/post_archive/` | XHS | Dashboard | Published post content (weekly JSON files keyed by ISO timestamp) |
+| `xhs/post_history.json` | XHS | XHS | Tracks which races have been posted — used to avoid re-posting the same race |
 | `xhs/auth.json` | XHS (xhs-login.js) | XHS (publisher.js) | XHS session cookies — mtime used by dashboard to derive session age |
 | `xhs/config.json` | Dashboard | XHS | Per-day post slots (time + post type) — XHS watches for changes and re-registers cron jobs at runtime |
 | `rakuten/run_log.json` | Rakuten | Dashboard | Run history — timestamp, operation (fetch/push), category, products_fetched, products_pushed, failures, outcome |
-| `rakuten/catalog_stats.json` | Rakuten | Dashboard | Total cached, total pushed, stale count, per-category breakdown (cached / pushed to WC) — rewritten after each run |
+| `rakuten/product_stats.json` | Rakuten | Dashboard | Total cached, total pushed, stale count, per-category breakdown (cached / pushed to WC) — rewritten after each run |
 | `rakuten/import_log.json` | Rakuten | Dashboard | Per-product WooCommerce push attempts — product_id, product_name, status (success/failed/skipped), error_message |
 | `rakuten/config.json` | Dashboard | Rakuten | Per-category: `margin_pct`, `shipping_cny`, `default_fetch_count`; global: `jpy_to_cny_rate`, `jpy_to_cny_updated`, `search_fill_threshold` |
 

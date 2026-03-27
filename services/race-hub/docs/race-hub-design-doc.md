@@ -28,10 +28,9 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 │  [Scraper container]              [Race Hub container]              │
 │   cron: scraper.js weekly          Express :3001 (always up)        │
 │   no HTTP server                   GET /api/races                   │
-│   pure cron process                GET /api/races/:id               │
-│          │                         GET /api/races/upcoming          │
-│          │ writes                         │                         │
-│          ▼                               │ reads                    │
+│   pure cron process                       │                         │
+│          │ writes                         │ reads                   │
+│          ▼                               ▼                          │
 │    scraper/races.json  ◄─────────────────┘                          │
 │    (shared volume)                                                  │
 │                                                                     │
