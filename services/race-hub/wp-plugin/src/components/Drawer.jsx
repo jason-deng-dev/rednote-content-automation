@@ -1,4 +1,7 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useContext } from 'react'
+import { LangContext } from '../App'
+import enText from '../locales/en'
+import zhText from '../locales/zh'
 import Badge from './Badge'
 import { getEntryStatus } from '../utils/status'
 
@@ -34,6 +37,9 @@ function InfoRows({ info }) {
 }
 
 export default function Drawer({ race, onClose }) {
+  const [lang] = useContext(LangContext)
+  const text = lang === 'en' ? enText : zhText
+
   const isOpen = !!race
   const status = race ? getEntryStatus(race.entryEnd) : null
   const touchStartX = useRef(null)
@@ -121,25 +127,25 @@ export default function Drawer({ race, onClose }) {
                 <section className="border-t border-border pt-4 space-y-0">
                   {race.date && (
                     <div className="flex gap-4 py-2.5 border-b border-border">
-                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Date</span>
+                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{text.drawer_date}</span>
                       <span className="text-[13px] text-ink">{race.date}</span>
                     </div>
                   )}
                   {race.location && (
                     <div className="flex gap-4 py-2.5 border-b border-border">
-                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Location</span>
+                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{text.drawer_location}</span>
                       <span className="text-[13px] text-ink">{race.location}</span>
                     </div>
                   )}
                   {(race.entryStart || race.entryEnd) && (
                     <div className="flex gap-4 py-2.5 border-b border-border">
-                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Entry Period</span>
+                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{text.drawer_entry_period}</span>
                       <span className="text-[13px] text-ink">{[race.entryStart, race.entryEnd].filter(Boolean).join(' — ')}</span>
                     </div>
                   )}
                   {race.website && (
                     <div className="flex gap-4 py-2.5 border-b border-border">
-                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Website</span>
+                      <span className="w-28 shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] text-muted">{text.drawer_website}</span>
                       <a href={race.website} target="_blank" rel="noopener noreferrer" className="text-[13px] text-accent hover:underline truncate">{race.website}</a>
                     </div>
                   )}
@@ -195,7 +201,7 @@ export default function Drawer({ race, onClose }) {
                       onClick={() => setInfoExpanded(v => !v)}
                       className="w-full flex items-center justify-between py-4 text-left"
                     >
-                      <span className="font-headline font-bold text-[13px] uppercase tracking-widest text-ink">Race Information</span>
+                      <span className="font-headline font-bold text-[13px] uppercase tracking-widest text-ink">{text.drawer_race_info}</span>
                       <span className={`material-symbols-outlined text-muted text-[20px] transition-transform duration-300 ${infoExpanded ? 'rotate-180' : ''}`}>expand_more</span>
                     </button>
                     <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${infoExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
@@ -213,7 +219,7 @@ export default function Drawer({ race, onClose }) {
                       onClick={() => setNotesExpanded(v => !v)}
                       className="w-full flex items-center justify-between py-4 text-left"
                     >
-                      <span className="font-headline font-bold text-[13px] uppercase tracking-widest text-ink">Notes</span>
+                      <span className="font-headline font-bold text-[13px] uppercase tracking-widest text-ink">{text.drawer_notes}</span>
                       <span className={`material-symbols-outlined text-muted text-[20px] transition-transform duration-300 ${notesExpanded ? 'rotate-180' : ''}`}>expand_more</span>
                     </button>
                     <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${notesExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
@@ -241,7 +247,7 @@ export default function Drawer({ race, onClose }) {
                 rel="noopener noreferrer"
                 className="block w-full bg-accent text-white font-headline font-bold text-sm py-5 tracking-[0.25em] uppercase text-center hover:bg-accent-dark transition-colors"
               >
-                Register Now
+                {text.drawer_cta}
               </a>
               {race.website && (
                 <a
@@ -250,7 +256,7 @@ export default function Drawer({ race, onClose }) {
                   rel="noopener noreferrer"
                   className="block w-full mt-2 py-3 text-center font-body text-[12px] uppercase tracking-widest text-muted hover:text-ink transition-colors underline underline-offset-4"
                 >
-                  Official Site
+                  {text.drawer_official_site}
                 </a>
               )}
             </div>

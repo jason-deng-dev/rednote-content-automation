@@ -43,21 +43,20 @@
   - [x] Wire distance + region + date filters into App.jsx filtered memo
   - [ ] Verify fetch works end-to-end — confirm VITE_API_URL is set correctly and race-hub server is running before testing
   - [ ] UI states — verify loading skeleton, empty state, error state all work
-  - [ ] Bundle with Vite → wp-plugin/dist/
-  - [ ] WordPress plugin PHP — register [race_hub] shortcode, enqueue bundled assets
-  - [ ] Upload plugin to running.moximoxi.net
-  - [ ] Add shortcode to race hub page
-  - [ ] Smoke test end-to-end
 - [ ] Internationalisation (i18n)
   - [ ] Write `src/locales/en.js` — all English UI strings (labels, placeholders, headings, CTA copy)
   - [ ] Write `src/locales/zh.js` — Chinese translations of all UI strings
   - [ ] Implement `useLang()` hook — reads from localStorage (default `'zh'`), exposes `[lang, setLang]`
   - [ ] Add language toggle button to FilterBar
   - [ ] Replace all hardcoded English strings in JSX with `t.key` references
-  - [ ] Add `?lang` param to `GET /api/races` fetch in App.jsx (re-fetch on language change)
-  - [ ] Add `?lang` handling in server.js — include `_zh` fields when `lang=zh`, strip them otherwise
-  - [ ] Render all `_zh` fields in Drawer when `lang=zh` (name, date, location, entryStart/End, description, info, notice), fallback to English fields if `_zh` is null
+  - [ ] Render `_zh` fields in Drawer when `lang=zh` (name, date, location, entryStart/End, description, info, notice), fallback to English fields if `_zh` is null — API always returns full data, React picks the right field
   - [ ] Smoke test: toggle to `zh` shows Chinese; toggle to `en` shows English; null `_zh` gracefully falls back
+- [ ] Bundle & Deploy
+  - [ ] Bundle with Vite → wp-plugin/dist/
+  - [ ] WordPress plugin PHP — register [race_hub] shortcode, enqueue bundled assets
+  - [ ] Upload plugin to running.moximoxi.net
+  - [ ] Add shortcode to race hub page
+  - [ ] Smoke test end-to-end
 - [ ] Docker & Deploy
   - [ ] Write Dockerfile
   - [ ] Verify container starts and serves races.json correctly with docker-compose up

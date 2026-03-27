@@ -63,9 +63,7 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 
 |Method|Endpoint|Description|
 |---|---|---|
-|`GET`|`/api/races`|Serves full `races.json` — optional `?lang` param|
-|`GET`|`/api/races?lang=zh`|Same response, but `description_zh` and `notice_zh` fields included in output|
-|`GET`|`/api/races?lang=en`|English-only response (default) — `_zh` fields stripped|
+|`GET`|`/api/races`|Serves full `races.json` — all fields including `_zh` always included|
 
 ### 3.2 Implementation Notes
 
@@ -73,7 +71,7 @@ The Race Hub has no scraping logic. It is a pure data server — reads a file, s
 - All filtering, sorting, search, and detail views are handled client-side in the React SPA
 - CORS configured to allow `running.moximoxi.net` as origin
 - Manual scrape trigger is handled by the Dashboard (`POST /api/scraper/trigger`) — Race Hub is a pure data server with no process-spawning logic
-- `?lang` param shapes the response: `lang=zh` includes `description_zh` and `notice_zh[]`; default (`lang=en`) strips those fields. The SPA reads `?lang` from the page URL and forwards it to the API.
+- Always returns the full race data including all `_zh` fields — language selection is handled entirely client-side in the React SPA
 
 ---
 
@@ -133,7 +131,7 @@ Language is controlled by a toggle button visible on the page. The active langua
 - Default language: `zh` (live deployment targets Chinese runners)
 - `useLang()` hook reads from `localStorage` on mount, exposes `[lang, setLang]`
 - Toggle button calls `setLang`, updates both state and `localStorage`
-- Language is passed as a `?lang` query param to `GET /api/races` so the server includes or excludes `_zh` fields accordingly
+- Language state controls which fields React renders — API always returns the full payload
 
 ### UI Strings
 
@@ -162,7 +160,7 @@ Chinese content comes from the scraper's translation pass (DeepL EN→ZH-HANS). 
 | `info_zh` | `info` (all keys + values, nested structure preserved) |
 | `notice_zh[]` | `notice[]` (each item translated individually) |
 
-The API only returns `_zh` fields when `?lang=zh` is passed — keeping the default response lean.
+The API always returns the full race payload — all `_zh` fields are included in every response. The React SPA reads `lang` from state and picks the appropriate field to render.
 
 **Fallback:** If any `_zh` field is `null` (DeepL unavailable or untranslated), the SPA falls back to the corresponding English field silently.
 
@@ -209,9 +207,7 @@ The API only returns `_zh` fields when `?lang=zh` is passed — keeping the defa
 2. Implement `useLang()` hook — reads from `localStorage` (default `'zh'`), exposes `[lang, setLang]`; `setLang` updates both state and `localStorage`
 3. Add language toggle button to FilterBar
 4. Replace all hardcoded English strings in JSX with `t.key` references
-5. Add `?lang` param to the `GET /api/races` fetch in App.jsx (re-fetch on language change)
-6. Add `?lang` handling to `server.js` — include or strip `_zh` fields from response accordingly
-7. Render all `_zh` fields in Drawer when `lang=zh` (name, date, location, entryStart/End, description, info, notice), fallback to English fields if `_zh` is null
+5. Render `_zh` fields in Drawer when `lang=zh` (name, date, location, entryStart/End, description, info, notice), fallback to English fields if `_zh` is null — API always returns full data, React picks the right field
 8. Smoke test: toggle to `zh` shows Chinese copy + Chinese race data; toggle to `en` shows English throughout; null `_zh` falls back gracefully
 
 **Exit criteria:** Toggle works on live deployment. Default is Chinese. English toggle works for portfolio demo. Fallback for null `_zh` fields confirmed.
@@ -294,12 +290,27 @@ automation-ecosystem/
             ├── wp-plugin/              #   WordPress plugin
             │   ├── race-hub.php        #     Registers [race_hub] shortcode, enqueues assets
             │   ├── src/
+            │   │   ├── App.jsx         #     Root — fetch, filter state, grid + drawer
+            │   │   ├── main.jsx        #     React entry point
+            │   │   ├── index.css       #     Tailwind + design system tokens
+            │   │   ├── components/
+            │   │   │   ├── Badge.jsx
+            │   │   │   ├── Drawer.jsx
+            │   │   │   ├── FilterBar.jsx
+            │   │   │   ├── Header.jsx
+            │   │   │   ├── RaceCard.jsx
+            │   │   │   └── SkeletonCard.jsx
+            │   │   ├── hooks/
+            │   │   │   └── useLang.js  #     Reads/writes localStorage, exposes [lang, setLang]
             │   │   ├── locales/
             │   │   │   ├── en.js       #     English UI strings
             │   │   │   └── zh.js       #     Chinese UI strings (simplified)
-            │   │   └── hooks/
-            │   │       └── useLang.js  #     Reads ?lang URL param, returns active locale
-            │   └── dist/              #     Vite build output (bundled React SPA)
+            │   │   └── utils/
+            │   │       ├── extractDate.js
+            │   │       ├── extractDistance.js
+            │   │       ├── extractRegion.js
+            │   │       └── status.js
+            │   └── dist/               #     Vite build output (bundled React SPA)
             ├── Dockerfile
             └── package.json
 ```

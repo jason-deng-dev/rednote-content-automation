@@ -7,13 +7,13 @@ import { getEntryStatus } from './utils/status';
 import extractDistance from './utils/extractDistance';
 import extractRegion from './utils/extractRegion';
 import extractDate from './utils/extractDate';
-
+import useLang from './hooks/useLang';
+import enText from './locales/en';
+import zhText from './locales/zh';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-// for language toggle
 export const LangContext = createContext(null);
-import useLang from '../hooks/useLang';
 
 export default function App() {
 	const [races, setRaces] = useState([]);
@@ -30,8 +30,8 @@ export default function App() {
 	const [dateTo, setDateTo] = useState('');
 	const [selectedRace, setSelectedRace] = useState(null);
 
-  // for language toggle
 	const [lang, toggleLang] = useLang();
+	const text = lang === 'en' ? enText : zhText;
 
 	useEffect(() => {
 		fetch(`${API_URL}/api/races`)
@@ -135,7 +135,6 @@ export default function App() {
 			<div className="race-hub-root min-h-screen bg-bg font-body">
 				<header className="sticky top-0 z-40 bg-surface border-b border-border">
 					<FilterBar
-						title="Japan Race Calendar"
 						search={search}
 						onSearchChange={setSearch}
 						statusFilter={statusFilter}
@@ -174,7 +173,7 @@ export default function App() {
 				<main className="max-w-7xl mx-auto px-4 py-8 md:px-6">
 					{error ? (
 						<div className="py-24 text-center space-y-2">
-							<p className="font-headline text-[13px] uppercase tracking-widest text-muted">Unable to load races</p>
+							<p className="font-headline text-[13px] uppercase tracking-widest text-muted">{text.error_loading}</p>
 							<p className="text-[13px] text-disabled">{error}</p>
 						</div>
 					) : loading ? (
@@ -186,7 +185,7 @@ export default function App() {
 					) : filtered.length === 0 ? (
 						<div className="py-24 text-center">
 							<p className="font-headline text-[13px] uppercase tracking-widest text-muted">
-								No races match your filters
+								{text.no_results}
 							</p>
 						</div>
 					) : (

@@ -1,240 +1,300 @@
-import { useState, useContext } from 'react'
-import { LangContext } from '../App'
-
+import { useState, useContext } from 'react';
+import { LangContext } from '../App';
+import enText from '../locales/en';
+import zhText from '../locales/zh';
 
 const REGIONS = [
-  'Hokkaido / Tohoku',
-  'Kanto / Fuji',
-  'Chubu / Hokuriku',
-  'Kansai',
-  'Chugoku / Shikoku',
-  'Kyushu / Okinawa',
-]
+	'Hokkaido / Tohoku',
+	'Kanto / Fuji',
+	'Chubu / Hokuriku',
+	'Kansai',
+	'Chugoku / Shikoku',
+	'Kyushu / Okinawa',
+];
 
 export default function FilterBar({
-  title,
-  search, onSearchChange,
-  statusFilter, onStatusChange,
-  regionFilter, onRegionChange,
-  distanceCategory, onDistanceCategoryChange,
-  distanceExact, onDistanceExactChange,
-  distanceMin, onDistanceMinChange,
-  distanceMax, onDistanceMaxChange,
-  dateFrom, onDateFromChange,
-  dateTo, onDateToChange,
-  count,
-  activeFilters, onRemoveFilter, onClearAll,
+	search,
+	onSearchChange,
+	statusFilter,
+	onStatusChange,
+	regionFilter,
+	onRegionChange,
+	distanceCategory,
+	onDistanceCategoryChange,
+	distanceExact,
+	onDistanceExactChange,
+	distanceMin,
+	onDistanceMinChange,
+	distanceMax,
+	onDistanceMaxChange,
+	dateFrom,
+	onDateFromChange,
+	dateTo,
+	onDateToChange,
+	count,
+	activeFilters,
+	onRemoveFilter,
+	onClearAll,
 }) {
-  const [lang, toggleLang] = useContext(LangContext)
+	const [lang, toggleLang] = useContext(LangContext);
+	const [expanded, setExpanded] = useState(false);
+	const text = lang === 'en' ? enText : zhText;
 
-  const [expanded, setExpanded] = useState(false)
+	return (
+		<div className="w-full">
+			<div className="max-w-7xl mx-auto px-4 md:px-6">
+				{/* Mobile title */}
+				<div className="pt-4 md:hidden text-center">
+					<span className="font-headline font-black text-[18px] uppercase tracking-tight text-ink leading-none">
+						{text.site_title}
+					</span>
+				</div>
 
-  return (
-    <div className="w-full">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+				{/* Primary row */}
+				<div className="flex items-center gap-4 py-4">
+					{/* Brand — desktop only */}
+					<div className="shrink-0 w-55 pr-4 border-r border-border hidden md:block">
+						<span className="font-headline font-black text-[18px] uppercase tracking-tight text-ink leading-none">
+							{text.site_title}
+						</span>
+					</div>
 
-        {/* Mobile title */}
-        {title && (
-          <div className="pt-4 md:hidden text-center">
-            <span className="font-headline font-black text-[18px] uppercase tracking-tight text-ink leading-none">{title}</span>
-          </div>
-        )}
+					{/* Search */}
+					<div className="relative flex-grow max-w-md">
+						<span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted text-[18px]">
+							search
+						</span>
+						<input
+							type="text"
+							value={search}
+							onChange={(e) => onSearchChange(e.target.value)}
+							placeholder={text.search_placeholder}
+							className="w-full border border-border bg-transparent py-2.5 pl-10 pr-4 font-body text-[13px] text-ink placeholder:text-disabled focus:border-ink focus:outline-none rounded-none transition-colors"
+						/>
+					</div>
 
-        {/* Primary row */}
-        <div className="flex items-center gap-4 py-4">
+					{/* Status — always visible */}
+					<div className="relative w-37.5 hidden md:block">
+						<label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted z-10">
+							{text.status_label}
+						</label>
+						<select
+							value={statusFilter}
+							onChange={(e) => onStatusChange(e.target.value)}
+							className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
+						>
+							<option value="all">{text.status_all}</option>
+							<option value="open">{text.status_open}</option>
+							<option value="closing-soon">{text.status_closing_soon}</option>
+							<option value="closed">{text.status_closed}</option>
+						</select>
+					</div>
 
-          {/* Brand — desktop only */}
-          {title && (
-            <div className="shrink-0 pr-4 border-r border-border hidden md:block">
-              <span className="font-headline font-black text-[18px] uppercase tracking-tight text-ink leading-none">{title}</span>
-            </div>
-          )}
+					{/* More filters toggle */}
+					<button
+						onClick={() => setExpanded((v) => !v)}
+						className={`flex items-center gap-1.5 border px-3 py-2.5 transition-colors ${expanded ? 'border-ink text-ink' : 'border-border text-muted hover:border-muted hover:text-ink'}`}
+					>
+						<span className="material-symbols-outlined text-[16px]">tune</span>
+						{activeFilters.filter((f) => f.id !== 'search' && f.id !== 'status').length > 0 && (
+							<span className="w-1.5 h-1.5 bg-accent rounded-full" />
+						)}
+					</button>
 
-          {/* Search */}
-          <div className="relative flex-grow max-w-md">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted text-[18px]">search</span>
-            <input
-              type="text"
-              value={search}
-              onChange={e => onSearchChange(e.target.value)}
-              placeholder="SEARCH BY NAME OR CITY..."
-              className="w-full border border-border bg-transparent py-2.5 pl-10 pr-4 font-body text-[13px] text-ink placeholder:text-disabled focus:border-ink focus:outline-none rounded-none transition-colors"
-            />
-          </div>
+					{/* Count + Lang toggle */}
+					<div className="flex items-center gap-3 ml-auto shrink-0">
+						<span className="font-body text-[13px] font-semibold uppercase tracking-[0.05em] text-muted min-w-22.5 text-right">
+							{count} {count === 1 ? text.race_singular : text.race_plural}
+						</span>
+						<div className="flex border border-border">
+							<button
+								onClick={() => lang !== 'en' && toggleLang()}
+								className={`px-2.5 py-1.5 font-headline font-bold text-[10px] uppercase tracking-widest transition-colors ${lang === 'en' ? 'bg-ink text-surface' : 'text-muted hover:text-ink'}`}
+							>
+								EN
+							</button>
+							<button
+								onClick={() => lang !== 'zh' && toggleLang()}
+								className={`px-2.5 py-1.5 font-headline font-bold text-[10px] uppercase tracking-widest border-l border-border transition-colors ${lang === 'zh' ? 'bg-ink text-surface' : 'text-muted hover:text-ink'}`}
+							>
+								中文
+							</button>
+						</div>
+					</div>
+				</div>
 
-          {/* Status — always visible */}
-          <div className="relative min-w-[130px] hidden md:block">
-            <label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted z-10">Status</label>
-            <select
-              value={statusFilter}
-              onChange={e => onStatusChange(e.target.value)}
-              className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
-            >
-              <option value="all">All</option>
-              <option value="open">Open</option>
-              <option value="closing-soon">Closing Soon</option>
-              <option value="closed">Closed</option>
-            </select>
-          </div>
+				{/* Expanded filters — animated accordion */}
+				<div
+					className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+				>
+					<div className="overflow-hidden">
+						<div className="border-t border-border py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
+							{/* Status — visible here on mobile too */}
+							<div className="relative md:hidden">
+								<label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted z-10">
+									{text.status_label}
+								</label>
+								<select
+									value={statusFilter}
+									onChange={(e) => onStatusChange(e.target.value)}
+									className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
+								>
+									<option value="all">{text.status_all}</option>
+									<option value="open">{text.status_open}</option>
+									<option value="closing-soon">{text.status_closing_soon}</option>
+									<option value="closed">{text.status_closed}</option>
+								</select>
+							</div>
 
-          {/* More filters toggle */}
-          <button
-            onClick={() => setExpanded(v => !v)}
-            className={`flex items-center gap-1.5 border px-3 py-2.5 font-body text-[11px] uppercase tracking-[0.1em] transition-colors ${expanded ? 'border-ink text-ink' : 'border-border text-muted hover:border-muted hover:text-ink'}`}
-          >
-            <span className="material-symbols-outlined text-[16px]">tune</span>
-            <span className="hidden sm:inline">Filters</span>
-            {activeFilters.filter(f => f.id !== 'search' && f.id !== 'status').length > 0 && (
-              <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-            )}
-          </button>
+							{/* Region */}
+							<div className="relative">
+								<label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted z-10">
+									{text.region_label}
+								</label>
+								<select
+									value={regionFilter}
+									onChange={(e) => onRegionChange(e.target.value)}
+									className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
+								>
+									<option value="all">{text.region_all}</option>
+									{REGIONS.map((r) => (
+										<option key={r} value={r}>
+											{r}
+										</option>
+									))}
+								</select>
+							</div>
 
-          {/* Count */}
-          <span className="font-body text-[13px] font-semibold uppercase tracking-[0.05em] text-muted shrink-0 ml-auto">
-            {count} {count === 1 ? 'Race' : 'Races'}
-          </span>
-        </div>
+							{/* Distance category */}
+							<div className="relative">
+								<label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted z-10">
+									{text.distance_label}
+								</label>
+								<select
+									value={distanceCategory}
+									onChange={(e) => onDistanceCategoryChange(e.target.value)}
+									className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
+								>
+									<option value="all">{text.distance_all}</option>
+									<option value="10k">{text.distance_10k}</option>
+									<option value="half">{text.distance_half}</option>
+									<option value="full">{text.distance_full}</option>
+									<option value="ultra">{text.distance_ultra}</option>
+									<option value="specify-distance">{text.distance_specify}</option>
+									<option value="specify-range">{text.distance_specify_range}</option>
+								</select>
 
-        {/* Expanded filters — animated accordion */}
-        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-          <div className="overflow-hidden">
-          <div className="border-t border-border py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-5">
+								{distanceCategory === 'specify-distance' && (
+									<div className="popover-animate absolute top-full left-0 right-0 z-20 mt-1 border border-border bg-surface p-3">
+										<label className="block font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted mb-2">
+											{text.distance_exact_label}
+										</label>
+										<input
+											type="number"
+											min="0"
+											step="0.1"
+											value={distanceExact}
+											onChange={(e) => onDistanceExactChange(e.target.value)}
+											placeholder="e.g. 42.195"
+											className="w-full border border-border bg-transparent py-2 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
+										/>
+									</div>
+								)}
 
-            {/* Status — visible here on mobile too */}
-            <div className="relative md:hidden">
-              <label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted z-10">Status</label>
-              <select
-                value={statusFilter}
-                onChange={e => onStatusChange(e.target.value)}
-                className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
-              >
-                <option value="all">All</option>
-                <option value="open">Open</option>
-                <option value="closing-soon">Closing Soon</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
+								{distanceCategory === 'specify-range' && (
+									<div className="popover-animate absolute top-full left-0 right-0 z-20 mt-1 border border-border bg-surface p-3 flex gap-2">
+										<div className="flex-1">
+											<label className="block font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted mb-2">
+												{text.distance_min_label}
+											</label>
+											<input
+												type="number"
+												min="0"
+												step="0.1"
+												value={distanceMin}
+												onChange={(e) => onDistanceMinChange(e.target.value)}
+												placeholder="0"
+												className="w-full border border-border bg-transparent py-2 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
+											/>
+										</div>
+										<div className="flex-1">
+											<label className="block font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted mb-2">
+												{text.distance_max_label}
+											</label>
+											<input
+												type="number"
+												min="0"
+												step="0.1"
+												value={distanceMax}
+												onChange={(e) => onDistanceMaxChange(e.target.value)}
+												placeholder="∞"
+												className="w-full border border-border bg-transparent py-2 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
+											/>
+										</div>
+									</div>
+								)}
+							</div>
 
-            {/* Region */}
-            <div className="relative">
-              <label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted z-10">Region</label>
-              <select
-                value={regionFilter}
-                onChange={e => onRegionChange(e.target.value)}
-                className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
-              >
-                <option value="all">All Regions</option>
-                {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-            </div>
+							{/* Date from */}
+							<div className="relative">
+								<label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted z-10">
+									{text.date_from_label}
+								</label>
+								<input
+									type="date"
+									value={dateFrom}
+									onChange={(e) => onDateFromChange(e.target.value)}
+									className="w-full border border-border bg-transparent py-2.5 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
+								/>
+							</div>
 
-            {/* Distance category */}
-            <div className="relative">
-              <label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted z-10">Distance</label>
-              <select
-                value={distanceCategory}
-                onChange={e => onDistanceCategoryChange(e.target.value)}
-                className="w-full border border-border bg-transparent py-2.5 pl-3 pr-8 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none appearance-none transition-colors"
-              >
-                <option value="all">All Distances</option>
-                <option value="10k">10K</option>
-                <option value="half">Half Marathon</option>
-                <option value="full">Full Marathon</option>
-                <option value="ultra">Ultra</option>
-                <option value="specify-distance">Specify Distance...</option>
-                <option value="specify-range">Specify Range...</option>
-              </select>
+							{/* Date to */}
+							<div className="relative">
+								<label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[11px] font-bold uppercase tracking-[0.15em] text-muted z-10">
+									{text.date_to_label}
+								</label>
+								<input
+									type="date"
+									value={dateTo}
+									onChange={(e) => onDateToChange(e.target.value)}
+									className="w-full border border-border bg-transparent py-2.5 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
 
-              {distanceCategory === 'specify-distance' && (
-                <div className="popover-animate absolute top-full left-0 right-0 z-20 mt-1 border border-border bg-surface p-3">
-                  <label className="block font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted mb-2">Exact km</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={distanceExact}
-                    onChange={e => onDistanceExactChange(e.target.value)}
-                    placeholder="e.g. 42.195"
-                    className="w-full border border-border bg-transparent py-2 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
-                  />
-                </div>
-              )}
-
-              {distanceCategory === 'specify-range' && (
-                <div className="popover-animate absolute top-full left-0 right-0 z-20 mt-1 border border-border bg-surface p-3 flex gap-2">
-                  <div className="flex-1">
-                    <label className="block font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted mb-2">Min km</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={distanceMin}
-                      onChange={e => onDistanceMinChange(e.target.value)}
-                      placeholder="0"
-                      className="w-full border border-border bg-transparent py-2 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted mb-2">Max km</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={distanceMax}
-                      onChange={e => onDistanceMaxChange(e.target.value)}
-                      placeholder="∞"
-                      className="w-full border border-border bg-transparent py-2 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Date from */}
-            <div className="relative">
-              <label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted z-10">From</label>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={e => onDateFromChange(e.target.value)}
-                className="w-full border border-border bg-transparent py-2.5 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
-              />
-            </div>
-
-            {/* Date to */}
-            <div className="relative">
-              <label className="absolute -top-2 left-2 bg-surface px-1 font-headline text-[9px] font-bold uppercase tracking-[0.15em] text-muted z-10">To</label>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={e => onDateToChange(e.target.value)}
-                className="w-full border border-border bg-transparent py-2.5 px-3 font-body text-[13px] text-ink focus:border-ink focus:outline-none rounded-none transition-colors"
-              />
-            </div>
-
-          </div>
-          </div>
-        </div>
-
-        {/* Active filter chips */}
-        {activeFilters.length > 0 && (
-          <div className="pb-3 flex flex-wrap items-center gap-2">
-            <span className="font-headline text-[10px] font-extrabold uppercase tracking-[0.12em] text-muted">Active:</span>
-            {activeFilters.map(f => (
-              <div key={f.id} className="chip-animate flex items-center border border-border bg-bg px-2 py-1 hover:border-muted transition-colors">
-                <span className="font-body text-[11px] font-medium uppercase tracking-[0.08em] text-ink">{f.label}</span>
-                <button onClick={() => onRemoveFilter(f.id)} className="ml-2 text-muted hover:text-ink transition-colors leading-none">
-                  <span className="material-symbols-outlined text-[14px]">close</span>
-                </button>
-              </div>
-            ))}
-            <button onClick={onClearAll} className="ml-1 font-body text-[10px] font-bold uppercase tracking-[0.1em] text-muted underline underline-offset-4 hover:text-ink transition-colors">
-              Clear All
-            </button>
-          </div>
-        )}
-
-      </div>
-    </div>
-  )
+				{/* Active filter chips */}
+				{activeFilters.length > 0 && (
+					<div className="pb-3 flex flex-wrap items-center gap-2">
+						<span className="font-headline text-[10px] font-extrabold uppercase tracking-[0.12em] text-muted">
+							{text.active_filters_label}
+						</span>
+						{activeFilters.map((f) => (
+							<div
+								key={f.id}
+								className="chip-animate flex items-center border border-border bg-bg px-2 py-1 hover:border-muted transition-colors"
+							>
+								<span className="font-body text-[11px] font-medium uppercase tracking-[0.08em] text-ink">
+									{f.label}
+								</span>
+								<button
+									onClick={() => onRemoveFilter(f.id)}
+									className="ml-2 text-muted hover:text-ink transition-colors leading-none"
+								>
+									<span className="material-symbols-outlined text-[14px]">close</span>
+								</button>
+							</div>
+						))}
+						<button
+							onClick={onClearAll}
+							className="ml-1 font-body text-[10px] font-bold uppercase tracking-[0.1em] text-muted underline underline-offset-4 hover:text-ink transition-colors"
+						>
+							{text.clear_all}
+						</button>
+					</div>
+				)}
+			</div>
+		</div>
+	);
 }
