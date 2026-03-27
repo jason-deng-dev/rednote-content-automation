@@ -98,10 +98,11 @@ export default function App() {
 	]);
 
 	const activeFilters = useMemo(() => {
+		const statusLabel = { open: text.status_open, 'closing-soon': text.status_closing_soon, closed: text.status_closed };
 		const filters = [];
 		if (search) filters.push({ id: 'search', label: `"${search}"` });
-		if (statusFilter !== 'all') filters.push({ id: 'status', label: `Status: ${statusFilter}` });
-		if (regionFilter !== 'all') filters.push({ id: 'region', label: `Region: ${regionFilter}` });
+		if (statusFilter !== 'all') filters.push({ id: 'status', label: `${text.chip_status}: ${statusLabel[statusFilter]}` });
+		if (regionFilter !== 'all') filters.push({ id: 'region', label: `${text.chip_region}: ${regionFilter}` });
 		if (distanceCategory !== 'all') {
 			const label =
 				distanceCategory === 'specify-distance'
@@ -109,12 +110,12 @@ export default function App() {
 					: distanceCategory === 'specify-range'
 						? `${distanceMin || 0}–${distanceMax || '∞'}km`
 						: distanceCategory.toUpperCase();
-			filters.push({ id: 'distance', label: `Dist: ${label}` });
+			filters.push({ id: 'distance', label: `${text.chip_distance}: ${label}` });
 		}
-		if (dateFrom) filters.push({ id: 'dateFrom', label: `From: ${dateFrom}` });
-		if (dateTo) filters.push({ id: 'dateTo', label: `To: ${dateTo}` });
+		if (dateFrom) filters.push({ id: 'dateFrom', label: `${text.chip_from}: ${dateFrom}` });
+		if (dateTo) filters.push({ id: 'dateTo', label: `${text.chip_to}: ${dateTo}` });
 		return filters;
-	}, [search, statusFilter, regionFilter, distanceCategory, distanceExact, distanceMin, distanceMax, dateFrom, dateTo]);
+	}, [search, statusFilter, regionFilter, distanceCategory, distanceExact, distanceMin, distanceMax, dateFrom, dateTo, lang]);
 
 	function removeFilter(id) {
 		if (id === 'search') setSearch('');

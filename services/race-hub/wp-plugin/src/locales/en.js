@@ -30,6 +30,11 @@ const enText = {
   date_to_label: 'To',
   active_filters_label: 'Active:',
   clear_all: 'Clear All',
+  chip_status: 'Status',
+  chip_region: 'Region',
+  chip_distance: 'Dist',
+  chip_from: 'From',
+  chip_to: 'To',
 
   // Drawer
   drawer_date: 'Date',

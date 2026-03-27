@@ -30,6 +30,11 @@ const zhText = {
   date_to_label: '结束日期',
   active_filters_label: '已筛选：',
   clear_all: '清除全部',
+  chip_status: '状态',
+  chip_region: '地区',
+  chip_distance: '距离',
+  chip_from: '从',
+  chip_to: '至',
 
   // Drawer
   drawer_date: '日期',
