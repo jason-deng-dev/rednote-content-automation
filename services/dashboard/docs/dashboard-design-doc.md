@@ -55,8 +55,6 @@ A unified monitoring dashboard gives a single place to check the health of all t
 - Posts generated per day
 - Posts published successfully vs. failed
 - Post type distribution (race / training / nutrition / wearable)
-- Claude API error rate (429s, 5xx, timeout)
-- XHS publish failure rate and failure reasons
 
 ---
 
@@ -208,8 +206,6 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 - Posts published successfully vs. failed
 - Post type distribution (race / training / nutrition / wearable)
 - Last run timestamp + status
-- Claude API error rate (429s, 5xx, timeout)
-- XHS publish failure rate and failure reasons
 
 ### 8.5 Post Archive Viewer
 
