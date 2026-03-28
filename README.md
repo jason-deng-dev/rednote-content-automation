@@ -22,9 +22,9 @@ All five services run on a single AWS Lightsail VPS managed by one `docker-compo
 
 ## Architecture
 
-```
 ![Ecosystem Architecture](docs/architecture/ecosystem/image.png)
 
+```
 ┌──────────────────────────────── AWS Lightsail VPS ──────────────────────────────────────┐
 │                                                                                         │
 │  [scraper]        [race-hub]        [xhs]              [rakuten]                        │
