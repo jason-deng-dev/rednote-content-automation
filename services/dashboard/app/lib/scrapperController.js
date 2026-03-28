@@ -48,6 +48,21 @@ export function getTotalRaces() {
 	return races.length;
 }
 
+// time until next scheduled scrape (Sunday 02:00 CST = UTC+8)
+export function getNextScrape() {
+	const now = new Date();
+	const nowCst = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+	const daysUntilSunday = (7 - nowCst.getUTCDay()) % 7 || 7;
+	const next = new Date(nowCst);
+	next.setUTCDate(nowCst.getUTCDate() + daysUntilSunday);
+	next.setUTCHours(2, 0, 0, 0);
+	const ms = next - nowCst;
+	const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+	const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+	const mins = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+	return days > 0 ? `${days}d ${hours}h ${mins}m` : hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+}
+
 // data freshness — age of races.json
 export function getDataFreshness() {
 	const stat = fs.statSync(path.join(dataDir, "scraper/races.json"));

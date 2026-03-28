@@ -16,12 +16,12 @@ export default function SideNav({ dict }) {
           {dict.navTitle}
         </span>
       </div>
-      <div className="flex flex-col gap-1 p-3 flex-1">
+      <div className="flex flex-col gap-2 p-3 flex-1">
         {links.map(({ href, label }) => (
           <Link
             key={href}
             href={href}
-            className="px-3 py-2 text-xs font-medium tracking-wide transition-colors"
+            className="px-3 py-3 text-sm font-medium tracking-wide transition-colors"
             style={{color: '#888888'}}
             onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#222222'; e.currentTarget.style.color = '#EDEDED'; }}
             onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = '#888888'; }}

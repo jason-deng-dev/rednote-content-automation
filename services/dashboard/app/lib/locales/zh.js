@@ -60,6 +60,7 @@ export default {
 	scraperPipeline: "赛事爬虫 · 运行状态",
 	totalRaces: "赛事总数",
 	lastScraped: "本次爬取",
+	nextScrape: "下次爬取",
 	dataFreshness: "数据新鲜度",
 	belowThreshold: "低于阈值",
 };

@@ -60,6 +60,7 @@ export default {
 	scraperPipeline: "Race Scraper",
 	totalRaces: "Total Races",
 	lastScraped: "Last Scraped",
+	nextScrape: "Next Scrape",
 	dataFreshness: "Data Freshness",
 	belowThreshold: "below threshold",
 };
