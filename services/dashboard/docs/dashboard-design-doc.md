@@ -160,7 +160,8 @@ The home page shows one card per pipeline side by side, full height. Each card s
 - **Post type distribution** — count per type (Race, Training, Nutrition & Supplement, Wearable)
 - **API tokens (lifetime)** — input + output token totals
 - **Auth banner** — shown only when last run failed at auth stage; includes Login button
-- **Action triggers** (to be added): manual trigger, preview, re-auth flow
+- **Action triggers** (to be added): manual trigger, preview
+- **Re-auth** — no dedicated trigger needed; Login button appears automatically in the auth banner when `authStatus === 'failed'`
 
 ### 7.2 Race Scraper Pipeline Card ✅
 

@@ -10,7 +10,7 @@
   - [x] Create `app/lib/locales/en.js` and `app/lib/locales/zh.js`
   - [x] Read `NEXT_PUBLIC_LANG` env var to select locale at render time
   - [x] Replace all hardcoded UI strings with vocab file references
-  - [ ] Verify Chinese strings display correctly
+  - [x] Verify Chinese strings display correctly
 
 ---
 
@@ -41,7 +41,7 @@
   - [ ] Home card triggers
     - [ ] Manual trigger: `POST /api/xhs/trigger` — post type dropdown + "Run now" button
     - [ ] Preview: `POST /api/xhs/preview` — post type dropdown + "Preview" button, display returned JSON
-    - [ ] Re-auth: `POST /api/xhs/login` + `GET /api/xhs/login/stream` — SSE screenshot stream as `<img>` for QR scan, close on `{ type: 'done' }`
+    - [ ] Re-auth: `POST /api/xhs/login` + `GET /api/xhs/login/stream` — triggered by auth banner Login button (shown automatically when authStatus === 'failed'); SSE screenshot stream as `<img>` for QR scan, close on `{ type: 'done' }`
 
 ---
 
