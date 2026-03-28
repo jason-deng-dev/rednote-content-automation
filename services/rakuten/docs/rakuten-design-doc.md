@@ -495,6 +495,7 @@ TranslatePress translates on first view, caches in WordPress DB
 |rakutenAPI.js|🔧 Partial|Keyword search + genre search working; ranking not yet implemented|
 |normalizeItems.js|🔧 Partial|Exists as inline helper, needs extraction to module|
 |genres.js|🔧 Partial|Structure exists, some genre IDs missing|
+|config.js|🔧 In Progress|Per-category margin %, shipping estimate, JPY→CNY rate — being built now|
 |db/store.js|❌ Not started|PostgreSQL permanent product store|
 |pricing.js|❌ Not started|Formula defined, not implemented|
 |woocommerce.js|❌ Not started|WooCommerce REST API integration|
@@ -614,5 +615,5 @@ automation-ecosystem/rakuten/
 │   │   └── schema.sql            # Table definitions
 │   └── config/
 │       ├── genres.js             # Rakuten genre ID map (exists, partial)
-│       └── pricing_config.js     # Per-category margin + shipping config (new)
+│       └── config.js     # Default per-category config (margin %, shipping, JPY→CNY rate, fetch count) — runtime values read from shared_volume/rakuten/config.json
 ```

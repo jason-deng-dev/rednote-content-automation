@@ -3,7 +3,7 @@ import { generatePost } from './generator.js';
 import { publishPost, checkAuth } from './publisher.js';
 import fs from 'fs';
 function startScheduler() {
-	fs.watch('./config.json', setupAllDailyCrons);
+	fs.watch(`${process.env.DATA_DIR}/xhs/config.json`, setupAllDailyCrons);
 
 	// Daily posts according to config.json
 	setupAllDailyCrons();
@@ -13,7 +13,7 @@ function startScheduler() {
 		'0 0 1 * *',
 		() => {
 			try {
-				fs.writeFileSync('data/post_history.json', JSON.stringify([], null, 2));
+				fs.writeFileSync(`${process.env.DATA_DIR}/xhs/post_history.json`, JSON.stringify([], null, 2));
 				console.log('post_history.json reset successful');
 			} catch (err) {
 				console.error(`post_history.json reset failed`);
@@ -35,7 +35,7 @@ function setupAllDailyCrons() {
 	// clear existing cron jobs
 	dailyCronJobs.forEach((job) => job.stop());
 	dailyCronJobs = [];
-	const config = Object.entries(JSON.parse(fs.readFileSync('./config.json', 'utf-8')));
+	const config = Object.entries(JSON.parse(fs.readFileSync(`${process.env.DATA_DIR}/xhs/config.json`, 'utf-8')));
 	for (const day of config) {
 		const dayOfWeek = day[0];
 		for (const post of day[1]) {

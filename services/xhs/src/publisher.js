@@ -2,12 +2,12 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 
 async function publishPost({ title, hook, contents, cta, description, hashtags, comments }) {
-	if (!fs.existsSync('auth.json')) {
+	if (!fs.existsSync(`${process.env.DATA_DIR}/xhs/auth.json`)) {
 		console.error('auth.json not found — run refresh-auth.bat to log in first');
 		return false;
 	}
 	const browser = await chromium.launch({ headless: false });
-	const context = await browser.newContext({ storageState: 'auth.json' });
+	const context = await browser.newContext({ storageState: `${process.env.DATA_DIR}/xhs/auth.json` });
 	const page = await context.newPage();
 
 	console.log('Starting post publish...');
@@ -83,12 +83,12 @@ async function publishPost({ title, hook, contents, cta, description, hashtags, 
 }
 
 async function checkAuth() {
-	if (!fs.existsSync('auth.json')) {
+	if (!fs.existsSync(`${process.env.DATA_DIR}/xhs/auth.json`)) {
 		console.error('auth.json not found — run refresh-auth.bat to log in first');
 		return false;
 	}
 	const browser = await chromium.launch({ headless: false });
-	const context = await browser.newContext({ storageState: 'auth.json' });
+	const context = await browser.newContext({ storageState: `${process.env.DATA_DIR}/xhs/auth.json` });
 	const page = await context.newPage();
 
 	try {

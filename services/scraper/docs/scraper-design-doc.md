@@ -162,7 +162,7 @@ Read by Dashboard to show scraper health and last run time.
 |---|---|---|
 |Core scraping logic|✅ Done|`scraper.js` ported to `services/scraper/`|
 |Scraper container (standalone)|🔧 In progress|scraper.js ported; Dockerfile + package.json + cron wiring still needed|
-|races.json|🔧 Partial|Exists in xhs/data/, data stale — will be regenerated|
+|races.json|🔧 Partial|Will be written to shared_volume/scraper/ — stale copy in xhs/data/ kept only for local XHS testing|
 |run_log.json|❌ Not started|New — add structured logging to scraper|
 |Deploy|❌ Not started|—|
 

@@ -11,8 +11,8 @@ const defaultClient = new Anthropic({
 });
 
 // if file exists, postHistoryRaw = file content, empty otherwise
-const postHistoryRaw = fs.existsSync('data/post_history.json')
-	? fs.readFileSync('data/post_history.json', 'utf-8').trim()
+const postHistoryRaw = fs.existsSync(`${process.env.DATA_DIR}/xhs/post_history.json`)
+	? fs.readFileSync(`${process.env.DATA_DIR}/xhs/post_history.json`, 'utf-8').trim()
 	: '';
 const defaultPostedRaces = postHistoryRaw ? JSON.parse(postHistoryRaw) : [];
 
@@ -23,7 +23,7 @@ async function generatePost(
 		postedRaces = defaultPostedRaces,
 		client = defaultClient,
 		prompts = defaultPrompts,
-		writeHistory = (races) => fs.writeFileSync('data/post_history.json', JSON.stringify(races, null, 2)),
+		writeHistory = (races) => fs.writeFileSync(`${process.env.DATA_DIR}/xhs/post_history.json`, JSON.stringify(races, null, 2)),
 	} = {},
 ) {
 	const systemPrompt = prompts.systemPrompt;

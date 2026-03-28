@@ -1,17 +1,21 @@
-
+x
 - [x] Setup
   - [x] Initialize package.json
   - [x] Write .env.example (Rakuten API key, PostgreSQL credentials, WooCommerce credentials)
   - [x] Write .dockerignore
   - [x] Write .gitignore
 
-- [ ] Rakuten API integration (`server/services/rakutenAPI.js`)
+- [x] Rakuten API integration (`server/services/rakutenAPI.js`)
   - [x] Get products by keyword
   - [x] Get products by genre
-  - [ ] getRanking(genreId, count) — fetch top-ranked products per genre via Ranking API
+  - [x] getRanking(genreId, count) — fetch top-ranked products per genre via Ranking API
 
-- [ ] Product normalization (`server/services/normalizeItems.js`)
-  - [ ] normalizeItem(rawItem) — map Rakuten API fields to internal product schema
+- [x] Product normalization (`server/services/normalizeItems.js`)
+  - [x] normalizeItem(rawItem) — map Rakuten API fields to internal product schema (built into rakutenAPI.js)
+
+- [ ] Config (`server/config/`)
+  - [ ] `config.js` — per-category margin %, shipping estimate, JPY→CNY rate, fetch count, search fill threshold
+  - [ ] Fill in missing genre IDs in `genres.js`
 
 - [ ] Pricing (`server/services/pricing.js`)
   - [ ] calculatePrice(product, category) — apply margin formula per design doc Section 4.3
@@ -46,5 +50,16 @@
   - [ ] Fetch top-ranked products per category via Ranking API
   - [ ] Re-scrape upsert — skip unchanged, update if price changed, insert if new URL
   - [ ] Write run_log.json and product_stats.json to shared volume after each run
+
+- [ ] Shared volume output
+  - [ ] Write `rakuten/run_log.json` after each pipeline run (operation, category, products fetched/pushed, failures)
+  - [ ] Write `rakuten/product_stats.json` after each run (total cached, total pushed, per-category breakdown)
+  - [ ] Write `rakuten/import_log.json` per product WooCommerce push attempt and outcome
+  - [ ] Read `rakuten/config.json` at runtime — per-category margin %, shipping estimate, JPY→CNY rate, fetch count, search fill threshold
+
+- [ ] Dashboard integration (Express :3002 — internal only)
+  - [ ] POST /trigger — fetch more products (category + count)
+  - [ ] POST /retry — retry failed WooCommerce imports
+  - [ ] Pipeline state written to shared volume for dashboard health card (idle | running | failed)
 
 - [ ] Deploy to AWS Lightsail

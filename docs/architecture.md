@@ -112,6 +112,11 @@ All five containers run on a single AWS Lightsail VPS, managed by one `docker-co
 
 ## 5. Shared Volume — Data Flow
 
+**Local dev:** `shared_volume/` at repo root. Set `DATA_DIR=../../shared_volume` in each service's `.env`.
+**Production (Docker):** mounted at `/data` inside each container. Set `DATA_DIR=/data` in each service's environment.
+
+
+
 The shared volume is the communication bus between all containers. Pipelines write their state (logs, output data) to it. The dashboard reads state from it and writes config back. Pipelines watch their config files and adjust behaviour at runtime without restarting.
 
 | File | Written by | Read by | Contains |

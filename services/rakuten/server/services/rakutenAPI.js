@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { sportsApparelGenres } from './genres.js';
+import { sportsApparelGenres } from '../config/genres.js';
 
 export const getProductsByKeyword = async (
 	keyword,

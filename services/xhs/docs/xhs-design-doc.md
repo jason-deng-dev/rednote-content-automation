@@ -996,23 +996,23 @@ services/xhs/
     │   ├── context-builder.test.js
     │   └── generator.test.js
     ├── data/                               # Committed for local dev and cross-device testing
-    │   ├── races.json                      #   Race data (used by generator locally; at runtime read from shared volume)
-    │   ├── post_history.json               #   Race name dedup tracker (empty {} to start)
-    │   └── post_archive/                   #   Archive of generated posts
+    │   └── races.json                      #   Race data (used by generator locally; at runtime read from shared volume)
     ├── docs/
     │   ├── xhs-design-doc.md
     │   └── xhs-checklist.md
     ├── Dockerfile
     ├── .dockerignore
-    ├── .env.example                        # Only ANTHROPIC_API_KEY needed for local testing
+    ├── .env.example                        # ANTHROPIC_API_KEY + DATA_DIR
     └── package.json
 ```
 
-**Local testing note:** Clone the repo, `cd services/xhs`, `npm install`, copy `.env.example` to `.env` and fill in `ANTHROPIC_API_KEY`. Run `node scripts/test-gen.js` to test post generation. `data/races.json` is committed so generation works without running the scraper first.
+**Local testing note:** Clone the repo, `cd services/xhs`, `npm install`, copy `.env.example` to `.env`, fill in `ANTHROPIC_API_KEY`, and set `DATA_DIR=../../shared_volume`. Run `node scripts/test-gen.js` to test post generation. `data/races.json` is committed so generation works without running the scraper first.
+
+**Shared volume — local dev:** `shared_volume/` at repo root, set `DATA_DIR=../../shared_volume` in `.env`.
 
 **Shared volume (runtime only — not in repo):**
 ```
-/data/                                      # Docker shared volume mount point
+/data/                                      # Docker shared volume mount point (local dev: shared_volume/ at repo root)
     ├── scraper/
     │   ├── races.json                      # Written by Scraper container — XHS reads from here at runtime
     │   └── run_log.json                    # Written by Scraper container
