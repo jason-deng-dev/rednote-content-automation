@@ -55,7 +55,6 @@ A unified monitoring dashboard gives a single place to check the health of all t
 - Posts generated per day
 - Posts published successfully vs. failed
 - Post type distribution (race / training / nutrition / wearable)
-- Prompt generation quality score (TBD — format: did the response parse correctly, was JSON valid, did it hit required fields)
 - Claude API error rate (429s, 5xx, timeout)
 - XHS publish failure rate and failure reasons
 
@@ -308,7 +307,6 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 
 ## 11. Open Questions
 
-- How is prompt quality scored? (Parse success alone, or semantic review?)
 - Does the Claude-assisted fix mode run automatically on failure, or on-demand?
 - Should the dashboard send alerts (email, Telegram) when a pipeline fails, or is checking it manually sufficient?
 
@@ -449,7 +447,7 @@ The dashboard invokes XHS scripts via `docker exec` in production. Locally, it c
 
 | Action | Local | Production |
 |---|---|---|
-| Manual post | `node ../../services/xhs/scripts/run-manualPost.js <type>` | `docker exec xhs node scripts/run-manualPost.js <type>` |
+| Manual p  ost | `node ../../services/xhs/scripts/run-manualPost.js <type>` | `docker exec xhs node scripts/run-manualPost.js <type>` |
 | Preview | `node ../../services/xhs/scripts/run-preview.js <type>` | `docker exec xhs node scripts/run-preview.js <type>` |
 | Re-auth | `node ../../services/xhs/scripts/xhs-login.js` | `docker exec xhs node scripts/xhs-login.js` |
 
@@ -483,5 +481,4 @@ Post type is passed as a positional argument (`process.argv[2]`). Preview mode r
 ## 14. Next Steps
 
 - Implement per-pipeline structured logging as a prerequisite (logs need consistent format for the dashboard to parse)
-- Define prompt quality scoring criteria based on observed generator output
 - Build dashboard after all three pipelines are deployed to Lightsail
