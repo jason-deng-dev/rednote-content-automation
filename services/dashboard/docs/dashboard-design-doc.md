@@ -149,7 +149,7 @@ Keys are numeric day indices matching JavaScript's `Date.getDay()` — `0` = Sun
 
 The home page shows one card per pipeline side by side, full height. Each card surfaces the most critical info at a glance and exposes action buttons — operator never needs to leave the home page for routine operations. Detail pages exist for bulk data (run history tables, races viewer, post archive).
 
-### 7.1 XHS Pipeline Card ✅
+### 7.1 XHS Pipeline Card 
 
 - **Current run state** — color-coded: running (green) / failed (red) / idle (yellow)
 - **Last run** — timestamp in CST
@@ -163,7 +163,7 @@ The home page shows one card per pipeline side by side, full height. Each card s
 - **Action triggers** (to be added): manual trigger, preview
 - **Re-auth** — no dedicated trigger needed; Login button appears automatically in the auth banner when `authStatus === 'failed'`
 
-### 7.2 Race Scraper Pipeline Card ✅
+### 7.2 Race Scraper Pipeline Card 
 
 - **Current run state** — color-coded: running / failed / idle
 - **Last run** — timestamp in CST
@@ -317,20 +317,43 @@ Home card metrics and triggers are in section 7.2. This section covers the detai
 
 All endpoints are implemented as Next.js Route Handlers in `app/api/`. They read from / write to the shared Docker volume unless noted. No database.
 
+### XHS
+
 | Method | Path | Description |
 |---|---|---|
 | `GET` | `/api/xhs/schedule` | Read `xhs/config.json` — returns per-day post schedule |
 | `POST` | `/api/xhs/schedule` | Write `xhs/config.json` — scheduler picks up changes at runtime |
 | `GET` | `/api/xhs/run-history` | Read `xhs/run_log.json` — full post run history |
 | `GET` | `/api/xhs/post-archive` | Read `xhs/post_archive/` — published post archive |
-| `GET` | `/api/xhs/auth-status` | Derive XHS session status from `xhs/auth.json` mtime |
-| `POST` | `/api/xhs/trigger` | Spawn manual XHS run — accepts `{ type }` body; runs `run-manualPost.js <type>` via docker exec |
+| `POST` | `/api/xhs/trigger` | Spawn manual XHS run — accepts `{ type }` body; runs `run-manualPost.js <type>` via docker exec (non-blocking) |
 | `POST` | `/api/xhs/preview` | Generate post without publishing — runs `run-preview.js <type>` via docker exec, captures stdout, returns parsed post JSON |
 | `GET` | `/api/xhs/logs/stream` | SSE — streams XHS process stdout in real time |
 | `POST` | `/api/xhs/login` | Spawn `xhs-login.js` via docker exec, begin screenshot polling |
 | `GET` | `/api/xhs/login/stream` | SSE — streams screenshots from login browser for QR code display |
-| `GET` | `/api/pipeline-state` | Read `xhs/pipeline_state.json` and `scraper/pipeline_state.json` — returns `{ xhs: "idle|running|failed", scraper: "idle|running|failed" }` |
-| `POST` | `/api/scraper/trigger` | Spawn manual scraper run via `docker exec` |
+
+### Scraper
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/scraper/run-history` | Read `scraper/run_log.json` — full scrape run history |
+| `POST` | `/api/scraper/trigger` | Spawn manual scraper run via docker exec (non-blocking) |
+
+### Rakuten
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/rakuten/stats` | Read `rakuten/product_stats.json` — catalog size, WC push count, per-category breakdown |
+| `GET` | `/api/rakuten/import-log` | Read `rakuten/import_log.json` — per-product WC push attempts |
+| `GET` | `/api/rakuten/config` | Read `rakuten/config.json` — pricing config |
+| `POST` | `/api/rakuten/config` | Write `rakuten/config.json` — update margins, exchange rate, thresholds |
+| `POST` | `/api/rakuten/trigger` | Fetch more products — accepts `{ category, count }`; calls Rakuten :3002 |
+| `POST` | `/api/rakuten/retry` | Retry failed WooCommerce imports — calls Rakuten :3002 |
+
+### Shared
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/pipeline-state` | Read all pipeline state files — returns `{ xhs, scraper }` each `"idle\|running\|failed"` |
 
 ### Shared File Schemas
 
