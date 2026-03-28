@@ -995,8 +995,6 @@ services/xhs/
     │   │   └── post_history.json           # Fixture for dedup tests
     │   ├── context-builder.test.js
     │   └── generator.test.js
-    ├── data/                               # Committed for local dev and cross-device testing
-    │   └── races.json                      #   Race data (used by generator locally; at runtime read from shared volume)
     ├── docs/
     │   ├── xhs-design-doc.md
     │   └── xhs-checklist.md
@@ -1006,7 +1004,7 @@ services/xhs/
     └── package.json
 ```
 
-**Local testing note:** Clone the repo, `cd services/xhs`, `npm install`, copy `.env.example` to `.env`, fill in `ANTHROPIC_API_KEY`, and set `DATA_DIR=../../shared_volume`. Run `node scripts/test-gen.js` to test post generation. `data/races.json` is committed so generation works without running the scraper first.
+**Local testing note:** Clone the repo, `cd services/xhs`, `npm install`, copy `.env.example` to `.env`, fill in `ANTHROPIC_API_KEY`, and set `DATA_DIR=../../shared_volume`. Run `node scripts/test-gen.js` to test post generation. Race data is read from `shared_volume/scraper/races.json` — ensure the scraper has run at least once, or seed that file manually.
 
 **Shared volume — local dev:** `shared_volume/` at repo root, set `DATA_DIR=../../shared_volume` in `.env`.
 

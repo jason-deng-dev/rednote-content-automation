@@ -1,0 +1,50 @@
+{
+  "2026-03-28T03:25:52.149Z": {
+    "type": "race",
+    "outcome": "failed",
+    "errorStage": "auth",
+    "errorMsg": "XHS authentication failed",
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "2026-03-28T03:25:52.150Z": {
+    "type": "nutritionSupplement",
+    "outcome": "failed",
+    "errorStage": "auth",
+    "errorMsg": "XHS authentication failed",
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "2026-03-28T03:25:52.151Z": {
+    "type": "race",
+    "outcome": "failed",
+    "errorStage": "auth",
+    "errorMsg": "XHS authentication failed",
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "2026-03-28T03:25:52.152Z": {
+    "type": "race",
+    "outcome": "failed",
+    "errorStage": "auth",
+    "errorMsg": "XHS authentication failed",
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "2026-03-28T03:25:52.153Z": {
+    "type": "training",
+    "outcome": "failed",
+    "errorStage": "auth",
+    "errorMsg": "XHS authentication failed",
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "2026-03-28T03:25:52.154Z": {
+    "type": "wearable",
+    "outcome": "failed",
+    "errorStage": "auth",
+    "errorMsg": "XHS authentication failed",
+    "input_tokens": 0,
+    "output_tokens": 0
+  }
+}
