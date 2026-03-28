@@ -37,7 +37,7 @@ A unified monitoring dashboard gives a single place to check the health of all t
 ### All Pipelines
 - Last run timestamp
 - Last run status (success / failure / partial)
-- Success rate over last 7 / 30 days
+- Success rate over last 30 days
 - Error count by error type
 - Current pipeline state (idle / running / failed)
 
@@ -53,7 +53,6 @@ A unified monitoring dashboard gives a single place to check the health of all t
 
 ### XHS Pipeline
 - Posts generated per day
-- Posts published successfully vs. failed
 - Post type distribution (race / training / nutrition / wearable)
 
 ---
@@ -202,8 +201,6 @@ The home page shows one card per pipeline. Each card surfaces the most critical 
 
 ### 8.4 Key Metrics
 
-- Posts published today / this week
-- Posts published successfully vs. failed
 - Post type distribution (race / training / nutrition / wearable)
 - Last run timestamp + status
 
@@ -390,7 +387,7 @@ Five Docker containers, all on the same AWS Lightsail VPS, managed by a single `
 │    │   races.json ←            run_log.json ←          run_log.json ←     │             │
 │    │   run_log.json ←          pipeline_state.json ←   product_stats.json←│             │
 │    │   pipeline_state.json ←   post_archive/ ←         import_log.json ←  │             │
-│    │   config.json →           post_history.json ←     config.json →      │             │
+│    │                           post_history.json ←     config.json →      │             │
 │    │                           auth.json ←                                 │             │
 │    │                           config.json →                               │             │
 │    │                                                                      │             │
