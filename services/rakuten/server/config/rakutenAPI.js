@@ -55,8 +55,30 @@ export const getProductsByGenresId = async (
 	}
 };
 
-// getProductsByGenresId(568476, 1, 'standard')
-
+export const getProductsByRankingGenre = async (
+	genreId,
+	count,
+) => {
+	const itemSearchEndpoint = `https://openapi.rakuten.co.jp/ichibaranking/api/IchibaItem/Ranking/20220601?format=json&genreId=${genreId}&hits=${count}&applicationId=${process.env.RAKUTEN_APP_ID}`
+	
+	try {
+		const res = await fetch(itemSearchEndpoint, {
+			headers: {
+				Referer: process.env.RAKUTEN_REFERRER,
+				Origin: process.env.RAKUTEN_REFERRER,
+				accessKey: process.env.RAKUTEN_ACCESS_KEY,
+			},
+		});
+		console.log(res)
+		const resJson = await res.json();
+		const items = resJson.Items;
+		const normalizedItem = normalizeItems(items)
+		
+		return normalizedItem;
+	} catch (err) {
+		console.log(err)
+	}
+};
 
 function normalizeItems(items) {
 	return items.map(
@@ -225,13 +247,3 @@ function mockAPICall() {
 }
 
 
-// ===== 演示用代码 =====
-
-// 从 genres.js 获取运动太阳镜的乐天类别ID
-const sunglassId = sportsApparelGenres['Sports Sunglasses']
-
-// 演示1：按关键词搜索商品（实时调用乐天API）
-console.log(await getProductsByKeyword('running shoes', 1, 'standard'))
-
-// 演示2：按类别ID从乐天API实时抓取商品数据
-// console.log(await getProductsByGenresId(sunglassId, 1, 'standard'))
