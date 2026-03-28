@@ -17,6 +17,7 @@ export const getProductsByKeyword = async (
 				accessKey: process.env.RAKUTEN_ACCESS_KEY,
 			},
 		});
+		console.log(res)
 		const resJson = await res.json();
 		const items = resJson.Items;
 		// const items = mockAPICall();
@@ -43,10 +44,11 @@ export const getProductsByGenresId = async (
 				accessKey: process.env.RAKUTEN_ACCESS_KEY,
 			},
 		});
+		console.log(res)
 		const resJson = await res.json();
 		const items = resJson.Items;
 		const normalizedItem = normalizeItems(items)
-		console.log(normalizedItem)
+		
 		return normalizedItem;
 	} catch (err) {
 		console.log(err)
@@ -232,4 +234,4 @@ const sunglassId = sportsApparelGenres['Sports Sunglasses']
 console.log(await getProductsByKeyword('running shoes', 1, 'standard'))
 
 // 演示2：按类别ID从乐天API实时抓取商品数据
-console.log(await getProductsByGenresId(sunglassId, 1, 'standard'))
+// console.log(await getProductsByGenresId(sunglassId, 1, 'standard'))
